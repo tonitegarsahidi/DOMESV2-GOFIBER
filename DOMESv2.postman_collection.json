@@ -1,0 +1,334 @@
+{
+	"info": {
+		"name": "DOMESv2 API",
+		"description": "Collection API untuk DOMESv2 Backend\n\n## Cara Penggunaan\n1. Import file ini ke Postman\n2. Atur `base_url` di Collection Variables sesuai environment kamu\n3. Login via endpoint **Login** → token akan auto-set ke variable `{{token}}`\n4. Akses endpoint **Get Profile (Me)** langsung tanpa isi token manual\n\nUntuk environment `local`, field `captcha` bisa dikosongkan.",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "domesv2"
+	},
+	"item": [
+		{
+			"name": "Public",
+			"description": "Endpoint yang tidak memerlukan autentikasi",
+			"item": [
+				{
+					"name": "🏠 Welcome",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/",
+							"host": ["{{base_url}}"],
+							"path": [""]
+						},
+						"description": "Informasi dasar API"
+					},
+					"response": [
+						{
+							"name": "Success",
+							"status": "OK",
+							"code": 200,
+							"header": [
+								{ "key": "Content-Type", "value": "application/json" }
+							],
+							"body": "{\n  \"success\": true,\n  \"message\": \"Hello Domes v2\",\n  \"version\": \"1.0.0\",\n  \"docs\": \"/api/health-check\"\n}"
+						}
+					]
+				},
+				{
+					"name": "❤️ Health Check",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/health-check",
+							"host": ["{{base_url}}"],
+							"path": ["api", "health-check"]
+						},
+						"description": "Pengecekan status database, redis, dan aplikasi"
+					},
+					"response": [
+						{
+							"name": "Healthy",
+							"status": "OK",
+							"code": 200,
+							"header": [
+								{ "key": "Content-Type", "value": "application/json" }
+							],
+							"body": "{\n  \"success\": true,\n  \"message\": \"All systems operational\",\n  \"data\": {\n    \"status\": \"healthy\",\n    \"timestamp\": \"2024-06-23T10:00:00+07:00\",\n    \"services\": {\n      \"application\": \"healthy\",\n      \"database\": \"healthy\",\n      \"redis\": \"disabled\"\n    }\n  }\n}"
+						},
+						{
+							"name": "Unhealthy",
+							"status": "Service Unavailable",
+							"code": 503,
+							"header": [
+								{ "key": "Content-Type", "value": "application/json" }
+							],
+							"body": "{\n  \"status\": \"unhealthy\",\n  \"timestamp\": \"2024-06-23T10:00:00+07:00\",\n  \"services\": {\n    \"application\": \"healthy\",\n    \"database\": \"unhealthy\",\n    \"database_error\": \"database not initialized\",\n    \"redis\": \"disabled\"\n  }\n}"
+						}
+					]
+				},
+				{
+					"name": "📝 Register",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"first_name\": \"Erlangga\",\n  \"last_name\": \"Agustino\",\n  \"position\": \"Administrator\",\n  \"organization\": \"UNITED NATIONS\",\n  \"phone_number\": \"+628123456789\",\n  \"email\": \"erlangga@un.org\",\n  \"password\": \"password123\",\n  \"confirm_password\": \"password123\",\n  \"captcha\": \"\"\n}",
+							"options": { "raw": { "language": "json" } }
+						},
+						"url": {
+							"raw": "{{base_url}}/api/auth/register",
+							"host": ["{{base_url}}"],
+							"path": ["api", "auth", "register"]
+						},
+						"description": "Mendaftarkan user baru.\n\n**Validasi:**\n- `first_name`: required\n- `last_name`: required\n- `email`: required, format email\n- `password`: min 6 karakter\n- `confirm_password`: harus sama dengan password\n- `captcha`: required jika RECAPTCHA_ENABLED=true dan ENV!=local"
+					},
+					"response": [
+						{
+							"name": "Created",
+							"status": "Created",
+							"code": 201,
+							"header": [
+								{ "key": "Content-Type", "value": "application/json" }
+							],
+							"body": "{\n  \"success\": true,\n  \"message\": \"User registered successfully\",\n  \"data\": {\n    \"token\": \"eyJhbGciOiJIUzI1NiIs...\",\n    \"user\": {\n      \"id\": 1,\n      \"username\": \"erlangga\",\n      \"name\": \"Erlangga Agustino\",\n      \"first_name\": \"Erlangga\",\n      \"last_name\": \"Agustino\",\n      \"email\": \"erlangga@un.org\",\n      \"type\": null,\n      \"position\": \"Administrator\",\n      \"organization\": \"UNITED NATIONS\",\n      \"phone_number\": \"+628123456789\",\n      \"created_at\": \"2024-06-23T10:00:00+07:00\",\n      \"updated_at\": \"2024-06-23T10:00:00+07:00\"\n    }\n  }\n}"
+						},
+						{
+							"name": "Conflict - Email Already Exists",
+							"status": "Conflict",
+							"code": 409,
+							"header": [
+								{ "key": "Content-Type", "value": "application/json" }
+							],
+							"body": "{\n  \"success\": false,\n  \"message\": \"User with this email already exists\",\n  \"error\": \"USER_ALREADY_EXISTS\",\n  \"details\": \"User with this email already exists: USER_ALREADY_EXISTS\"\n}"
+						},
+						{
+							"name": "Validation Error",
+							"status": "Unprocessable Entity",
+							"code": 422,
+							"header": [
+								{ "key": "Content-Type", "value": "application/json" }
+							],
+							"body": "{\n  \"success\": false,\n  \"message\": \"Passwords do not match\",\n  \"error\": \"VALIDATION_FAILED\",\n  \"details\": \"Passwords do not match: VALIDATION_FAILED\"\n}"
+						}
+					]
+				},
+				{
+					"name": "🔑 Login",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"var jsonData = pm.response.json();",
+									"if (jsonData.success && jsonData.data && jsonData.data.token) {",
+									"    pm.collectionVariables.set('token', jsonData.data.token);",
+									"    console.log('Token saved to collection variables');",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"email\": \"erlangga@un.org\",\n  \"password\": \"password123\",\n  \"captcha\": \"\"\n}",
+							"options": { "raw": { "language": "json" } }
+						},
+						"url": {
+							"raw": "{{base_url}}/api/auth/login",
+							"host": ["{{base_url}}"],
+							"path": ["api", "auth", "login"]
+						},
+						"description": "Login user dan mendapatkan JWT token.\n\n**Test Script:** Token akan auto-ke set ke variable `{{token}}` untuk digunakan di endpoint lain."
+					},
+					"response": [
+						{
+							"name": "Success",
+							"status": "OK",
+							"code": 200,
+							"header": [
+								{ "key": "Content-Type", "value": "application/json" }
+							],
+							"body": "{\n  \"success\": true,\n  \"message\": \"Login successful\",\n  \"data\": {\n    \"token\": \"eyJhbGciOiJIUzI1NiIs...\",\n    \"user\": {\n      \"id\": 1,\n      \"username\": \"erlangga\",\n      \"name\": \"Erlangga Agustino\",\n      \"first_name\": \"Erlangga\",\n      \"last_name\": \"Agustino\",\n      \"email\": \"erlangga@un.org\",\n      \"type\": \"admin\",\n      \"position\": \"Administrator\",\n      \"organization\": \"UNITED NATIONS\",\n      \"phone_number\": \"+628123456789\",\n      \"created_at\": \"2024-06-23T10:00:00+07:00\",\n      \"updated_at\": \"2024-06-23T10:00:00+07:00\"\n    }\n  }\n}"
+						},
+						{
+							"name": "Invalid Credentials",
+							"status": "Unauthorized",
+							"code": 401,
+							"header": [
+								{ "key": "Content-Type", "value": "application/json" }
+							],
+							"body": "{\n  \"success\": false,\n  \"message\": \"Invalid credentials\",\n  \"error\": \"INVALID_CREDENTIALS\",\n  \"details\": \"Invalid credentials: INVALID_CREDENTIALS\"\n}"
+						},
+						{
+							"name": "User Not Found",
+							"status": "Not Found",
+							"code": 404,
+							"header": [
+								{ "key": "Content-Type", "value": "application/json" }
+							],
+							"body": "{\n  \"success\": false,\n  \"message\": \"User not found\",\n  \"error\": \"USER_NOT_FOUND\",\n  \"details\": \"User not found: USER_NOT_FOUND\"\n}"
+						}
+					]
+				},
+				{
+					"name": "🔐 Forgot Password",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"email\": \"erlangga@un.org\",\n  \"captcha\": \"\"\n}",
+							"options": { "raw": { "language": "json" } }
+						},
+						"url": {
+							"raw": "{{base_url}}/api/auth/forgot-password",
+							"host": ["{{base_url}}"],
+							"path": ["api", "auth", "forgot-password"]
+						},
+						"description": "Mengirim email reset password.\n\n> Endpoint selalu return 200 meskipun email tidak ditemukan (mencegah email enumeration)."
+					},
+					"response": [
+						{
+							"name": "Success",
+							"status": "OK",
+							"code": 200,
+							"header": [
+								{ "key": "Content-Type", "value": "application/json" }
+							],
+							"body": "{\n  \"success\": true,\n  \"message\": \"If the email exists, a reset link has been sent\",\n  \"data\": null\n}"
+						}
+					]
+				},
+				{
+					"name": "🔄 Reset Password",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"token\": \"a1b2c3d4e5f67890a1b2c3d4e5f67890a1b2c3d4e5f67890a1b2c3d4e5f67890\",\n  \"password\": \"newpassword123\",\n  \"confirm_password\": \"newpassword123\"\n}",
+							"options": { "raw": { "language": "json" } }
+						},
+						"url": {
+							"raw": "{{base_url}}/api/auth/reset-password",
+							"host": ["{{base_url}}"],
+							"path": ["api", "auth", "reset-password"]
+						},
+						"description": "Mereset password menggunakan token dari email.\n\n**Validasi:**\n- `token`: required, token 64 hex chars dari email\n- `password`: min 6 karakter\n- `confirm_password`: harus sama dengan password"
+					},
+					"response": [
+						{
+							"name": "Success",
+							"status": "OK",
+							"code": 200,
+							"header": [
+								{ "key": "Content-Type", "value": "application/json" }
+							],
+							"body": "{\n  \"success\": true,\n  \"message\": \"Password has been reset successfully\",\n  \"data\": null\n}"
+						},
+						{
+							"name": "Invalid / Expired Token",
+							"status": "Bad Request",
+							"code": 400,
+							"header": [
+								{ "key": "Content-Type", "value": "application/json" }
+							],
+							"body": "{\n  \"success\": false,\n  \"message\": \"Invalid or expired reset token\",\n  \"error\": \"INVALID_RESET_TOKEN\",\n  \"details\": \"Invalid or expired reset token: INVALID_RESET_TOKEN\"\n}"
+						}
+					]
+				}
+			]
+		},
+		{
+			"name": "Protected",
+			"description": "Endpoint yang memerlukan JWT token. Token akan otomatis terisi setelah login via endpoint Login.",
+			"item": [
+				{
+					"name": "👤 Get Profile (Me)",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/user/me",
+							"host": ["{{base_url}}"],
+							"path": ["api", "user", "me"]
+						},
+						"description": "Mendapatkan profil user yang sedang login.\n\n**Header:** `Authorization: Bearer {{token}}`\n\n> Token auto-terisi dari response endpoint Login."
+					},
+					"response": [
+						{
+							"name": "Success",
+							"status": "OK",
+							"code": 200,
+							"header": [
+								{ "key": "Content-Type", "value": "application/json" }
+							],
+							"body": "{\n  \"success\": true,\n  \"message\": \"User profile retrieved successfully\",\n  \"data\": {\n    \"id\": 1,\n    \"username\": \"erlangga\",\n    \"name\": \"Erlangga Agustino\",\n    \"first_name\": \"Erlangga\",\n    \"last_name\": \"Agustino\",\n    \"email\": \"erlangga@un.org\",\n    \"type\": \"admin\",\n    \"position\": \"Administrator\",\n    \"organization\": \"UNITED NATIONS\",\n    \"phone_number\": \"+628123456789\"\n  }\n}"
+						},
+						{
+							"name": "Unauthorized - No Token",
+							"status": "Unauthorized",
+							"code": 401,
+							"header": [
+								{ "key": "Content-Type", "value": "application/json" }
+							],
+							"body": "{\n  \"success\": false,\n  \"message\": \"Missing authorization header\",\n  \"error\": \"TOKEN_MISSING\",\n  \"details\": \"Missing authorization header: TOKEN_MISSING\"\n}"
+						},
+						{
+							"name": "Unauthorized - Invalid Token",
+							"status": "Unauthorized",
+							"code": 401,
+							"header": [
+								{ "key": "Content-Type", "value": "application/json" }
+							],
+							"body": "{\n  \"success\": false,\n  \"message\": \"Invalid or expired token\",\n  \"error\": \"INVALID_TOKEN\",\n  \"details\": \"Invalid or expired token: INVALID_TOKEN\"\n}"
+						}
+					]
+				}
+			]
+		}
+	],
+	"variable": [
+		{
+			"key": "base_url",
+			"value": "http://localhost:3000",
+			"type": "string"
+		},
+		{
+			"key": "token",
+			"value": "",
+			"type": "string"
+		}
+	]
+}
