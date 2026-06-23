@@ -35,7 +35,8 @@ func main() {
 
 	// Initialize Fiber app
 	app := fiber.New(fiber.Config{
-		AppName: "DOMESv2 API",
+		AppName:      "DOMESv2 API",
+		ErrorHandler: middleware.GlobalErrorHandler,
 	})
 
 	// Global middlewares
