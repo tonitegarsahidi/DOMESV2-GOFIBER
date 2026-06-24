@@ -87,36 +87,25 @@ curl http://localhost:3000/api/health-check
 
 ## 📡 API Endpoints
 
-| Method | Endpoint | Description | Auth Required |
-|--------|----------|-------------|---------------|
-| GET | `/` | Welcome & API info | ❌ |
-| GET | `/api/health-check` | Cek status semua sistem | ❌ |
-| POST | `/api/auth/register` | Register user baru (first_name, last_name, position, organization, phone_number, email, password) | ❌ |
-| POST | `/api/auth/login` | Login dan dapatkan JWT token | ❌ |
-| POST | `/api/auth/forgot-password` | Kirim email reset password | ❌ |
-| POST | `/api/auth/reset-password` | Reset password dengan token | ❌ |
-| GET | `/api/user/me` | Dapatkan profil user yang login | ✅ |
+Backend ini menyediakan endpoint lengkap untuk sistem manajemen dokumen PBB:
+* **Authentication & Profiles:** Registrasi, login, edit profil, ganti password, preferensi notifikasi.
+* **Admin Whitelist Settings:** Whitelist email admin.
+* **Reference Data:** Data SDGs, PBB Agencies, Sectors, Languages, Joint Programmes, dll.
+* **Public Documents & Search:** Pencarian dokumen, list dokumen, detail, related docs, tracking download.
+* **Broken Link Reports:** Pelaporan tautan rusak oleh publik dan manajemen status laporan.
+* **CMS Dashboard & Submissions:** Draft submissions wizard (Step 1-4), publishing/unpublishing dokumen.
+* **CMS User Management:** CRUD akun pengelola (admin/editor) oleh administrator.
+* **File Upload:** Upload file PDF/Word, cover dokumen, avatar user, dan validasi tautan eksternal.
 
-Dokumentasi lengkap: [API-REFERENCE.md](API-REFERENCE.md)
+Dokumentasi lengkap kontrak API: [API-REFERENCE.md](API-REFERENCE.md)
 
 ## 🗄️ Database Migration & Seeder
 
-Migration dan seeder berupa file SQL manual (tidak auto-run).
+Database migration dan seeding data referensi (seperti SDGs, Agencies, Sectors, LNOBs, dll.) kini berjalan **secara otomatis (Auto-run)** pada saat aplikasi pertama kali dijalankan. Aplikasi mendeteksi perubahan skema model dan melakukan pengisian data awal secara dinamis.
 
-### Migration
-```bash
-# Tambah kolom untuk fitur auth (first_name, last_name, position, organization, phone_number, reset token)
-mysql -u root -p domes < database/migrations/001_add_auth_fields.sql
-```
-
-### Seeder
-```bash
-# Seed data awal (admin user)
-mysql -u root -p domes < database/seeders/001_seed_users.sql
-```
-
-> **Catatan:** File migration dan seeder ada di folder `database/`.
-> Model Go sudah disesuaikan dengan struktur tabel `Users` yang ada.
+Jika Anda ingin melakukan manipulasi database manual atau melihat struktur awal:
+* File seeder dan migrasi opsional berada di folder `database/`.
+* Pastikan kredensial database di file `.env` sudah sesuai sebelum menjalankan aplikasi.
 
 ## 🌐 Deployment ke Production Server
 
