@@ -178,3 +178,64 @@ func (ctrl *CmsController) verifyAdmin(c *fiber.Ctx) error {
 	}
 	return nil
 }
+
+func (ctrl *CmsController) ListReferences(c *fiber.Ctx) error {
+	refType := c.Params("type")
+	result, err := ctrl.cmsService.ListReferences(refType)
+	if err != nil {
+		return response.Error(c, err)
+	}
+	return response.Success(c, result, "Reference list retrieved successfully")
+}
+
+func (ctrl *CmsController) CreateReference(c *fiber.Ctx) error {
+	if err := ctrl.verifyAdmin(c); err != nil {
+		return response.Error(c, err)
+	}
+
+	refType := c.Params("type")
+	var req model.ReferenceRequest
+	if err := c.BodyParser(&req); err != nil {
+		return response.BadRequest(c, "Invalid request body", "INVALID_REQUEST_BODY")
+	}
+
+	result, err := ctrl.cmsService.CreateReference(refType, &req)
+	if err != nil {
+		return response.Error(c, err)
+	}
+	return response.Created(c, result, "Reference item created successfully")
+}
+
+func (ctrl *CmsController) UpdateReference(c *fiber.Ctx) error {
+	if err := ctrl.verifyAdmin(c); err != nil {
+		return response.Error(c, err)
+	}
+
+	refType := c.Params("type")
+	code := c.Params("code")
+
+	var req model.ReferenceRequest
+	if err := c.BodyParser(&req); err != nil {
+		return response.BadRequest(c, "Invalid request body", "INVALID_REQUEST_BODY")
+	}
+
+	result, err := ctrl.cmsService.UpdateReference(refType, code, &req)
+	if err != nil {
+		return response.Error(c, err)
+	}
+	return response.Success(c, result, "Reference item updated successfully")
+}
+
+func (ctrl *CmsController) DeleteReference(c *fiber.Ctx) error {
+	if err := ctrl.verifyAdmin(c); err != nil {
+		return response.Error(c, err)
+	}
+
+	refType := c.Params("type")
+	code := c.Params("code")
+
+	if err := ctrl.cmsService.DeleteReference(refType, code); err != nil {
+		return response.Error(c, err)
+	}
+	return response.Success(c, nil, "Reference item deleted successfully")
+}

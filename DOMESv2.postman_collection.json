@@ -719,6 +719,79 @@
 					]
 				},
 				{
+					"name": "📁 CMS Reference Management",
+					"item": [
+						{
+							"name": "Get Reference List",
+							"request": {
+								"method": "GET",
+								"header": [
+									{ "key": "Authorization", "value": "Bearer {{token}}" }
+								],
+								"url": {
+									"raw": "{{base_url}}/api/cms/reference/sectors",
+									"host": ["{{base_url}}"],
+									"path": ["api", "cms", "reference", "sectors"]
+								}
+							}
+						},
+						{
+							"name": "Create Reference Item",
+							"request": {
+								"method": "POST",
+								"header": [
+									{ "key": "Authorization", "value": "Bearer {{token}}" },
+									{ "key": "Content-Type", "value": "application/json" }
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n  \"code\": \"test-sector-xyz\",\n  \"name\": \"Test Sector XYZ\"\n}",
+									"options": { "raw": { "language": "json" } }
+								},
+								"url": {
+									"raw": "{{base_url}}/api/cms/reference/sectors",
+									"host": ["{{base_url}}"],
+									"path": ["api", "cms", "reference", "sectors"]
+								}
+							}
+						},
+						{
+							"name": "Edit Reference Item",
+							"request": {
+								"method": "PUT",
+								"header": [
+									{ "key": "Authorization", "value": "Bearer {{token}}" },
+									{ "key": "Content-Type", "value": "application/json" }
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n  \"name\": \"Updated Test Sector XYZ\"\n}",
+									"options": { "raw": { "language": "json" } }
+								},
+								"url": {
+									"raw": "{{base_url}}/api/cms/reference/sectors/test-sector-xyz",
+									"host": ["{{base_url}}"],
+									"path": ["api", "cms", "reference", "sectors", "test-sector-xyz"]
+								}
+							}
+						},
+						{
+							"name": "Delete Reference Item",
+							"request": {
+								"method": "DELETE",
+								"header": [
+									{ "key": "Authorization", "value": "Bearer {{token}}" }
+								],
+								"url": {
+									"raw": "{{base_url}}/api/cms/reference/sectors/test-sector-xyz",
+									"host": ["{{base_url}}"],
+									"path": ["api", "cms", "reference", "sectors", "test-sector-xyz"]
+								}
+							}
+						}
+					]
+				},
+				{
 					"name": "👥 CMS User Management",
 					"item": [
 						{

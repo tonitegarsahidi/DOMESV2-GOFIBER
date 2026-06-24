@@ -706,6 +706,68 @@ func TestM_CmsAnalyticsSummary(t *testing.T) {
 	}
 }
 
+func TestN_CmsReferenceManagement(t *testing.T) {
+	if token == "" {
+		t.Skip("Token is empty, skipping CMS reference management tests")
+	}
+
+	// 1. GET /api/cms/reference/sectors
+	req := httptest.NewRequest("GET", "/api/cms/reference/sectors", nil)
+	req.Header.Set("Authorization", "Bearer "+token)
+	resp, err := app.Test(req)
+	if err != nil {
+		t.Fatalf("Failed to GET cms reference: %v", err)
+	}
+	if resp.StatusCode != http.StatusOK {
+		t.Errorf("Expected 200, got %d", resp.StatusCode)
+	}
+
+	// 2. POST /api/cms/reference/sectors (Create new sector)
+	sectorPayload := model.ReferenceRequest{
+		Code: "test-sector-xyz",
+		Name: "Test Sector XYZ",
+	}
+	body, _ := json.Marshal(sectorPayload)
+	req = httptest.NewRequest("POST", "/api/cms/reference/sectors", bytes.NewBuffer(body))
+	req.Header.Set("Authorization", "Bearer "+token)
+	req.Header.Set("Content-Type", "application/json")
+	resp, err = app.Test(req)
+	if err != nil {
+		t.Fatalf("Failed to POST cms reference: %v", err)
+	}
+	if resp.StatusCode != http.StatusCreated {
+		bodyBytes, _ := io.ReadAll(resp.Body)
+		t.Fatalf("Expected 201, got %d. Body: %s", resp.StatusCode, string(bodyBytes))
+	}
+
+	// 3. PUT /api/cms/reference/sectors/test-sector-xyz (Update sector)
+	updatePayload := model.ReferenceRequest{
+		Name: "Updated Test Sector XYZ",
+	}
+	body, _ = json.Marshal(updatePayload)
+	req = httptest.NewRequest("PUT", "/api/cms/reference/sectors/test-sector-xyz", bytes.NewBuffer(body))
+	req.Header.Set("Authorization", "Bearer "+token)
+	req.Header.Set("Content-Type", "application/json")
+	resp, err = app.Test(req)
+	if err != nil {
+		t.Fatalf("Failed to PUT cms reference: %v", err)
+	}
+	if resp.StatusCode != http.StatusOK {
+		t.Errorf("Expected 200, got %d", resp.StatusCode)
+	}
+
+	// 4. DELETE /api/cms/reference/sectors/test-sector-xyz (Delete sector)
+	req = httptest.NewRequest("DELETE", "/api/cms/reference/sectors/test-sector-xyz", nil)
+	req.Header.Set("Authorization", "Bearer "+token)
+	resp, err = app.Test(req)
+	if err != nil {
+		t.Fatalf("Failed to DELETE cms reference: %v", err)
+	}
+	if resp.StatusCode != http.StatusOK {
+		t.Errorf("Expected 200, got %d", resp.StatusCode)
+	}
+}
+
 func TestZ_CleanupSubmissions(t *testing.T) {
 	if token == "" || testDocID == 0 {
 		t.Skip("Skipping cleanup")

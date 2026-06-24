@@ -22,6 +22,10 @@ type CmsService interface {
 	CreateUser(req *model.CreateUserRequest) (*model.User, error)
 	UpdateUser(id uint, req *model.UpdateUserRequest) (*model.User, error)
 	DeleteUser(id uint) error
+	ListReferences(refType string) (interface{}, error)
+	CreateReference(refType string, req *model.ReferenceRequest) (interface{}, error)
+	UpdateReference(refType string, code string, req *model.ReferenceRequest) (interface{}, error)
+	DeleteReference(refType string, code string) error
 }
 
 type cmsService struct {
@@ -360,4 +364,89 @@ func (s *cmsService) DeleteUser(id uint) error {
 	}
 
 	return nil
+}
+
+func (s *cmsService) ListReferences(refType string) (interface{}, error) {
+	return s.cmsRepo.ListReferences(refType)
+}
+
+func (s *cmsService) CreateReference(refType string, req *model.ReferenceRequest) (interface{}, error) {
+	if req.Code == "" || req.Name == "" {
+		return nil, errors.NewValidationError("Code and name are required", "VALIDATION_FAILED")
+	}
+
+	var item interface{}
+	switch strings.ToLower(refType) {
+	case "agencies":
+		item = &model.Agency{Code: req.Code, Name: req.Name, LogoURL: req.LogoURL}
+	case "sdgs":
+		item = &model.Sdg{Code: req.Code, Name: req.Name, Icon: req.Icon, Color: req.Color}
+	case "sectors":
+		item = &model.Sector{Code: req.Code, Name: req.Name}
+	case "languages":
+		item = &model.Language{Code: req.Code, Name: req.Name}
+	case "joint-programmes":
+		item = &model.JointProgramme{Code: req.Code, Name: req.Name}
+	case "lnobs":
+		item = &model.Lnob{Code: req.Code, Name: req.Name}
+	case "non-un-partners":
+		item = &model.NonUnPartner{Code: req.Code, Name: req.Name}
+	case "organizations":
+		item = &model.Organization{Code: req.Code, Name: req.Name}
+	default:
+		return nil, errors.NewValidationError("Invalid reference type", "INVALID_REF_TYPE")
+	}
+
+	if err := s.cmsRepo.CreateReference(refType, item); err != nil {
+		return nil, err
+	}
+	return item, nil
+}
+
+func (s *cmsService) UpdateReference(refType string, code string, req *model.ReferenceRequest) (interface{}, error) {
+	if req.Name == "" {
+		return nil, errors.NewValidationError("Name is required", "VALIDATION_FAILED")
+	}
+
+	existing, err := s.cmsRepo.GetReferenceByCode(refType, code)
+	if err != nil {
+		return nil, err
+	}
+
+	switch v := existing.(type) {
+	case *model.Agency:
+		v.Name = req.Name
+		if req.LogoURL != "" {
+			v.LogoURL = req.LogoURL
+		}
+	case *model.Sdg:
+		v.Name = req.Name
+		if req.Icon != "" {
+			v.Icon = req.Icon
+		}
+		if req.Color != "" {
+			v.Color = req.Color
+		}
+	case *model.Sector:
+		v.Name = req.Name
+	case *model.Language:
+		v.Name = req.Name
+	case *model.JointProgramme:
+		v.Name = req.Name
+	case *model.Lnob:
+		v.Name = req.Name
+	case *model.NonUnPartner:
+		v.Name = req.Name
+	case *model.Organization:
+		v.Name = req.Name
+	}
+
+	if err := s.cmsRepo.UpdateReference(refType, code, existing); err != nil {
+		return nil, err
+	}
+	return existing, nil
+}
+
+func (s *cmsService) DeleteReference(refType string, code string) error {
+	return s.cmsRepo.DeleteReference(refType, code)
 }

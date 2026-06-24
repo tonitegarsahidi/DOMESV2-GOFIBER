@@ -70,6 +70,10 @@ API menggunakan **JWT (JSON Web Token)** untuk autentikasi.
 | POST | `/api/users` | Admin | Tambah user pengelola manual |
 | PUT | `/api/users/:id` | Admin | Edit user pengelola |
 | DELETE | `/api/users/:id` | Admin | Hapus user pengelola |
+| GET | `/api/cms/reference/:type` | User & Admin | List reference data CMS |
+| POST | `/api/cms/reference/:type` | Admin | Tambah reference data CMS |
+| PUT | `/api/cms/reference/:type/:code` | Admin | Edit reference data CMS |
+| DELETE | `/api/cms/reference/:type/:code` | Admin | Hapus reference data CMS |
 
 ---
 
@@ -325,6 +329,43 @@ Fungsi manajemen akun pengelola (CRUD) oleh Admin.
     "status": "active"
   }
   ```
+
+---
+
+### 9. CMS Reference Data Management (Protected)
+
+#### GET `/api/cms/reference/:type` (Protected)
+Mengambil daftar reference data untuk `:type` tertentu (seperti `agencies`, `sdgs`, `sectors`, `languages`, `joint-programmes`, `lnobs`, `non-un-partners`, `organizations`).
+* **Response 200:** Array objek reference.
+
+#### POST `/api/cms/reference/:type` (Protected - Admin Only)
+Menambahkan item referensi baru ke database.
+* **Request Body:**
+  ```json
+  {
+    "code": "test-sector-xyz",
+    "name": "Test Sector XYZ",
+    "logo_url": "optional-logo-url-for-agencies",
+    "icon": "optional-icon-for-sdgs",
+    "color": "optional-color-for-sdgs"
+  }
+  ```
+* **Response 201:** Objek referensi yang berhasil dibuat.
+
+#### PUT `/api/cms/reference/:type/:code` (Protected - Admin Only)
+Memperbarui informasi nama atau metadata item referensi berdasarkan kode primary key.
+* **Request Body:**
+  ```json
+  {
+    "name": "Updated Test Sector XYZ",
+    "logo_url": "updated-logo-url"
+  }
+  ```
+* **Response 200:** Objek referensi ter-update.
+
+#### DELETE `/api/cms/reference/:type/:code` (Protected - Admin Only)
+Menghapus item referensi dari database.
+* **Response 200:** Sukses menghapus referensi.
 
 ---
 

@@ -121,6 +121,12 @@ func SetupRoutes(app *fiber.App) {
 			protected.Get("/cms/dashboard", cmsController.GetDashboardStats)
 			protected.Get("/cms/activity", cmsController.GetRecentActivity)
 
+			// CMS Reference Management
+			protected.Get("/cms/reference/:type", cmsController.ListReferences)
+			protected.Post("/cms/reference/:type", cmsController.CreateReference)
+			protected.Put("/cms/reference/:type/:code", cmsController.UpdateReference)
+			protected.Delete("/cms/reference/:type/:code", cmsController.DeleteReference)
+
 			// CMS Submissions Wizard & Mgmt
 			protected.Get("/submissions", docController.ListSubmissions)
 			protected.Post("/submissions", docController.CreateSubmission)

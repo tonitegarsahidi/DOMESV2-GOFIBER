@@ -92,3 +92,11 @@ type Organization struct {
 func (Organization) TableName() string {
 	return "Organizations"
 }
+
+type ReferenceRequest struct {
+	Code    string `json:"code"`
+	Name    string `json:"name"`
+	LogoURL string `json:"logo_url,omitempty"`
+	Icon    string `json:"icon,omitempty"`
+	Color   string `json:"color,omitempty"`
+}
