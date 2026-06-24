@@ -45,11 +45,11 @@ func SetupRoutes(app *fiber.App) {
 			"success": true,
 			"message": "Hello Domes v2",
 			"version": "1.0.0",
-			"docs":    "/api/health-check",
+			"docs":    "/api/v2/health-check",
 		})
 	})
 
-	api := app.Group("/api")
+	api := app.Group("/api/v2")
 	{
 		// Health Check
 		api.Get("/health-check", healthController.Check)

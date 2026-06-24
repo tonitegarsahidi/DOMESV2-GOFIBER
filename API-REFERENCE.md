@@ -12,7 +12,7 @@ Dokumentasi lengkap API endpoints untuk DOMESv2 Backend.
 ## Authentication
 
 API menggunakan **JWT (JSON Web Token)** untuk autentikasi.
-- Token didapat dari endpoint `/api/auth/login` atau `/api/auth/register`
+- Token didapat dari endpoint `/api/v2/auth/login` atau `/api/v2/auth/register`
 - Kirim token di header: `Authorization: Bearer <token>`
 - Token berlaku 24 jam (default)
 
@@ -24,56 +24,56 @@ API menggunakan **JWT (JSON Web Token)** untuk autentikasi.
 | Method | Endpoint | Deskripsi |
 |--------|----------|-----------|
 | GET | `/` | Informasi dasar API |
-| GET | `/api/health-check` | Cek status kesehatan sistem |
-| POST | `/api/auth/register` | Pendaftaran user baru |
-| POST | `/api/auth/login` | Login user |
-| POST | `/api/auth/forgot-password` | Pengiriman email reset password |
-| POST | `/api/auth/reset-password` | Reset password dengan token |
-| GET | `/api/reference/:type` | Mengambil data referensi (agencies, sdgs, sectors, dll.) |
-| GET | `/api/documents` | List dokumen terbitan publik |
-| GET | `/api/documents/search` | Pencarian teks bebas dokumen |
-| GET | `/api/documents/:id` | Detail dokumen berdasarkan ID atau slug |
-| GET | `/api/documents/:id/related` | Rekomendasi dokumen terkait |
-| GET | `/api/documents/:id/download` | Unduh file dokumen (dan tracking download) |
-| GET | `/api/stats` | Statistik agregat platform |
-| GET | `/api/analytics/:type` | Grafik analitik publik (overview, by-sdg, dll.) |
-| POST | `/api/reports` | Mengirim laporan broken link |
+| GET | `/api/v2/health-check` | Cek status kesehatan sistem |
+| POST | `/api/v2/auth/register` | Pendaftaran user baru |
+| POST | `/api/v2/auth/login` | Login user |
+| POST | `/api/v2/auth/forgot-password` | Pengiriman email reset password |
+| POST | `/api/v2/auth/reset-password` | Reset password dengan token |
+| GET | `/api/v2/reference/:type` | Mengambil data referensi (agencies, sdgs, sectors, dll.) |
+| GET | `/api/v2/documents` | List dokumen terbitan publik |
+| GET | `/api/v2/documents/search` | Pencarian teks bebas dokumen |
+| GET | `/api/v2/documents/:id` | Detail dokumen berdasarkan ID atau slug |
+| GET | `/api/v2/documents/:id/related` | Rekomendasi dokumen terkait |
+| GET | `/api/v2/documents/:id/download` | Unduh file dokumen (dan tracking download) |
+| GET | `/api/v2/stats` | Statistik agregat platform |
+| GET | `/api/v2/analytics/:type` | Grafik analitik publik (overview, by-sdg, dll.) |
+| POST | `/api/v2/reports` | Mengirim laporan broken link |
 
 ### Protected Endpoints (Memerlukan JWT Bearer Token)
 | Method | Endpoint | Role | Deskripsi |
 |--------|----------|------|-----------|
-| GET | `/api/user/me` | User & Admin | Profil user login |
-| PUT | `/api/user/profile` | User & Admin | Edit profil diri |
-| PUT | `/api/user/password` | User & Admin | Ganti password |
-| GET | `/api/user/notifications` | User & Admin | Ambil preferensi notifikasi |
-| PUT | `/api/user/notifications` | User & Admin | Edit preferensi notifikasi |
-| GET | `/api/admin/emails` | Admin | List email whitelist admin |
-| POST | `/api/admin/emails` | Admin | Tambah email ke whitelist admin |
-| DELETE | `/api/admin/emails/:email` | Admin | Hapus email dari whitelist |
-| GET | `/api/cms/dashboard` | User & Admin | Ringkasan dashboard editor |
-| GET | `/api/cms/activity` | User & Admin | Aktivitas terbaru editor |
-| GET | `/api/submissions` | User & Admin | List dokumen pengajuan editor |
-| POST | `/api/submissions` | User & Admin | Submit final dokumen (Step 4) |
-| POST | `/api/submissions/:id/draft` | User & Admin | Simpan draf dokumen (Step 1-3) |
-| DELETE | `/api/submissions/:id` | User & Admin | Hapus dokumen pengajuan |
-| PUT | `/api/submissions/:id/publish` | User & Admin | Terbitkan dokumen ke publik |
-| PUT | `/api/submissions/:id/unpublish` | User & Admin | Tarik dokumen dari publik |
-| GET | `/api/reports` | User & Admin | List laporan broken link |
-| PUT | `/api/reports/:id/status` | User & Admin | Update status laporan link |
-| GET | `/api/analytics/summary` | User & Admin | Ringkasan analitik internal |
-| GET | `/api/analytics/top-downloads` | User & Admin | Top dokumen terunduh |
-| GET | `/api/analytics/top-views` | User & Admin | Top dokumen dilihat |
-| POST | `/api/upload` | User & Admin | Upload file dokumen/media |
-| POST | `/api/upload/url-validate` | User & Admin | Validasi URL eksternal |
-| POST | `/api/upload/avatar` | User & Admin | Upload foto profil/avatar |
-| GET | `/api/users` | Admin | List user pengelola |
-| POST | `/api/users` | Admin | Tambah user pengelola manual |
-| PUT | `/api/users/:id` | Admin | Edit user pengelola |
-| DELETE | `/api/users/:id` | Admin | Hapus user pengelola |
-| GET | `/api/cms/reference/:type` | User & Admin | List reference data CMS |
-| POST | `/api/cms/reference/:type` | Admin | Tambah reference data CMS |
-| PUT | `/api/cms/reference/:type/:code` | Admin | Edit reference data CMS |
-| DELETE | `/api/cms/reference/:type/:code` | Admin | Hapus reference data CMS |
+| GET | `/api/v2/user/me` | User & Admin | Profil user login |
+| PUT | `/api/v2/user/profile` | User & Admin | Edit profil diri |
+| PUT | `/api/v2/user/password` | User & Admin | Ganti password |
+| GET | `/api/v2/user/notifications` | User & Admin | Ambil preferensi notifikasi |
+| PUT | `/api/v2/user/notifications` | User & Admin | Edit preferensi notifikasi |
+| GET | `/api/v2/admin/emails` | Admin | List email whitelist admin |
+| POST | `/api/v2/admin/emails` | Admin | Tambah email ke whitelist admin |
+| DELETE | `/api/v2/admin/emails/:email` | Admin | Hapus email dari whitelist |
+| GET | `/api/v2/cms/dashboard` | User & Admin | Ringkasan dashboard editor |
+| GET | `/api/v2/cms/activity` | User & Admin | Aktivitas terbaru editor |
+| GET | `/api/v2/submissions` | User & Admin | List dokumen pengajuan editor |
+| POST | `/api/v2/submissions` | User & Admin | Submit final dokumen (Step 4) |
+| POST | `/api/v2/submissions/:id/draft` | User & Admin | Simpan draf dokumen (Step 1-3) |
+| DELETE | `/api/v2/submissions/:id` | User & Admin | Hapus dokumen pengajuan |
+| PUT | `/api/v2/submissions/:id/publish` | User & Admin | Terbitkan dokumen ke publik |
+| PUT | `/api/v2/submissions/:id/unpublish` | User & Admin | Tarik dokumen dari publik |
+| GET | `/api/v2/reports` | User & Admin | List laporan broken link |
+| PUT | `/api/v2/reports/:id/status` | User & Admin | Update status laporan link |
+| GET | `/api/v2/analytics/summary` | User & Admin | Ringkasan analitik internal |
+| GET | `/api/v2/analytics/top-downloads` | User & Admin | Top dokumen terunduh |
+| GET | `/api/v2/analytics/top-views` | User & Admin | Top dokumen dilihat |
+| POST | `/api/v2/upload` | User & Admin | Upload file dokumen/media |
+| POST | `/api/v2/upload/url-validate` | User & Admin | Validasi URL eksternal |
+| POST | `/api/v2/upload/avatar` | User & Admin | Upload foto profil/avatar |
+| GET | `/api/v2/users` | Admin | List user pengelola |
+| POST | `/api/v2/users` | Admin | Tambah user pengelola manual |
+| PUT | `/api/v2/users/:id` | Admin | Edit user pengelola |
+| DELETE | `/api/v2/users/:id` | Admin | Hapus user pengelola |
+| GET | `/api/v2/cms/reference/:type` | User & Admin | List reference data CMS |
+| POST | `/api/v2/cms/reference/:type` | Admin | Tambah reference data CMS |
+| PUT | `/api/v2/cms/reference/:type/:code` | Admin | Edit reference data CMS |
+| DELETE | `/api/v2/cms/reference/:type/:code` | Admin | Hapus reference data CMS |
 
 ---
 
@@ -81,7 +81,7 @@ API menggunakan **JWT (JSON Web Token)** untuk autentikasi.
 
 ### 1. Authentication & Profiles
 
-#### POST `/api/auth/register` (Public)
+#### POST `/api/v2/auth/register` (Public)
 Mendaftarkan user baru. Role diatur otomatis berdasarkan daftar whitelist admin.
 * **Request Body:**
   ```json
@@ -99,7 +99,7 @@ Mendaftarkan user baru. Role diatur otomatis berdasarkan daftar whitelist admin.
   ```
 * **Response 201:** Sukses mendaftar, mengembalikan JWT token & data user.
 
-#### POST `/api/auth/login` (Public)
+#### POST `/api/v2/auth/login` (Public)
 Login untuk mendapatkan token akses.
 * **Request Body:**
   ```json
@@ -121,11 +121,11 @@ Login untuk mendapatkan token akses.
   }
   ```
 
-#### GET `/api/user/me` (Protected)
+#### GET `/api/v2/user/me` (Protected)
 Mendapatkan data lengkap user yang sedang login beserta preferensinya.
 * **Response 200:** Mengembalikan objek user lengkap.
 
-#### PUT `/api/user/profile` (Protected)
+#### PUT `/api/v2/user/profile` (Protected)
 Mengubah nama depan, nama belakang, telepon, organisasi, atau jabatan.
 * **Request Body:**
   ```json
@@ -138,7 +138,7 @@ Mengubah nama depan, nama belakang, telepon, organisasi, atau jabatan.
   }
   ```
 
-#### PUT `/api/user/password` (Protected)
+#### PUT `/api/v2/user/password` (Protected)
 Mengganti password akun aktif.
 * **Request Body:**
   ```json
@@ -149,7 +149,7 @@ Mengganti password akun aktif.
   }
   ```
 
-#### GET & PUT `/api/user/notifications` (Protected)
+#### GET & PUT `/api/v2/user/notifications` (Protected)
 Mengambil atau mengupdate preferensi notifikasi sistem.
 * **Request Body (PUT):**
   ```json
@@ -165,25 +165,25 @@ Mengambil atau mengupdate preferensi notifikasi sistem.
 
 ### 2. Admin Whitelist Settings (Protected - Admin Only)
 
-#### GET `/api/admin/emails`
+#### GET `/api/v2/admin/emails`
 Mengambil daftar whitelist admin email.
 * **Response 200:** Array objek email whitelist.
 
-#### POST `/api/admin/emails`
+#### POST `/api/v2/admin/emails`
 Menambahkan email baru agar saat mendaftar otomatis menjadi Administrator.
 * **Request Body:**
   ```json
   { "email": "new-admin@un.org" }
   ```
 
-#### DELETE `/api/admin/emails/:email`
+#### DELETE `/api/v2/admin/emails/:email`
 Menghapus email dari daftar whitelist.
 
 ---
 
 ### 3. Reference Data (Public)
 
-#### GET `/api/reference/:type`
+#### GET `/api/v2/reference/:type`
 * Parameter `:type` yang valid: `agencies`, `sdgs`, `sectors`, `languages`, `joint-programmes`, `lnobs`, `non-un-partners`, `organizations`.
 * **Response 200:** List objek data referensi (berisi id, code, name, icon/color jika ada).
 
@@ -191,7 +191,7 @@ Menghapus email dari daftar whitelist.
 
 ### 4. Public Documents Discovery (Public)
 
-#### GET `/api/documents`
+#### GET `/api/v2/documents`
 Mendapatkan semua dokumen yang berstatus `published` dengan pagination & filter.
 * **Query Parameters:**
   * `page` (default 1)
@@ -202,39 +202,39 @@ Mendapatkan semua dokumen yang berstatus `published` dengan pagination & filter.
   * `language` (code bahasa)
   * `sort` (`newest`, `oldest`, `downloads`, `views`)
 
-#### GET `/api/documents/search`
+#### GET `/api/v2/documents/search`
 Pencarian teks bebas pada dokumen.
 * **Query Parameters:** `q` (kata kunci pencarian), `sort` (`relevance`, `newest`, dsb.)
 
-#### GET `/api/documents/:id`
-Mencari dokumen berdasarkan ID numerik atau Slug teks unik.
+#### GET `/api/v2/documents/:id`
+Mencari dokumen berdasarkan ID UUID v4 atau Slug teks unik.
 
-#### GET `/api/documents/:id/related`
+#### GET `/api/v2/documents/:id/related`
 Mendapatkan rekomendasi dokumen lain yang memiliki irisan SDG atau sektor.
 
-#### GET `/api/documents/:id/download`
+#### GET `/api/v2/documents/:id/download`
 Meningkatkan counter downloads dokumen dan mengembalikan link unduhan.
 
 ---
 
 ### 5. Broken Link Reporting (Public & Protected)
 
-#### POST `/api/reports` (Public)
+#### POST `/api/v2/reports` (Public)
 Mengajukan laporan link PDF dokumen yang rusak/404.
 * **Request Body:**
   ```json
   {
-    "document_id": 11,
+    "document_id": "7da60cbd-1334-4591-9fc7-2ef9da135014",
     "reporter_name": "John Doe",
     "reporter_email": "johndoe@example.com",
     "details": "Tautan download PDF mengarah ke halaman kosong."
   }
   ```
 
-#### GET `/api/reports` (Protected)
+#### GET `/api/v2/reports` (Protected)
 Mengambil daftar laporan yang diajukan. Query param: `status` (`all`, `pending`, `in_progress`, `resolved`).
 
-#### PUT `/api/reports/:id/status` (Protected)
+#### PUT `/api/v2/reports/:id/status` (Protected)
 Memperbarui status penanganan laporan broken link.
 * **Request Body:**
   ```json
@@ -245,10 +245,10 @@ Memperbarui status penanganan laporan broken link.
 
 ### 6. CMS & Submissions Management (Protected)
 
-#### GET `/api/cms/dashboard` & `/api/cms/activity`
+#### GET `/api/v2/cms/dashboard` & `/api/v2/cms/activity`
 Statistik performa CMS internal editor dan log aktivitas riwayat aksi terbaru.
 
-#### POST `/api/submissions/:id/draft`
+#### POST `/api/v2/submissions/:id/draft`
 Menyimpan progres langkah wizard submission (Step 1-3).
 * **Request Body:**
   ```json
@@ -262,7 +262,7 @@ Menyimpan progres langkah wizard submission (Step 1-3).
   }
   ```
 
-#### POST `/api/submissions`
+#### POST `/api/v2/submissions`
 Mengirimkan data dokumen lengkap secara final (Step 4).
 * **Request Body:**
   ```json
@@ -288,32 +288,32 @@ Mengirimkan data dokumen lengkap secara final (Step 4).
   }
   ```
 
-#### PUT `/api/submissions/:id/publish` & `/api/submissions/:id/unpublish`
+#### PUT `/api/v2/submissions/:id/publish` & `/api/v2/submissions/:id/unpublish`
 Mengubah visibilitas dokumen (memublikasikan ke portal publik atau menyembunyikan).
 
 ---
 
 ### 7. File Upload & Validation (Protected)
 
-#### POST `/api/upload`
+#### POST `/api/v2/upload`
 Mengunggah file. Menggunakan parser multipart form-data.
 * **Request Form:**
   * `file`: File media (PDF, Word, JPG, PNG)
   * `type`: `document` (untuk PDF/Word) atau `cover` (untuk image)
 * **Response 201:** `{"success": true, "url": "/uploads/random-uuid.pdf", "size": "1.2 MB"}`
 
-#### POST `/api/upload/url-validate`
+#### POST `/api/v2/upload/url-validate`
 Validasi URL eksternal apakah merespons dengan HTTP status 200 OK.
 * **Request Body:** `{ "url": "https://active-link.com/document.pdf" }`
 
-#### POST `/api/upload/avatar`
+#### POST `/api/v2/upload/avatar`
 Upload foto profil diri (avatar) user aktif. Form key: `avatar` (image).
 
 ---
 
 ### 8. CMS User Management (Protected - Admin Only)
 
-#### GET, POST, PUT, DELETE pada `/api/users`
+#### GET, POST, PUT, DELETE pada `/api/v2/users`
 Fungsi manajemen akun pengelola (CRUD) oleh Admin.
 * **Request Body (POST - Create User):**
   ```json
@@ -334,11 +334,11 @@ Fungsi manajemen akun pengelola (CRUD) oleh Admin.
 
 ### 9. CMS Reference Data Management (Protected)
 
-#### GET `/api/cms/reference/:type` (Protected)
+#### GET `/api/v2/cms/reference/:type` (Protected)
 Mengambil daftar reference data untuk `:type` tertentu (seperti `agencies`, `sdgs`, `sectors`, `languages`, `joint-programmes`, `lnobs`, `non-un-partners`, `organizations`).
 * **Response 200:** Array objek reference.
 
-#### POST `/api/cms/reference/:type` (Protected - Admin Only)
+#### POST `/api/v2/cms/reference/:type` (Protected - Admin Only)
 Menambahkan item referensi baru ke database.
 * **Request Body:**
   ```json
@@ -352,7 +352,7 @@ Menambahkan item referensi baru ke database.
   ```
 * **Response 201:** Objek referensi yang berhasil dibuat.
 
-#### PUT `/api/cms/reference/:type/:code` (Protected - Admin Only)
+#### PUT `/api/v2/cms/reference/:type/:code` (Protected - Admin Only)
 Memperbarui informasi nama atau metadata item referensi berdasarkan kode primary key.
 * **Request Body:**
   ```json
@@ -363,7 +363,7 @@ Memperbarui informasi nama atau metadata item referensi berdasarkan kode primary
   ```
 * **Response 200:** Objek referensi ter-update.
 
-#### DELETE `/api/cms/reference/:type/:code` (Protected - Admin Only)
+#### DELETE `/api/v2/cms/reference/:type/:code` (Protected - Admin Only)
 Menghapus item referensi dari database.
 * **Response 200:** Sukses menghapus referensi.
 

@@ -107,7 +107,7 @@ journalctl -u domesv2 -f
 tail -f /opt/domesv2/logs/app.log
 
 # Health check
-curl https://domesv2.yourdomain.com/api/health-check
+curl https://domesv2.yourdomain.com/api/v2/health-check
 ```
 
 ## Update Aplikasi

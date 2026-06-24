@@ -8,12 +8,12 @@ Development: `http://localhost:3000`
 | Method | Endpoint | Auth | Description |
 |--------|----------|------|-------------|
 | GET | `/` | No | Welcome message & info |
-| GET | `/api/health-check` | No | System health check |
-| POST | `/api/auth/register` | No | Register user baru |
-| POST | `/api/auth/login` | No | Login dan dapatkan JWT |
-| POST | `/api/auth/forgot-password` | No | Kirim email reset password |
-| POST | `/api/auth/reset-password` | No | Reset password dengan token |
-| GET | `/api/user/me` | Yes (JWT) | Profil user yang login |
+| GET | `/api/v2/health-check` | No | System health check |
+| POST | `/api/v2/auth/register` | No | Register user baru |
+| POST | `/api/v2/auth/login` | No | Login dan dapatkan JWT |
+| POST | `/api/v2/auth/forgot-password` | No | Kirim email reset password |
+| POST | `/api/v2/auth/reset-password` | No | Reset password dengan token |
+| GET | `/api/v2/user/me` | Yes (JWT) | Profil user yang login |
 
 ---
 
@@ -27,13 +27,13 @@ Welcome endpoint dengan informasi dasar API.
   "success": true,
   "message": "Hello Domes v2",
   "version": "1.0.0",
-  "docs": "/api/health-check"
+  "docs": "/api/v2/health-check"
 }
 ```
 
 ---
 
-## GET `/api/health-check`
+## GET `/api/v2/health-check`
 
 Pengecekan status database, redis, dan aplikasi.
 
@@ -56,7 +56,7 @@ Pengecekan status database, redis, dan aplikasi.
 
 ---
 
-## POST `/api/auth/register`
+## POST `/api/v2/auth/register`
 
 Mendaftarkan user baru.
 
@@ -102,7 +102,7 @@ Mendaftarkan user baru.
 
 ---
 
-## POST `/api/auth/login`
+## POST `/api/v2/auth/login`
 
 Login dengan email dan password.
 
@@ -129,7 +129,7 @@ Login dengan email dan password.
 
 ---
 
-## POST `/api/auth/forgot-password`
+## POST `/api/v2/auth/forgot-password`
 
 Mengirim email reset password.
 
@@ -154,7 +154,7 @@ Mengirim email reset password.
 
 ---
 
-## POST `/api/auth/reset-password`
+## POST `/api/v2/auth/reset-password`
 
 Mereset password dengan token dari email.
 
@@ -178,7 +178,7 @@ Mereset password dengan token dari email.
 
 ---
 
-## GET `/api/user/me`
+## GET `/api/v2/user/me`
 
 Profil user yang login.
 

@@ -2,6 +2,7 @@ package controller
 
 import (
 	"strconv"
+	"strings"
 
 	"github.com/gofiber/fiber/v2"
 	"domesv2/internal/model"
@@ -22,7 +23,43 @@ func NewDocumentController(docService service.DocumentService) *DocumentControll
 func (ctrl *DocumentController) ListPublic(c *fiber.Ctx) error {
 	filters := make(map[string]interface{})
 
-	// Parse query params
+	if q := c.Query("q"); q != "" {
+		filters["q"] = q
+	}
+	if agencies := c.Query("agencies"); agencies != "" {
+		filters["agencies"] = agencies
+	}
+	if jointProgrammes := c.Query("jointProgrammes"); jointProgrammes != "" {
+		filters["jointProgrammes"] = jointProgrammes
+	}
+	if yearFromStr := c.Query("yearFrom"); yearFromStr != "" {
+		if val, err := strconv.Atoi(yearFromStr); err == nil {
+			filters["yearFrom"] = val
+		}
+	}
+	if yearToStr := c.Query("yearTo"); yearToStr != "" {
+		if val, err := strconv.Atoi(yearToStr); err == nil {
+			filters["yearTo"] = val
+		}
+	}
+	if langs := c.Query("langs"); langs != "" {
+		filters["langs"] = langs
+	}
+	if sdgs := c.Query("sdgs"); sdgs != "" {
+		filters["sdgs"] = sdgs
+	}
+	if sectors := c.Query("sectors"); sectors != "" {
+		filters["sectors"] = sectors
+	}
+	if lnobs := c.Query("lnobs"); lnobs != "" {
+		filters["lnobs"] = lnobs
+	}
+	if nonUnPartners := c.Query("nonUnPartners"); nonUnPartners != "" {
+		filters["nonUnPartners"] = nonUnPartners
+	}
+	if sort := c.Query("sort"); sort != "" {
+		filters["sort"] = sort
+	}
 	if pageStr := c.Query("page"); pageStr != "" {
 		if val, err := strconv.Atoi(pageStr); err == nil {
 			filters["page"] = val
@@ -31,25 +68,6 @@ func (ctrl *DocumentController) ListPublic(c *fiber.Ctx) error {
 	if limitStr := c.Query("limit"); limitStr != "" {
 		if val, err := strconv.Atoi(limitStr); err == nil {
 			filters["limit"] = val
-		}
-	}
-	filters["sort"] = c.Query("sort")
-	filters["agencies"] = c.Query("agencies")
-	filters["sdgs"] = c.Query("sdgs")
-	filters["sectors"] = c.Query("sectors")
-	filters["langs"] = c.Query("langs")
-	filters["jointProgrammes"] = c.Query("jointProgrammes")
-	filters["lnobs"] = c.Query("lnobs")
-	filters["nonUnPartners"] = c.Query("nonUnPartners")
-
-	if yfStr := c.Query("yearFrom"); yfStr != "" {
-		if val, err := strconv.Atoi(yfStr); err == nil {
-			filters["yearFrom"] = val
-		}
-	}
-	if ytStr := c.Query("yearTo"); ytStr != "" {
-		if val, err := strconv.Atoi(ytStr); err == nil {
-			filters["yearTo"] = val
 		}
 	}
 
@@ -63,28 +81,41 @@ func (ctrl *DocumentController) ListPublic(c *fiber.Ctx) error {
 
 func (ctrl *DocumentController) SearchPublic(c *fiber.Ctx) error {
 	q := c.Query("q")
-	sort := c.Query("sort", "relevance")
 	page := c.QueryInt("page", 1)
 	limit := c.QueryInt("limit", 12)
+	sort := c.Query("sort", "newest")
 
 	filters := make(map[string]interface{})
-	filters["agencies"] = c.Query("agencies")
-	filters["sdgs"] = c.Query("sdgs")
-	filters["sectors"] = c.Query("sectors")
-	filters["langs"] = c.Query("langs")
-	filters["jointProgrammes"] = c.Query("jointProgrammes")
-	filters["lnobs"] = c.Query("lnobs")
-	filters["nonUnPartners"] = c.Query("nonUnPartners")
-
-	if yfStr := c.Query("yearFrom"); yfStr != "" {
-		if val, err := strconv.Atoi(yfStr); err == nil {
+	if agencies := c.Query("agencies"); agencies != "" {
+		filters["agencies"] = agencies
+	}
+	if jointProgrammes := c.Query("jointProgrammes"); jointProgrammes != "" {
+		filters["jointProgrammes"] = jointProgrammes
+	}
+	if yearFromStr := c.Query("yearFrom"); yearFromStr != "" {
+		if val, err := strconv.Atoi(yearFromStr); err == nil {
 			filters["yearFrom"] = val
 		}
 	}
-	if ytStr := c.Query("yearTo"); ytStr != "" {
-		if val, err := strconv.Atoi(ytStr); err == nil {
+	if yearToStr := c.Query("yearTo"); yearToStr != "" {
+		if val, err := strconv.Atoi(yearToStr); err == nil {
 			filters["yearTo"] = val
 		}
+	}
+	if langs := c.Query("langs"); langs != "" {
+		filters["langs"] = langs
+	}
+	if sdgs := c.Query("sdgs"); sdgs != "" {
+		filters["sdgs"] = sdgs
+	}
+	if sectors := c.Query("sectors"); sectors != "" {
+		filters["sectors"] = sectors
+	}
+	if lnobs := c.Query("lnobs"); lnobs != "" {
+		filters["lnobs"] = lnobs
+	}
+	if nonUnPartners := c.Query("nonUnPartners"); nonUnPartners != "" {
+		filters["nonUnPartners"] = nonUnPartners
 	}
 
 	result, err := ctrl.docService.SearchPublicDocuments(q, page, limit, sort, filters)
@@ -92,8 +123,7 @@ func (ctrl *DocumentController) SearchPublic(c *fiber.Ctx) error {
 		return response.Error(c, err)
 	}
 
-	// The service already wraps the response matching search format
-	return c.Status(fiber.StatusOK).JSON(result)
+	return c.JSON(result)
 }
 
 func (ctrl *DocumentController) GetByIDOrSlug(c *fiber.Ctx) error {
@@ -105,9 +135,8 @@ func (ctrl *DocumentController) GetByIDOrSlug(c *fiber.Ctx) error {
 	var result *model.DocumentResponse
 	var err error
 
-	// Detect if idParam is int
-	if id, parseErr := strconv.Atoi(idParam); parseErr == nil {
-		result, err = ctrl.docService.GetDocumentByID(uint(id))
+	if len(idParam) == 36 && strings.Contains(idParam, "-") {
+		result, err = ctrl.docService.GetDocumentByID(idParam)
 	} else {
 		result, err = ctrl.docService.GetDocumentBySlug(idParam)
 	}
@@ -124,10 +153,9 @@ func (ctrl *DocumentController) GetRelated(c *fiber.Ctx) error {
 	var related []model.DocumentResponse
 	var err error
 
-	if id, parseErr := strconv.Atoi(idParam); parseErr == nil {
-		related, err = ctrl.docService.GetRelatedDocuments(uint(id))
+	if len(idParam) == 36 && strings.Contains(idParam, "-") {
+		related, err = ctrl.docService.GetRelatedDocuments(idParam)
 	} else {
-		// Fetch doc by slug first to get ID
 		docResp, getErr := ctrl.docService.GetDocumentBySlug(idParam)
 		if getErr != nil {
 			return response.Error(c, getErr)
@@ -147,8 +175,8 @@ func (ctrl *DocumentController) Download(c *fiber.Ctx) error {
 	var result map[string]interface{}
 	var err error
 
-	if id, parseErr := strconv.Atoi(idParam); parseErr == nil {
-		result, err = ctrl.docService.GenerateDownloadLink(uint(id))
+	if len(idParam) == 36 && strings.Contains(idParam, "-") {
+		result, err = ctrl.docService.GenerateDownloadLink(idParam)
 	} else {
 		docResp, getErr := ctrl.docService.GetDocumentBySlug(idParam)
 		if getErr != nil {
@@ -161,7 +189,7 @@ func (ctrl *DocumentController) Download(c *fiber.Ctx) error {
 		return response.Error(c, err)
 	}
 
-	return response.Success(c, result, "Download link generated")
+	return response.Success(c, result, "Download link generated successfully")
 }
 
 func (ctrl *DocumentController) GetPlatformStats(c *fiber.Ctx) error {
@@ -169,7 +197,7 @@ func (ctrl *DocumentController) GetPlatformStats(c *fiber.Ctx) error {
 	if err != nil {
 		return response.Error(c, err)
 	}
-	return response.Success(c, result, "Platform statistics retrieved successfully")
+	return response.Success(c, result, "Platform stats retrieved successfully")
 }
 
 func (ctrl *DocumentController) GetAnalyticsOverview(c *fiber.Ctx) error {
@@ -181,14 +209,14 @@ func (ctrl *DocumentController) GetAnalyticsOverview(c *fiber.Ctx) error {
 }
 
 func (ctrl *DocumentController) GetUploadsOverTime(c *fiber.Ctx) error {
-	fromYear := c.QueryInt("fromYear", 2014)
+	fromYear := c.QueryInt("fromYear", 2019)
 	toYear := c.QueryInt("toYear", 2024)
 
 	result, err := ctrl.docService.GetUploadsOverTime(fromYear, toYear)
 	if err != nil {
 		return response.Error(c, err)
 	}
-	return response.Success(c, result, "Uploads over time retrieved successfully")
+	return response.Success(c, result, "Uploads over time analytics retrieved successfully")
 }
 
 func (ctrl *DocumentController) GetBySdgAnalytics(c *fiber.Ctx) error {
@@ -196,7 +224,7 @@ func (ctrl *DocumentController) GetBySdgAnalytics(c *fiber.Ctx) error {
 	if err != nil {
 		return response.Error(c, err)
 	}
-	return response.Success(c, result, "Documents by SDG retrieved successfully")
+	return response.Success(c, result, "Analytics by SDG retrieved successfully")
 }
 
 func (ctrl *DocumentController) GetByAgencyAnalytics(c *fiber.Ctx) error {
@@ -204,7 +232,7 @@ func (ctrl *DocumentController) GetByAgencyAnalytics(c *fiber.Ctx) error {
 	if err != nil {
 		return response.Error(c, err)
 	}
-	return response.Success(c, result, "Documents by agency retrieved successfully")
+	return response.Success(c, result, "Analytics by agency retrieved successfully")
 }
 
 func (ctrl *DocumentController) GetBySectorAnalytics(c *fiber.Ctx) error {
@@ -212,7 +240,7 @@ func (ctrl *DocumentController) GetBySectorAnalytics(c *fiber.Ctx) error {
 	if err != nil {
 		return response.Error(c, err)
 	}
-	return response.Success(c, result, "Documents by sector retrieved successfully")
+	return response.Success(c, result, "Analytics by sector retrieved successfully")
 }
 
 func (ctrl *DocumentController) GetByLanguageAnalytics(c *fiber.Ctx) error {
@@ -220,22 +248,21 @@ func (ctrl *DocumentController) GetByLanguageAnalytics(c *fiber.Ctx) error {
 	if err != nil {
 		return response.Error(c, err)
 	}
-	return response.Success(c, result, "Documents by language retrieved successfully")
+	return response.Success(c, result, "Analytics by language retrieved successfully")
 }
 
-// CMS Endpoints
 func (ctrl *DocumentController) ListSubmissions(c *fiber.Ctx) error {
 	status := c.Query("status", "all")
 	search := c.Query("search")
 	page := c.QueryInt("page", 1)
-	limit := c.QueryInt("limit", 20)
+	limit := c.QueryInt("limit", 10)
 
 	result, err := ctrl.docService.ListSubmissions(status, search, page, limit)
 	if err != nil {
 		return response.Error(c, err)
 	}
 
-	return response.Success(c, result, "Submissions retrieved successfully")
+	return response.Success(c, result, "Submissions list retrieved successfully")
 }
 
 func (ctrl *DocumentController) CreateSubmission(c *fiber.Ctx) error {
@@ -253,6 +280,9 @@ func (ctrl *DocumentController) CreateSubmission(c *fiber.Ctx) error {
 
 	return response.Created(c, fiber.Map{
 		"id":         doc.ID,
+		"code":       doc.Code,
+		"slug":       doc.Slug,
+		"title":      doc.Title,
 		"status":     doc.Status,
 		"created_at": doc.CreatedAt,
 	}, "Submission created successfully")
@@ -262,9 +292,9 @@ func (ctrl *DocumentController) SaveDraft(c *fiber.Ctx) error {
 	userID := c.Locals("user_id").(uint)
 
 	idParam := c.Params("id")
-	var submissionID uint
-	if id, err := strconv.Atoi(idParam); err == nil && idParam != "0" {
-		submissionID = uint(id)
+	var submissionID string
+	if idParam != "" && idParam != "0" {
+		submissionID = idParam
 	}
 
 	var req model.DraftRequest
@@ -286,12 +316,11 @@ func (ctrl *DocumentController) SaveDraft(c *fiber.Ctx) error {
 
 func (ctrl *DocumentController) DeleteSubmission(c *fiber.Ctx) error {
 	idParam := c.Params("id")
-	id, err := strconv.Atoi(idParam)
-	if err != nil {
+	if idParam == "" {
 		return response.BadRequest(c, "Invalid submission ID", "VALIDATION_FAILED")
 	}
 
-	if err := ctrl.docService.DeleteSubmission(uint(id)); err != nil {
+	if err := ctrl.docService.DeleteSubmission(idParam); err != nil {
 		return response.Error(c, err)
 	}
 
@@ -300,12 +329,11 @@ func (ctrl *DocumentController) DeleteSubmission(c *fiber.Ctx) error {
 
 func (ctrl *DocumentController) PublishDocument(c *fiber.Ctx) error {
 	idParam := c.Params("id")
-	id, err := strconv.Atoi(idParam)
-	if err != nil {
+	if idParam == "" {
 		return response.BadRequest(c, "Invalid document ID", "VALIDATION_FAILED")
 	}
 
-	doc, err := ctrl.docService.PublishDocument(uint(id))
+	doc, err := ctrl.docService.PublishDocument(idParam)
 	if err != nil {
 		return response.Error(c, err)
 	}
@@ -319,12 +347,11 @@ func (ctrl *DocumentController) PublishDocument(c *fiber.Ctx) error {
 
 func (ctrl *DocumentController) UnpublishDocument(c *fiber.Ctx) error {
 	idParam := c.Params("id")
-	id, err := strconv.Atoi(idParam)
-	if err != nil {
+	if idParam == "" {
 		return response.BadRequest(c, "Invalid document ID", "VALIDATION_FAILED")
 	}
 
-	doc, err := ctrl.docService.UnpublishDocument(uint(id))
+	doc, err := ctrl.docService.UnpublishDocument(idParam)
 	if err != nil {
 		return response.Error(c, err)
 	}

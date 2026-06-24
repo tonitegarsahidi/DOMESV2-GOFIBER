@@ -64,12 +64,21 @@ CREATE DATABASE domesv2 CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 ```
 
 ### 5. Aktifkan Auto Migration
-Buka file `cmd/main.go`, uncomment baris berikut untuk auto-create tabel:
-```go
-// Uncomment ini untuk pertama kali running
-db := database.GetDB()
-db.AutoMigrate(&model.User{})
-```
+### 5. Database Migration & Setup V2
+Pada versi ini, semua skema tabel database (kecuali `Users`) telah ditingkatkan ke struktur V2 dengan spesifikasi berikut:
+* **Table Prefix**: Nama tabel berawalan `V2` (misal: `V2Documents`, `V2AdminEmails`, `v2_document_sdgs`, dll.).
+* **UUID Primary Keys**: Menggunakan UUID v4 string (bukan integer-based ID).
+* **Timestamps**: Field `CreatedAt` dan `UpdatedAt` bertipe timestamp dengan nilai default `NULL`.
+* **Audit Fields**: Kolom `CreatedBy` dan `UpdatedBy` bertipe string dengan nilai default `NULL` untuk pencatatan riwayat pembuat/pengubah data.
+* **Soft Delete**: Kolom `DeletedAt` disediakan untuk penanganan soft delete data.
+
+Database migration dan seeding data referensi (seperti SDGs, Agencies, Sectors, LNOBs, dll.) akan berjalan **secara otomatis (Auto-run)** pada saat aplikasi dijalankan.
+
+> [!IMPORTANT]
+> Migrasi dan seeder untuk tabel `Users` sengaja dilewati (bypassed) demi alasan keamanan. Jika Anda ingin menjalankan migrasi tabel `Users` secara eksplisit, set environment variable berikut sebelum menjalankan aplikasi:
+> ```bash
+> export RUN_USER_MIGRATION=true
+> ```
 
 ### 6. Jalankan Aplikasi
 ```bash
@@ -82,30 +91,23 @@ Server akan berjalan di `http://localhost:3000`
 ### 7. Test API
 Cek health check untuk memastikan semua berjalan:
 ```bash
-curl http://localhost:3000/api/health-check
+curl http://localhost:3000/api/v2/health-check
 ```
 
 ## 📡 API Endpoints
 
-Backend ini menyediakan endpoint lengkap untuk sistem manajemen dokumen PBB:
-* **Authentication & Profiles:** Registrasi, login, edit profil, ganti password, preferensi notifikasi.
-* **Admin Whitelist Settings:** Whitelist email admin.
-* **Reference Data:** Data SDGs, PBB Agencies, Sectors, Languages, Joint Programmes, dll.
-* **Public Documents & Search:** Pencarian dokumen, list dokumen, detail, related docs, tracking download.
-* **Broken Link Reports:** Pelaporan tautan rusak oleh publik dan manajemen status laporan.
-* **CMS Dashboard & Submissions:** Draft submissions wizard (Step 1-4), publishing/unpublishing dokumen.
-* **CMS User Management:** CRUD akun pengelola (admin/editor) oleh administrator.
-* **File Upload:** Upload file PDF/Word, cover dokumen, avatar user, dan validasi tautan eksternal.
+Semua endpoint API sekarang berada di bawah namespace `/api/v2/`. Backend ini menyediakan endpoint lengkap untuk sistem manajemen dokumen PBB:
+* **Authentication & Profiles:** Registrasi, login, edit profil, ganti password, preferensi notifikasi di `/api/v2/auth` dan `/api/v2/user`.
+* **Admin Whitelist Settings:** Whitelist email admin di `/api/v2/admin/emails`.
+* **Reference Data:** Data SDGs, PBB Agencies, Sectors, Languages, Joint Programmes, dll. di `/api/v2/reference`.
+* **Public Documents & Search:** Pencarian dokumen, list dokumen, detail, related docs, tracking download di `/api/v2/documents`.
+* **Broken Link Reports:** Pelaporan tautan rusak oleh publik dan manajemen status laporan di `/api/v2/reports`.
+* **CMS Dashboard & Submissions:** Draft submissions wizard (Step 1-4), publishing/unpublishing dokumen di `/api/v2/submissions`.
+* **CMS User Management:** CRUD akun pengelola (admin/editor) oleh administrator di `/api/v2/users`.
+* **File Upload:** Upload file PDF/Word, cover dokumen, avatar user, dan validasi tautan eksternal di `/api/v2/upload`.
 
 Dokumentasi lengkap kontrak API: [API-REFERENCE.md](API-REFERENCE.md)
 
-## 🗄️ Database Migration & Seeder
-
-Database migration dan seeding data referensi (seperti SDGs, Agencies, Sectors, LNOBs, dll.) kini berjalan **secara otomatis (Auto-run)** pada saat aplikasi pertama kali dijalankan. Aplikasi mendeteksi perubahan skema model dan melakukan pengisian data awal secara dinamis.
-
-Jika Anda ingin melakukan manipulasi database manual atau melihat struktur awal:
-* File seeder dan migrasi opsional berada di folder `database/`.
-* Pastikan kredensial database di file `.env` sudah sesuai sebelum menjalankan aplikasi.
 
 ## 🌐 Deployment ke Production Server
 

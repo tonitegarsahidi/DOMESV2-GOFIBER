@@ -10,7 +10,7 @@ import (
 type ReportService interface {
 	SubmitReport(req *model.CreateReportRequest) (*model.Report, error)
 	ListReports(status string, search string, page int, limit int) (map[string]interface{}, error)
-	UpdateReportStatus(id uint, status string) (*model.Report, error)
+	UpdateReportStatus(id string, status string) (*model.Report, error)
 }
 
 type reportService struct {
@@ -28,7 +28,7 @@ func (s *reportService) SubmitReport(req *model.CreateReportRequest) (*model.Rep
 		return nil, err
 	}
 
-	if req.DocumentID == 0 {
+	if req.DocumentID == "" {
 		return nil, errors.NewValidationError("Document ID is required", "VALIDATION_FAILED")
 	}
 	if req.ReporterName == "" || req.ReporterEmail == "" || req.Details == "" {
@@ -91,7 +91,7 @@ func (s *reportService) ListReports(status string, search string, page int, limi
 	}, nil
 }
 
-func (s *reportService) UpdateReportStatus(id uint, status string) (*model.Report, error) {
+func (s *reportService) UpdateReportStatus(id string, status string) (*model.Report, error) {
 	if status != "open" && status != "in_progress" && status != "resolved" {
 		return nil, errors.NewValidationError("Status must be one of: open, in_progress, resolved", "VALIDATION_FAILED")
 	}

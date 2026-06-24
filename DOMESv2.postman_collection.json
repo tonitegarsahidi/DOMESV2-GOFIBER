@@ -1,1052 +1,1700 @@
 {
-	"info": {
-		"name": "DOMESv2 API",
-		"description": "Collection API untuk DOMESv2 Backend\n\n## Cara Penggunaan\n1. Import file ini ke Postman\n2. Atur `base_url` di Collection Variables sesuai environment kamu\n3. Login via endpoint **Login** → token akan auto-set ke variable `{{token}}`\n4. Akses endpoint **Get Profile (Me)** langsung tanpa isi token manual\n\nUntuk environment `local`, field `captcha` bisa dikosongkan.",
-		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
-		"_exporter_id": "domesv2"
-	},
-	"item": [
-		{
-			"name": "Public",
-			"description": "Endpoint yang tidak memerlukan autentikasi",
-			"item": [
-				{
-					"name": "🏠 Welcome",
-					"request": {
-						"method": "GET",
-						"header": [],
-						"url": {
-							"raw": "{{base_url}}/",
-							"host": ["{{base_url}}"],
-							"path": [""]
-						},
-						"description": "Informasi dasar API"
-					}
-				},
-				{
-					"name": "❤️ Health Check",
-					"request": {
-						"method": "GET",
-						"header": [],
-						"url": {
-							"raw": "{{base_url}}/api/health-check",
-							"host": ["{{base_url}}"],
-							"path": ["api", "health-check"]
-						},
-						"description": "Pengecekan status database, redis, dan aplikasi"
-					}
-				},
-				{
-					"name": "📝 Register",
-					"request": {
-						"method": "POST",
-						"header": [
-							{
-								"key": "Content-Type",
-								"value": "application/json"
-							}
-						],
-						"body": {
-							"mode": "raw",
-							"raw": "{\n  \"first_name\": \"Toni\",\n  \"last_name\": \"Tegar\",\n  \"position\": \"Staff\",\n  \"organization\": \"UNDP\",\n  \"phone_number\": \"+62812345678\",\n  \"email\": \"tonitegarsahidi@gmail.com\",\n  \"password\": \"rahasiaku123\",\n  \"confirm_password\": \"rahasiaku123\",\n  \"captcha\": \"\"\n}",
-							"options": { "raw": { "language": "json" } }
-						},
-						"url": {
-							"raw": "{{base_url}}/api/auth/register",
-							"host": ["{{base_url}}"],
-							"path": ["api", "auth", "register"]
-						}
-					}
-				},
-				{
-					"name": "🔑 Login",
-					"event": [
-						{
-							"listen": "test",
-							"script": {
-								"exec": [
-									"var jsonData = pm.response.json();",
-									"if (jsonData.success && jsonData.data && jsonData.data.token) {",
-									"    pm.collectionVariables.set('token', jsonData.data.token);",
-									"    console.log('Token saved to collection variables');",
-									"}"
-								],
-								"type": "text/javascript"
-							}
-						}
-					],
-					"request": {
-						"method": "POST",
-						"header": [
-							{
-								"key": "Content-Type",
-								"value": "application/json"
-							}
-						],
-						"body": {
-							"mode": "raw",
-							"raw": "{\n  \"email\": \"tonitegarsahidi@gmail.com\",\n  \"password\": \"rahasiaku123\",\n  \"captcha\": \"\"\n}",
-							"options": { "raw": { "language": "json" } }
-						},
-						"url": {
-							"raw": "{{base_url}}/api/auth/login",
-							"host": ["{{base_url}}"],
-							"path": ["api", "auth", "login"]
-						}
-					}
-				},
-				{
-					"name": "🔐 Forgot Password",
-					"request": {
-						"method": "POST",
-						"header": [
-							{
-								"key": "Content-Type",
-								"value": "application/json"
-							}
-						],
-						"body": {
-							"mode": "raw",
-							"raw": "{\n  \"email\": \"tonitegarsahidi@gmail.com\",\n  \"captcha\": \"\"\n}",
-							"options": { "raw": { "language": "json" } }
-						},
-						"url": {
-							"raw": "{{base_url}}/api/auth/forgot-password",
-							"host": ["{{base_url}}"],
-							"path": ["api", "auth", "forgot-password"]
-						}
-					}
-				},
-				{
-					"name": "🔄 Reset Password",
-					"request": {
-						"method": "POST",
-						"header": [
-							{
-								"key": "Content-Type",
-								"value": "application/json"
-							}
-						],
-						"body": {
-							"mode": "raw",
-							"raw": "{\n  \"token\": \"token-reset-password-dari-email\",\n  \"password\": \"passwordbaru123\",\n  \"confirm_password\": \"passwordbaru123\"\n}",
-							"options": { "raw": { "language": "json" } }
-						},
-						"url": {
-							"raw": "{{base_url}}/api/auth/reset-password",
-							"host": ["{{base_url}}"],
-							"path": ["api", "auth", "reset-password"]
-						}
-					}
-				},
-				{
-					"name": "📂 Reference Data",
-					"item": [
-						{
-							"name": "Agencies",
-							"request": {
-								"method": "GET",
-								"header": [],
-								"url": {
-									"raw": "{{base_url}}/api/reference/agencies",
-									"host": ["{{base_url}}"],
-									"path": ["api", "reference", "agencies"]
-								}
-							}
-						},
-						{
-							"name": "SDGs",
-							"request": {
-								"method": "GET",
-								"header": [],
-								"url": {
-									"raw": "{{base_url}}/api/reference/sdgs",
-									"host": ["{{base_url}}"],
-									"path": ["api", "reference", "sdgs"]
-								}
-							}
-						},
-						{
-							"name": "Sectors",
-							"request": {
-								"method": "GET",
-								"header": [],
-								"url": {
-									"raw": "{{base_url}}/api/reference/sectors",
-									"host": ["{{base_url}}"],
-									"path": ["api", "reference", "sectors"]
-								}
-							}
-						},
-						{
-							"name": "Languages",
-							"request": {
-								"method": "GET",
-								"header": [],
-								"url": {
-									"raw": "{{base_url}}/api/reference/languages",
-									"host": ["{{base_url}}"],
-									"path": ["api", "reference", "languages"]
-								}
-							}
-						},
-						{
-							"name": "Joint Programmes",
-							"request": {
-								"method": "GET",
-								"header": [],
-								"url": {
-									"raw": "{{base_url}}/api/reference/joint-programmes",
-									"host": ["{{base_url}}"],
-									"path": ["api", "reference", "joint-programmes"]
-								}
-							}
-						},
-						{
-							"name": "LNOB Groups",
-							"request": {
-								"method": "GET",
-								"header": [],
-								"url": {
-									"raw": "{{base_url}}/api/reference/lnobs",
-									"host": ["{{base_url}}"],
-									"path": ["api", "reference", "lnobs"]
-								}
-							}
-						},
-						{
-							"name": "Non-UN Partners",
-							"request": {
-								"method": "GET",
-								"header": [],
-								"url": {
-									"raw": "{{base_url}}/api/reference/non-un-partners",
-									"host": ["{{base_url}}"],
-									"path": ["api", "reference", "non-un-partners"]
-								}
-							}
-						},
-						{
-							"name": "Organizations",
-							"request": {
-								"method": "GET",
-								"header": [],
-								"url": {
-									"raw": "{{base_url}}/api/reference/organizations",
-									"host": ["{{base_url}}"],
-									"path": ["api", "reference", "organizations"]
-								}
-							}
-						}
-					]
-				},
-				{
-					"name": "📄 Documents Discovery",
-					"item": [
-						{
-							"name": "List Documents",
-							"request": {
-								"method": "GET",
-								"header": [],
-								"url": {
-									"raw": "{{base_url}}/api/documents?page=1&limit=10&sort=newest",
-									"host": ["{{base_url}}"],
-									"path": ["api", "documents"],
-									"query": [
-										{ "key": "page", "value": "1" },
-										{ "key": "limit", "value": "10" },
-										{ "key": "sort", "value": "newest" },
-										{ "key": "agency", "value": "", "disabled": true },
-										{ "key": "sdg", "value": "", "disabled": true }
-									]
-								}
-							}
-						},
-						{
-							"name": "Search Documents",
-							"request": {
-								"method": "GET",
-								"header": [],
-								"url": {
-									"raw": "{{base_url}}/api/documents/search?q=Digital",
-									"host": ["{{base_url}}"],
-									"path": ["api", "documents", "search"],
-									"query": [
-										{ "key": "q", "value": "Digital" }
-									]
-								}
-							}
-						},
-						{
-							"name": "Get Document Detail (ID or Slug)",
-							"request": {
-								"method": "GET",
-								"header": [],
-								"url": {
-									"raw": "{{base_url}}/api/documents/{{doc_id}}",
-									"host": ["{{base_url}}"],
-									"path": ["api", "documents", "{{doc_id}}"]
-								}
-							}
-						},
-						{
-							"name": "Related Documents",
-							"request": {
-								"method": "GET",
-								"header": [],
-								"url": {
-									"raw": "{{base_url}}/api/documents/{{doc_id}}/related",
-									"host": ["{{base_url}}"],
-									"path": ["api", "documents", "{{doc_id}}", "related"]
-								}
-							}
-						},
-						{
-							"name": "Download Document",
-							"request": {
-								"method": "GET",
-								"header": [],
-								"url": {
-									"raw": "{{base_url}}/api/documents/{{doc_id}}/download",
-									"host": ["{{base_url}}"],
-									"path": ["api", "documents", "{{doc_id}}", "download"]
-								}
-							}
-						},
-						{
-							"name": "Platform Stats",
-							"request": {
-								"method": "GET",
-								"header": [],
-								"url": {
-									"raw": "{{base_url}}/api/stats",
-									"host": ["{{base_url}}"],
-									"path": ["api", "stats"]
-								}
-							}
-						}
-					]
-				},
-				{
-					"name": "📊 Public Analytics",
-					"item": [
-						{
-							"name": "Analytics Overview",
-							"request": {
-								"method": "GET",
-								"header": [],
-								"url": {
-									"raw": "{{base_url}}/api/analytics/overview",
-									"host": ["{{base_url}}"],
-									"path": ["api", "analytics", "overview"]
-								}
-							}
-						},
-						{
-							"name": "Uploads Over Time",
-							"request": {
-								"method": "GET",
-								"header": [],
-								"url": {
-									"raw": "{{base_url}}/api/analytics/uploads-over-time",
-									"host": ["{{base_url}}"],
-									"path": ["api", "analytics", "uploads-over-time"]
-								}
-							}
-						},
-						{
-							"name": "By SDG",
-							"request": {
-								"method": "GET",
-								"header": [],
-								"url": {
-									"raw": "{{base_url}}/api/analytics/by-sdg",
-									"host": ["{{base_url}}"],
-									"path": ["api", "analytics", "by-sdg"]
-								}
-							}
-						},
-						{
-							"name": "By Agency",
-							"request": {
-								"method": "GET",
-								"header": [],
-								"url": {
-									"raw": "{{base_url}}/api/analytics/by-agency",
-									"host": ["{{base_url}}"],
-									"path": ["api", "analytics", "by-agency"]
-								}
-							}
-						},
-						{
-							"name": "By Sector",
-							"request": {
-								"method": "GET",
-								"header": [],
-								"url": {
-									"raw": "{{base_url}}/api/analytics/by-sector",
-									"host": ["{{base_url}}"],
-									"path": ["api", "analytics", "by-sector"]
-								}
-							}
-						},
-						{
-							"name": "By Language",
-							"request": {
-								"method": "GET",
-								"header": [],
-								"url": {
-									"raw": "{{base_url}}/api/analytics/by-language",
-									"host": ["{{base_url}}"],
-									"path": ["api", "analytics", "by-language"]
-								}
-							}
-						}
-					]
-				},
-				{
-					"name": "⚠️ Broken Link Report",
-					"item": [
-						{
-							"name": "Submit Report",
-							"request": {
-								"method": "POST",
-								"header": [
-									{
-										"key": "Content-Type",
-										"value": "application/json"
-									}
-								],
-								"body": {
-									"mode": "raw",
-									"raw": "{\n  \"document_id\": {{doc_id}},\n  \"reporter_name\": \"John Reporter\",\n  \"reporter_email\": \"reporter@example.com\",\n  \"details\": \"Link download PDF 404 Not Found\"\n}",
-									"options": { "raw": { "language": "json" } }
-								},
-								"url": {
-									"raw": "{{base_url}}/api/reports",
-									"host": ["{{base_url}}"],
-									"path": ["api", "reports"]
-								}
-							}
-						}
-					]
-				}
-			]
-		},
-		{
-			"name": "Protected",
-			"description": "Endpoint yang memerlukan JWT token. Token akan otomatis terisi setelah login via endpoint Login.",
-			"item": [
-				{
-					"name": "👤 User Settings",
-					"item": [
-						{
-							"name": "Get Profile (Me)",
-							"request": {
-								"method": "GET",
-								"header": [
-									{
-										"key": "Authorization",
-										"value": "Bearer {{token}}"
-									}
-								],
-								"url": {
-									"raw": "{{base_url}}/api/user/me",
-									"host": ["{{base_url}}"],
-									"path": ["api", "user", "me"]
-								}
-							}
-						},
-						{
-							"name": "Update Profile",
-							"request": {
-								"method": "PUT",
-								"header": [
-									{ "key": "Authorization", "value": "Bearer {{token}}" },
-									{ "key": "Content-Type", "value": "application/json" }
-								],
-								"body": {
-									"mode": "raw",
-									"raw": "{\n  \"first_name\": \"Toni\",\n  \"last_name\": \"Sahidi\",\n  \"position\": \"Senior Staff\",\n  \"organization\": \"UNDP\",\n  \"phone_number\": \"+6289999999\"\n}",
-									"options": { "raw": { "language": "json" } }
-								},
-								"url": {
-									"raw": "{{base_url}}/api/user/profile",
-									"host": ["{{base_url}}"],
-									"path": ["api", "user", "profile"]
-								}
-							}
-						},
-						{
-							"name": "Change Password",
-							"request": {
-								"method": "PUT",
-								"header": [
-									{ "key": "Authorization", "value": "Bearer {{token}}" },
-									{ "key": "Content-Type", "value": "application/json" }
-								],
-								"body": {
-									"mode": "raw",
-									"raw": "{\n  \"current_password\": \"rahasiaku123\",\n  \"new_password\": \"passwordbaru123\",\n  \"confirm_password\": \"passwordbaru123\"\n}",
-									"options": { "raw": { "language": "json" } }
-								},
-								"url": {
-									"raw": "{{base_url}}/api/user/password",
-									"host": ["{{base_url}}"],
-									"path": ["api", "user", "password"]
-								}
-							}
-						},
-						{
-							"name": "Get Notification Preferences",
-							"request": {
-								"method": "GET",
-								"header": [
-									{ "key": "Authorization", "value": "Bearer {{token}}" }
-								],
-								"url": {
-									"raw": "{{base_url}}/api/user/notifications",
-									"host": ["{{base_url}}"],
-									"path": ["api", "user", "notifications"]
-								}
-							}
-						},
-						{
-							"name": "Update Notification Preferences",
-							"request": {
-								"method": "PUT",
-								"header": [
-									{ "key": "Authorization", "value": "Bearer {{token}}" },
-									{ "key": "Content-Type", "value": "application/json" }
-								],
-								"body": {
-									"mode": "raw",
-									"raw": "{\n  \"document_approvals\": true,\n  \"broken_link_reports\": false,\n  \"system_updates\": true,\n  \"email_notifications\": true\n}",
-									"options": { "raw": { "language": "json" } }
-								},
-								"url": {
-									"raw": "{{base_url}}/api/user/notifications",
-									"host": ["{{base_url}}"],
-									"path": ["api", "user", "notifications"]
-								}
-							}
-						}
-					]
-				},
-				{
-					"name": "🛠️ Admin Settings",
-					"item": [
-						{
-							"name": "Get Whitelist Emails",
-							"request": {
-								"method": "GET",
-								"header": [
-									{ "key": "Authorization", "value": "Bearer {{token}}" }
-								],
-								"url": {
-									"raw": "{{base_url}}/api/admin/emails",
-									"host": ["{{base_url}}"],
-									"path": ["api", "admin", "emails"]
-								}
-							}
-						},
-						{
-							"name": "Add Whitelist Email",
-							"request": {
-								"method": "POST",
-								"header": [
-									{ "key": "Authorization", "value": "Bearer {{token}}" },
-									{ "key": "Content-Type", "value": "application/json" }
-								],
-								"body": {
-									"mode": "raw",
-									"raw": "{\n  \"email\": \"newadmin@un.org\"\n}",
-									"options": { "raw": { "language": "json" } }
-								},
-								"url": {
-									"raw": "{{base_url}}/api/admin/emails",
-									"host": ["{{base_url}}"],
-									"path": ["api", "admin", "emails"]
-								}
-							}
-						},
-						{
-							"name": "Delete Whitelist Email",
-							"request": {
-								"method": "DELETE",
-								"header": [
-									{ "key": "Authorization", "value": "Bearer {{token}}" }
-								],
-								"url": {
-									"raw": "{{base_url}}/api/admin/emails/newadmin@un.org",
-									"host": ["{{base_url}}"],
-									"path": ["api", "admin", "emails", "newadmin@un.org"]
-								}
-							}
-						}
-					]
-				},
-				{
-					"name": "🖥️ CMS Dashboard & Submissions",
-					"item": [
-						{
-							"name": "CMS Dashboard Stats",
-							"request": {
-								"method": "GET",
-								"header": [
-									{ "key": "Authorization", "value": "Bearer {{token}}" }
-								],
-								"url": {
-									"raw": "{{base_url}}/api/cms/dashboard",
-									"host": ["{{base_url}}"],
-									"path": ["api", "cms", "dashboard"]
-								}
-							}
-						},
-						{
-							"name": "CMS Recent Activity",
-							"request": {
-								"method": "GET",
-								"header": [
-									{ "key": "Authorization", "value": "Bearer {{token}}" }
-								],
-								"url": {
-									"raw": "{{base_url}}/api/cms/activity",
-									"host": ["{{base_url}}"],
-									"path": ["api", "cms", "activity"]
-								}
-							}
-						},
-						{
-							"name": "List Submissions",
-							"request": {
-								"method": "GET",
-								"header": [
-									{ "key": "Authorization", "value": "Bearer {{token}}" }
-								],
-								"url": {
-									"raw": "{{base_url}}/api/submissions?status=all",
-									"host": ["{{base_url}}"],
-									"path": ["api", "submissions"],
-									"query": [
-										{ "key": "status", "value": "all" }
-									]
-								}
-							}
-						},
-						{
-							"name": "Save Draft (Step 1-3)",
-							"request": {
-								"method": "POST",
-								"header": [
-									{ "key": "Authorization", "value": "Bearer {{token}}" },
-									{ "key": "Content-Type", "value": "application/json" }
-								],
-								"body": {
-									"mode": "raw",
-									"raw": "{\n  \"step\": 2,\n  \"data\": {\n    \"title\": \"Draf Laporan Perdagangan Digital\",\n    \"short_summary\": \"Analisis mendalam mengenai potensi digital rural...\",\n    \"focal_point_name\": \"Budi Santoso\"\n  }\n}",
-									"options": { "raw": { "language": "json" } }
-								},
-								"url": {
-									"raw": "{{base_url}}/api/submissions/0/draft",
-									"host": ["{{base_url}}"],
-									"path": ["api", "submissions", "0", "draft"]
-								}
-							}
-						},
-						{
-							"name": "Final Submit Document (Step 4)",
-							"request": {
-								"method": "POST",
-								"header": [
-									{ "key": "Authorization", "value": "Bearer {{token}}" },
-									{ "key": "Content-Type", "value": "application/json" }
-								],
-								"body": {
-									"mode": "raw",
-									"raw": "{\n  \"title\": \"Digital Economy and Financial Inclusion in Rural Indonesia\",\n  \"short_description\": \"Analysis of digital financial services...\",\n  \"abstract\": \"This comprehensive report analyzes...\",\n  \"detailed_summary\": \"<b>Executive Overview</b><br>This extensive report...\",\n  \"date_of_publication\": \"2024-06-15\",\n  \"total_pages\": 120,\n  \"language\": \"English\",\n  \"publication_status\": \"Published\",\n  \"tags\": [\"digital economy\", \"financial inclusion\"],\n  \"file_url\": \"/uploads/doc_test.pdf\",\n  \"file_size\": \"4.2 MB\",\n  \"cover_image_url\": \"/uploads/cover_test.jpg\",\n  \"agency\": \"UNDP\",\n  \"focal_point\": {\n    \"name\": \"Budi Santoso\",\n    \"email\": \"b.santoso@undp.org\",\n    \"phone\": \"+6281234567890\",\n    \"department\": \"Inclusive Growth Unit\"\n  },\n  \"sdgs\": [\"GOAL 1\", \"GOAL 8\"],\n  \"sectors\": [\"economic-development\"],\n  \"lnob_groups\": [\"women-girls\"],\n  \"joint_programme\": \"proklim\"\n}",
-									"options": { "raw": { "language": "json" } }
-								},
-								"url": {
-									"raw": "{{base_url}}/api/submissions",
-									"host": ["{{base_url}}"],
-									"path": ["api", "submissions"]
-								}
-							}
-						},
-						{
-							"name": "Publish Document",
-							"request": {
-								"method": "PUT",
-								"header": [
-									{ "key": "Authorization", "value": "Bearer {{token}}" }
-								],
-								"url": {
-									"raw": "{{base_url}}/api/submissions/{{doc_id}}/publish",
-									"host": ["{{base_url}}"],
-									"path": ["api", "submissions", "{{doc_id}}", "publish"]
-								}
-							}
-						},
-						{
-							"name": "Unpublish Document",
-							"request": {
-								"method": "PUT",
-								"header": [
-									{ "key": "Authorization", "value": "Bearer {{token}}" }
-								],
-								"url": {
-									"raw": "{{base_url}}/api/submissions/{{doc_id}}/unpublish",
-									"host": ["{{base_url}}"],
-									"path": ["api", "submissions", "{{doc_id}}", "unpublish"]
-								}
-							}
-						},
-						{
-							"name": "Delete Submission",
-							"request": {
-								"method": "DELETE",
-								"header": [
-									{ "key": "Authorization", "value": "Bearer {{token}}" }
-								],
-								"url": {
-									"raw": "{{base_url}}/api/submissions/{{doc_id}}",
-									"host": ["{{base_url}}"],
-									"path": ["api", "submissions", "{{doc_id}}"]
-								}
-							}
-						}
-					]
-				},
-				{
-					"name": "📁 CMS Reference Management",
-					"item": [
-						{
-							"name": "Get Reference List",
-							"request": {
-								"method": "GET",
-								"header": [
-									{ "key": "Authorization", "value": "Bearer {{token}}" }
-								],
-								"url": {
-									"raw": "{{base_url}}/api/cms/reference/sectors",
-									"host": ["{{base_url}}"],
-									"path": ["api", "cms", "reference", "sectors"]
-								}
-							}
-						},
-						{
-							"name": "Create Reference Item",
-							"request": {
-								"method": "POST",
-								"header": [
-									{ "key": "Authorization", "value": "Bearer {{token}}" },
-									{ "key": "Content-Type", "value": "application/json" }
-								],
-								"body": {
-									"mode": "raw",
-									"raw": "{\n  \"code\": \"test-sector-xyz\",\n  \"name\": \"Test Sector XYZ\"\n}",
-									"options": { "raw": { "language": "json" } }
-								},
-								"url": {
-									"raw": "{{base_url}}/api/cms/reference/sectors",
-									"host": ["{{base_url}}"],
-									"path": ["api", "cms", "reference", "sectors"]
-								}
-							}
-						},
-						{
-							"name": "Edit Reference Item",
-							"request": {
-								"method": "PUT",
-								"header": [
-									{ "key": "Authorization", "value": "Bearer {{token}}" },
-									{ "key": "Content-Type", "value": "application/json" }
-								],
-								"body": {
-									"mode": "raw",
-									"raw": "{\n  \"name\": \"Updated Test Sector XYZ\"\n}",
-									"options": { "raw": { "language": "json" } }
-								},
-								"url": {
-									"raw": "{{base_url}}/api/cms/reference/sectors/test-sector-xyz",
-									"host": ["{{base_url}}"],
-									"path": ["api", "cms", "reference", "sectors", "test-sector-xyz"]
-								}
-							}
-						},
-						{
-							"name": "Delete Reference Item",
-							"request": {
-								"method": "DELETE",
-								"header": [
-									{ "key": "Authorization", "value": "Bearer {{token}}" }
-								],
-								"url": {
-									"raw": "{{base_url}}/api/cms/reference/sectors/test-sector-xyz",
-									"host": ["{{base_url}}"],
-									"path": ["api", "cms", "reference", "sectors", "test-sector-xyz"]
-								}
-							}
-						}
-					]
-				},
-				{
-					"name": "👥 CMS User Management",
-					"item": [
-						{
-							"name": "List Users",
-							"request": {
-								"method": "GET",
-								"header": [
-									{ "key": "Authorization", "value": "Bearer {{token}}" }
-								],
-								"url": {
-									"raw": "{{base_url}}/api/users",
-									"host": ["{{base_url}}"],
-									"path": ["api", "users"]
-								}
-							}
-						},
-						{
-							"name": "Create User",
-							"request": {
-								"method": "POST",
-								"header": [
-									{ "key": "Authorization", "value": "Bearer {{token}}" },
-									{ "key": "Content-Type", "value": "application/json" }
-								],
-								"body": {
-									"mode": "raw",
-									"raw": "{\n  \"first_name\": \"Budi\",\n  \"last_name\": \"Santoso\",\n  \"email\": \"budi.santoso@un.org\",\n  \"password\": \"password123\",\n  \"confirm_password\": \"password123\",\n  \"organization\": \"WHO\",\n  \"position\": \"Health Officer\",\n  \"phone_number\": \"+62811223344\",\n  \"role\": \"editor\",\n  \"status\": \"active\"\n}",
-									"options": { "raw": { "language": "json" } }
-								},
-								"url": {
-									"raw": "{{base_url}}/api/users",
-									"host": ["{{base_url}}"],
-									"path": ["api", "users"]
-								}
-							}
-						},
-						{
-							"name": "Edit User",
-							"request": {
-								"method": "PUT",
-								"header": [
-									{ "key": "Authorization", "value": "Bearer {{token}}" },
-									{ "key": "Content-Type", "value": "application/json" }
-								],
-								"body": {
-									"mode": "raw",
-									"raw": "{\n  \"position\": \"Senior Health Officer\",\n  \"status\": \"active\"\n}",
-									"options": { "raw": { "language": "json" } }
-								},
-								"url": {
-									"raw": "{{base_url}}/api/users/{{user_id}}",
-									"host": ["{{base_url}}"],
-									"path": ["api", "users", "{{user_id}}"]
-								}
-							}
-						},
-						{
-							"name": "Delete User",
-							"request": {
-								"method": "DELETE",
-								"header": [
-									{ "key": "Authorization", "value": "Bearer {{token}}" }
-								],
-								"url": {
-									"raw": "{{base_url}}/api/users/{{user_id}}",
-									"host": ["{{base_url}}"],
-									"path": ["api", "users", "{{user_id}}"]
-								}
-							}
-						}
-					]
-				},
-				{
-					"name": "⚠️ CMS Reports Management",
-					"item": [
-						{
-							"name": "List Reports",
-							"request": {
-								"method": "GET",
-								"header": [
-									{ "key": "Authorization", "value": "Bearer {{token}}" }
-								],
-								"url": {
-									"raw": "{{base_url}}/api/reports?status=all",
-									"host": ["{{base_url}}"],
-									"path": ["api", "reports"],
-									"query": [
-										{ "key": "status", "value": "all" }
-									]
-								}
-							}
-						},
-						{
-							"name": "Update Report Status",
-							"request": {
-								"method": "PUT",
-								"header": [
-									{ "key": "Authorization", "value": "Bearer {{token}}" },
-									{ "key": "Content-Type", "value": "application/json" }
-								],
-								"body": {
-									"mode": "raw",
-									"raw": "{\n  \"status\": \"in_progress\"\n}",
-									"options": { "raw": { "language": "json" } }
-								},
-								"url": {
-									"raw": "{{base_url}}/api/reports/{{report_id}}/status",
-									"host": ["{{base_url}}"],
-									"path": ["api", "reports", "{{report_id}}", "status"]
-								}
-							}
-						}
-					]
-				},
-				{
-					"name": "📈 CMS Analytics",
-					"item": [
-						{
-							"name": "Analytics Summary",
-							"request": {
-								"method": "GET",
-								"header": [
-									{ "key": "Authorization", "value": "Bearer {{token}}" }
-								],
-								"url": {
-									"raw": "{{base_url}}/api/analytics/summary",
-									"host": ["{{base_url}}"],
-									"path": ["api", "analytics", "summary"]
-								}
-							}
-						},
-						{
-							"name": "Top Downloads",
-							"request": {
-								"method": "GET",
-								"header": [
-									{ "key": "Authorization", "value": "Bearer {{token}}" }
-								],
-								"url": {
-									"raw": "{{base_url}}/api/analytics/top-downloads",
-									"host": ["{{base_url}}"],
-									"path": ["api", "analytics", "top-downloads"]
-								}
-							}
-						},
-						{
-							"name": "Top Views",
-							"request": {
-								"method": "GET",
-								"header": [
-									{ "key": "Authorization", "value": "Bearer {{token}}" }
-								],
-								"url": {
-									"raw": "{{base_url}}/api/analytics/top-views",
-									"host": ["{{base_url}}"],
-									"path": ["api", "analytics", "top-views"]
-								}
-							}
-						}
-					]
-				},
-				{
-					"name": "📤 File Upload & Validation",
-					"item": [
-						{
-							"name": "Upload File",
-							"request": {
-								"method": "POST",
-								"header": [
-									{ "key": "Authorization", "value": "Bearer {{token}}" }
-								],
-								"body": {
-									"mode": "formdata",
-									"formdata": [
-										{ "key": "file", "type": "file", "src": [] },
-										{ "key": "type", "value": "document", "type": "text" }
-									]
-								},
-								"url": {
-									"raw": "{{base_url}}/api/upload",
-									"host": ["{{base_url}}"],
-									"path": ["api", "upload"]
-								}
-							}
-						},
-						{
-							"name": "Validate External URL",
-							"request": {
-								"method": "POST",
-								"header": [
-									{ "key": "Authorization", "value": "Bearer {{token}}" },
-									{ "key": "Content-Type", "value": "application/json" }
-								],
-								"body": {
-									"mode": "raw",
-									"raw": "{\n  \"url\": \"https://www.un.org/sites/un2.un.org/files/un_charter.pdf\"\n}",
-									"options": { "raw": { "language": "json" } }
-								},
-								"url": {
-									"raw": "{{base_url}}/api/upload/url-validate",
-									"host": ["{{base_url}}"],
-									"path": ["api", "upload", "url-validate"]
-								}
-							}
-						},
-						{
-							"name": "Upload Profile Avatar",
-							"request": {
-								"method": "POST",
-								"header": [
-									{ "key": "Authorization", "value": "Bearer {{token}}" }
-								],
-								"body": {
-									"mode": "formdata",
-									"formdata": [
-										{ "key": "avatar", "type": "file", "src": [] }
-									]
-								},
-								"url": {
-									"raw": "{{base_url}}/api/upload/avatar",
-									"host": ["{{base_url}}"],
-									"path": ["api", "upload", "avatar"]
-								}
-							}
-						}
-					]
-				}
-			]
-		}
-	],
-	"variable": [
-		{
-			"key": "base_url",
-			"value": "http://localhost:3000",
-			"type": "string"
-		},
-		{
-			"key": "token",
-			"value": "",
-			"type": "string"
-		},
-		{
-			"key": "doc_id",
-			"value": "1",
-			"type": "string"
-		},
-		{
-			"key": "user_id",
-			"value": "1",
-			"type": "string"
-		},
-		{
-			"key": "report_id",
-			"value": "1",
-			"type": "string"
-		}
-	]
+    "info": {
+        "name": "DOMESv2 API",
+        "description": "Collection API untuk DOMESv2 Backend\n\n## Cara Penggunaan\n1. Import file ini ke Postman\n2. Atur `base_url` di Collection Variables sesuai environment kamu\n3. Login via endpoint **Login** → token akan auto-set ke variable `{{token}}`\n4. Akses endpoint **Get Profile (Me)** langsung tanpa isi token manual\n\nUntuk environment `local`, field `captcha` bisa dikosongkan.",
+        "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+        "_exporter_id": "domesv2"
+    },
+    "item": [
+        {
+            "name": "Public",
+            "description": "Endpoint yang tidak memerlukan autentikasi",
+            "item": [
+                {
+                    "name": "🏠 Welcome",
+                    "request": {
+                        "method": "GET",
+                        "header": [],
+                        "url": {
+                            "raw": "{{base_url}}/",
+                            "host": [
+                                "{{base_url}}"
+                            ],
+                            "path": [
+                                ""
+                            ]
+                        },
+                        "description": "Informasi dasar API"
+                    }
+                },
+                {
+                    "name": "❤️ Health Check",
+                    "request": {
+                        "method": "GET",
+                        "header": [],
+                        "url": {
+                            "raw": "{{base_url}}/api/v2/health-check",
+                            "host": [
+                                "{{base_url}}"
+                            ],
+                            "path": [
+                                "api",
+                                "v2",
+                                "health-check"
+                            ]
+                        },
+                        "description": "Pengecekan status database, redis, dan aplikasi"
+                    }
+                },
+                {
+                    "name": "📝 Register",
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n  \"first_name\": \"Toni\",\n  \"last_name\": \"Tegar\",\n  \"position\": \"Staff\",\n  \"organization\": \"UNDP\",\n  \"phone_number\": \"+62812345678\",\n  \"email\": \"tonitegarsahidi@gmail.com\",\n  \"password\": \"rahasiaku123\",\n  \"confirm_password\": \"rahasiaku123\",\n  \"captcha\": \"\"\n}",
+                            "options": {
+                                "raw": {
+                                    "language": "json"
+                                }
+                            }
+                        },
+                        "url": {
+                            "raw": "{{base_url}}/api/v2/auth/register",
+                            "host": [
+                                "{{base_url}}"
+                            ],
+                            "path": [
+                                "api",
+                                "v2",
+                                "auth",
+                                "register"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "🔑 Login",
+                    "event": [
+                        {
+                            "listen": "test",
+                            "script": {
+                                "exec": [
+                                    "var jsonData = pm.response.json();",
+                                    "if (jsonData.success && jsonData.data && jsonData.data.token) {",
+                                    "    pm.collectionVariables.set('token', jsonData.data.token);",
+                                    "    console.log('Token saved to collection variables');",
+                                    "}"
+                                ],
+                                "type": "text/javascript"
+                            }
+                        }
+                    ],
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n  \"email\": \"tonitegarsahidi@gmail.com\",\n  \"password\": \"rahasiaku123\",\n  \"captcha\": \"\"\n}",
+                            "options": {
+                                "raw": {
+                                    "language": "json"
+                                }
+                            }
+                        },
+                        "url": {
+                            "raw": "{{base_url}}/api/v2/auth/login",
+                            "host": [
+                                "{{base_url}}"
+                            ],
+                            "path": [
+                                "api",
+                                "v2",
+                                "auth",
+                                "login"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "🔐 Forgot Password",
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n  \"email\": \"tonitegarsahidi@gmail.com\",\n  \"captcha\": \"\"\n}",
+                            "options": {
+                                "raw": {
+                                    "language": "json"
+                                }
+                            }
+                        },
+                        "url": {
+                            "raw": "{{base_url}}/api/v2/auth/forgot-password",
+                            "host": [
+                                "{{base_url}}"
+                            ],
+                            "path": [
+                                "api",
+                                "v2",
+                                "auth",
+                                "forgot-password"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "🔄 Reset Password",
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n  \"token\": \"token-reset-password-dari-email\",\n  \"password\": \"passwordbaru123\",\n  \"confirm_password\": \"passwordbaru123\"\n}",
+                            "options": {
+                                "raw": {
+                                    "language": "json"
+                                }
+                            }
+                        },
+                        "url": {
+                            "raw": "{{base_url}}/api/v2/auth/reset-password",
+                            "host": [
+                                "{{base_url}}"
+                            ],
+                            "path": [
+                                "api",
+                                "v2",
+                                "auth",
+                                "reset-password"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "📂 Reference Data",
+                    "item": [
+                        {
+                            "name": "Agencies",
+                            "request": {
+                                "method": "GET",
+                                "header": [],
+                                "url": {
+                                    "raw": "{{base_url}}/api/v2/reference/agencies",
+                                    "host": [
+                                        "{{base_url}}"
+                                    ],
+                                    "path": [
+                                        "api",
+                                        "v2",
+                                        "reference",
+                                        "agencies"
+                                    ]
+                                }
+                            }
+                        },
+                        {
+                            "name": "SDGs",
+                            "request": {
+                                "method": "GET",
+                                "header": [],
+                                "url": {
+                                    "raw": "{{base_url}}/api/v2/reference/sdgs",
+                                    "host": [
+                                        "{{base_url}}"
+                                    ],
+                                    "path": [
+                                        "api",
+                                        "v2",
+                                        "reference",
+                                        "sdgs"
+                                    ]
+                                }
+                            }
+                        },
+                        {
+                            "name": "Sectors",
+                            "request": {
+                                "method": "GET",
+                                "header": [],
+                                "url": {
+                                    "raw": "{{base_url}}/api/v2/reference/sectors",
+                                    "host": [
+                                        "{{base_url}}"
+                                    ],
+                                    "path": [
+                                        "api",
+                                        "v2",
+                                        "reference",
+                                        "sectors"
+                                    ]
+                                }
+                            }
+                        },
+                        {
+                            "name": "Languages",
+                            "request": {
+                                "method": "GET",
+                                "header": [],
+                                "url": {
+                                    "raw": "{{base_url}}/api/v2/reference/languages",
+                                    "host": [
+                                        "{{base_url}}"
+                                    ],
+                                    "path": [
+                                        "api",
+                                        "v2",
+                                        "reference",
+                                        "languages"
+                                    ]
+                                }
+                            }
+                        },
+                        {
+                            "name": "Joint Programmes",
+                            "request": {
+                                "method": "GET",
+                                "header": [],
+                                "url": {
+                                    "raw": "{{base_url}}/api/v2/reference/joint-programmes",
+                                    "host": [
+                                        "{{base_url}}"
+                                    ],
+                                    "path": [
+                                        "api",
+                                        "v2",
+                                        "reference",
+                                        "joint-programmes"
+                                    ]
+                                }
+                            }
+                        },
+                        {
+                            "name": "LNOB Groups",
+                            "request": {
+                                "method": "GET",
+                                "header": [],
+                                "url": {
+                                    "raw": "{{base_url}}/api/v2/reference/lnobs",
+                                    "host": [
+                                        "{{base_url}}"
+                                    ],
+                                    "path": [
+                                        "api",
+                                        "v2",
+                                        "reference",
+                                        "lnobs"
+                                    ]
+                                }
+                            }
+                        },
+                        {
+                            "name": "Non-UN Partners",
+                            "request": {
+                                "method": "GET",
+                                "header": [],
+                                "url": {
+                                    "raw": "{{base_url}}/api/v2/reference/non-un-partners",
+                                    "host": [
+                                        "{{base_url}}"
+                                    ],
+                                    "path": [
+                                        "api",
+                                        "v2",
+                                        "reference",
+                                        "non-un-partners"
+                                    ]
+                                }
+                            }
+                        },
+                        {
+                            "name": "Organizations",
+                            "request": {
+                                "method": "GET",
+                                "header": [],
+                                "url": {
+                                    "raw": "{{base_url}}/api/v2/reference/organizations",
+                                    "host": [
+                                        "{{base_url}}"
+                                    ],
+                                    "path": [
+                                        "api",
+                                        "v2",
+                                        "reference",
+                                        "organizations"
+                                    ]
+                                }
+                            }
+                        }
+                    ]
+                },
+                {
+                    "name": "📄 Documents Discovery",
+                    "item": [
+                        {
+                            "name": "List Documents",
+                            "request": {
+                                "method": "GET",
+                                "header": [],
+                                "url": {
+                                    "raw": "{{base_url}}/api/v2/documents?page=1&limit=10&sort=newest",
+                                    "host": [
+                                        "{{base_url}}"
+                                    ],
+                                    "path": [
+                                        "api",
+                                        "v2",
+                                        "documents"
+                                    ],
+                                    "query": [
+                                        {
+                                            "key": "page",
+                                            "value": "1"
+                                        },
+                                        {
+                                            "key": "limit",
+                                            "value": "10"
+                                        },
+                                        {
+                                            "key": "sort",
+                                            "value": "newest"
+                                        },
+                                        {
+                                            "key": "agency",
+                                            "value": "",
+                                            "disabled": true
+                                        },
+                                        {
+                                            "key": "sdg",
+                                            "value": "",
+                                            "disabled": true
+                                        }
+                                    ]
+                                }
+                            }
+                        },
+                        {
+                            "name": "Search Documents",
+                            "request": {
+                                "method": "GET",
+                                "header": [],
+                                "url": {
+                                    "raw": "{{base_url}}/api/v2/documents/search?q=Digital",
+                                    "host": [
+                                        "{{base_url}}"
+                                    ],
+                                    "path": [
+                                        "api",
+                                        "v2",
+                                        "documents",
+                                        "search"
+                                    ],
+                                    "query": [
+                                        {
+                                            "key": "q",
+                                            "value": "Digital"
+                                        }
+                                    ]
+                                }
+                            }
+                        },
+                        {
+                            "name": "Get Document Detail (ID or Slug)",
+                            "request": {
+                                "method": "GET",
+                                "header": [],
+                                "url": {
+                                    "raw": "{{base_url}}/api/v2/documents/{{doc_id}}",
+                                    "host": [
+                                        "{{base_url}}"
+                                    ],
+                                    "path": [
+                                        "api",
+                                        "v2",
+                                        "documents",
+                                        "{{doc_id}}"
+                                    ]
+                                }
+                            }
+                        },
+                        {
+                            "name": "Related Documents",
+                            "request": {
+                                "method": "GET",
+                                "header": [],
+                                "url": {
+                                    "raw": "{{base_url}}/api/v2/documents/{{doc_id}}/related",
+                                    "host": [
+                                        "{{base_url}}"
+                                    ],
+                                    "path": [
+                                        "api",
+                                        "v2",
+                                        "documents",
+                                        "{{doc_id}}",
+                                        "related"
+                                    ]
+                                }
+                            }
+                        },
+                        {
+                            "name": "Download Document",
+                            "request": {
+                                "method": "GET",
+                                "header": [],
+                                "url": {
+                                    "raw": "{{base_url}}/api/v2/documents/{{doc_id}}/download",
+                                    "host": [
+                                        "{{base_url}}"
+                                    ],
+                                    "path": [
+                                        "api",
+                                        "v2",
+                                        "documents",
+                                        "{{doc_id}}",
+                                        "download"
+                                    ]
+                                }
+                            }
+                        },
+                        {
+                            "name": "Platform Stats",
+                            "request": {
+                                "method": "GET",
+                                "header": [],
+                                "url": {
+                                    "raw": "{{base_url}}/api/v2/stats",
+                                    "host": [
+                                        "{{base_url}}"
+                                    ],
+                                    "path": [
+                                        "api",
+                                        "v2",
+                                        "stats"
+                                    ]
+                                }
+                            }
+                        }
+                    ]
+                },
+                {
+                    "name": "📊 Public Analytics",
+                    "item": [
+                        {
+                            "name": "Analytics Overview",
+                            "request": {
+                                "method": "GET",
+                                "header": [],
+                                "url": {
+                                    "raw": "{{base_url}}/api/v2/analytics/overview",
+                                    "host": [
+                                        "{{base_url}}"
+                                    ],
+                                    "path": [
+                                        "api",
+                                        "v2",
+                                        "analytics",
+                                        "overview"
+                                    ]
+                                }
+                            }
+                        },
+                        {
+                            "name": "Uploads Over Time",
+                            "request": {
+                                "method": "GET",
+                                "header": [],
+                                "url": {
+                                    "raw": "{{base_url}}/api/v2/analytics/uploads-over-time",
+                                    "host": [
+                                        "{{base_url}}"
+                                    ],
+                                    "path": [
+                                        "api",
+                                        "v2",
+                                        "analytics",
+                                        "uploads-over-time"
+                                    ]
+                                }
+                            }
+                        },
+                        {
+                            "name": "By SDG",
+                            "request": {
+                                "method": "GET",
+                                "header": [],
+                                "url": {
+                                    "raw": "{{base_url}}/api/v2/analytics/by-sdg",
+                                    "host": [
+                                        "{{base_url}}"
+                                    ],
+                                    "path": [
+                                        "api",
+                                        "v2",
+                                        "analytics",
+                                        "by-sdg"
+                                    ]
+                                }
+                            }
+                        },
+                        {
+                            "name": "By Agency",
+                            "request": {
+                                "method": "GET",
+                                "header": [],
+                                "url": {
+                                    "raw": "{{base_url}}/api/v2/analytics/by-agency",
+                                    "host": [
+                                        "{{base_url}}"
+                                    ],
+                                    "path": [
+                                        "api",
+                                        "v2",
+                                        "analytics",
+                                        "by-agency"
+                                    ]
+                                }
+                            }
+                        },
+                        {
+                            "name": "By Sector",
+                            "request": {
+                                "method": "GET",
+                                "header": [],
+                                "url": {
+                                    "raw": "{{base_url}}/api/v2/analytics/by-sector",
+                                    "host": [
+                                        "{{base_url}}"
+                                    ],
+                                    "path": [
+                                        "api",
+                                        "v2",
+                                        "analytics",
+                                        "by-sector"
+                                    ]
+                                }
+                            }
+                        },
+                        {
+                            "name": "By Language",
+                            "request": {
+                                "method": "GET",
+                                "header": [],
+                                "url": {
+                                    "raw": "{{base_url}}/api/v2/analytics/by-language",
+                                    "host": [
+                                        "{{base_url}}"
+                                    ],
+                                    "path": [
+                                        "api",
+                                        "v2",
+                                        "analytics",
+                                        "by-language"
+                                    ]
+                                }
+                            }
+                        }
+                    ]
+                },
+                {
+                    "name": "⚠️ Broken Link Report",
+                    "item": [
+                        {
+                            "name": "Submit Report",
+                            "request": {
+                                "method": "POST",
+                                "header": [
+                                    {
+                                        "key": "Content-Type",
+                                        "value": "application/json"
+                                    }
+                                ],
+                                "body": {
+                                    "mode": "raw",
+                                    "raw": "{\n  \"document_id\": {{doc_id}},\n  \"reporter_name\": \"John Reporter\",\n  \"reporter_email\": \"reporter@example.com\",\n  \"details\": \"Link download PDF 404 Not Found\"\n}",
+                                    "options": {
+                                        "raw": {
+                                            "language": "json"
+                                        }
+                                    }
+                                },
+                                "url": {
+                                    "raw": "{{base_url}}/api/v2/reports",
+                                    "host": [
+                                        "{{base_url}}"
+                                    ],
+                                    "path": [
+                                        "api",
+                                        "v2",
+                                        "reports"
+                                    ]
+                                }
+                            }
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "name": "Protected",
+            "description": "Endpoint yang memerlukan JWT token. Token akan otomatis terisi setelah login via endpoint Login.",
+            "item": [
+                {
+                    "name": "👤 User Settings",
+                    "item": [
+                        {
+                            "name": "Get Profile (Me)",
+                            "request": {
+                                "method": "GET",
+                                "header": [
+                                    {
+                                        "key": "Authorization",
+                                        "value": "Bearer {{token}}"
+                                    }
+                                ],
+                                "url": {
+                                    "raw": "{{base_url}}/api/v2/user/me",
+                                    "host": [
+                                        "{{base_url}}"
+                                    ],
+                                    "path": [
+                                        "api",
+                                        "v2",
+                                        "user",
+                                        "me"
+                                    ]
+                                }
+                            }
+                        },
+                        {
+                            "name": "Update Profile",
+                            "request": {
+                                "method": "PUT",
+                                "header": [
+                                    {
+                                        "key": "Authorization",
+                                        "value": "Bearer {{token}}"
+                                    },
+                                    {
+                                        "key": "Content-Type",
+                                        "value": "application/json"
+                                    }
+                                ],
+                                "body": {
+                                    "mode": "raw",
+                                    "raw": "{\n  \"first_name\": \"Toni\",\n  \"last_name\": \"Sahidi\",\n  \"position\": \"Senior Staff\",\n  \"organization\": \"UNDP\",\n  \"phone_number\": \"+6289999999\"\n}",
+                                    "options": {
+                                        "raw": {
+                                            "language": "json"
+                                        }
+                                    }
+                                },
+                                "url": {
+                                    "raw": "{{base_url}}/api/v2/user/profile",
+                                    "host": [
+                                        "{{base_url}}"
+                                    ],
+                                    "path": [
+                                        "api",
+                                        "v2",
+                                        "user",
+                                        "profile"
+                                    ]
+                                }
+                            }
+                        },
+                        {
+                            "name": "Change Password",
+                            "request": {
+                                "method": "PUT",
+                                "header": [
+                                    {
+                                        "key": "Authorization",
+                                        "value": "Bearer {{token}}"
+                                    },
+                                    {
+                                        "key": "Content-Type",
+                                        "value": "application/json"
+                                    }
+                                ],
+                                "body": {
+                                    "mode": "raw",
+                                    "raw": "{\n  \"current_password\": \"rahasiaku123\",\n  \"new_password\": \"passwordbaru123\",\n  \"confirm_password\": \"passwordbaru123\"\n}",
+                                    "options": {
+                                        "raw": {
+                                            "language": "json"
+                                        }
+                                    }
+                                },
+                                "url": {
+                                    "raw": "{{base_url}}/api/v2/user/password",
+                                    "host": [
+                                        "{{base_url}}"
+                                    ],
+                                    "path": [
+                                        "api",
+                                        "v2",
+                                        "user",
+                                        "password"
+                                    ]
+                                }
+                            }
+                        },
+                        {
+                            "name": "Get Notification Preferences",
+                            "request": {
+                                "method": "GET",
+                                "header": [
+                                    {
+                                        "key": "Authorization",
+                                        "value": "Bearer {{token}}"
+                                    }
+                                ],
+                                "url": {
+                                    "raw": "{{base_url}}/api/v2/user/notifications",
+                                    "host": [
+                                        "{{base_url}}"
+                                    ],
+                                    "path": [
+                                        "api",
+                                        "v2",
+                                        "user",
+                                        "notifications"
+                                    ]
+                                }
+                            }
+                        },
+                        {
+                            "name": "Update Notification Preferences",
+                            "request": {
+                                "method": "PUT",
+                                "header": [
+                                    {
+                                        "key": "Authorization",
+                                        "value": "Bearer {{token}}"
+                                    },
+                                    {
+                                        "key": "Content-Type",
+                                        "value": "application/json"
+                                    }
+                                ],
+                                "body": {
+                                    "mode": "raw",
+                                    "raw": "{\n  \"document_approvals\": true,\n  \"broken_link_reports\": false,\n  \"system_updates\": true,\n  \"email_notifications\": true\n}",
+                                    "options": {
+                                        "raw": {
+                                            "language": "json"
+                                        }
+                                    }
+                                },
+                                "url": {
+                                    "raw": "{{base_url}}/api/v2/user/notifications",
+                                    "host": [
+                                        "{{base_url}}"
+                                    ],
+                                    "path": [
+                                        "api",
+                                        "v2",
+                                        "user",
+                                        "notifications"
+                                    ]
+                                }
+                            }
+                        }
+                    ]
+                },
+                {
+                    "name": "🛠️ Admin Settings",
+                    "item": [
+                        {
+                            "name": "Get Whitelist Emails",
+                            "request": {
+                                "method": "GET",
+                                "header": [
+                                    {
+                                        "key": "Authorization",
+                                        "value": "Bearer {{token}}"
+                                    }
+                                ],
+                                "url": {
+                                    "raw": "{{base_url}}/api/v2/admin/emails",
+                                    "host": [
+                                        "{{base_url}}"
+                                    ],
+                                    "path": [
+                                        "api",
+                                        "v2",
+                                        "admin",
+                                        "emails"
+                                    ]
+                                }
+                            }
+                        },
+                        {
+                            "name": "Add Whitelist Email",
+                            "request": {
+                                "method": "POST",
+                                "header": [
+                                    {
+                                        "key": "Authorization",
+                                        "value": "Bearer {{token}}"
+                                    },
+                                    {
+                                        "key": "Content-Type",
+                                        "value": "application/json"
+                                    }
+                                ],
+                                "body": {
+                                    "mode": "raw",
+                                    "raw": "{\n  \"email\": \"newadmin@un.org\"\n}",
+                                    "options": {
+                                        "raw": {
+                                            "language": "json"
+                                        }
+                                    }
+                                },
+                                "url": {
+                                    "raw": "{{base_url}}/api/v2/admin/emails",
+                                    "host": [
+                                        "{{base_url}}"
+                                    ],
+                                    "path": [
+                                        "api",
+                                        "v2",
+                                        "admin",
+                                        "emails"
+                                    ]
+                                }
+                            }
+                        },
+                        {
+                            "name": "Delete Whitelist Email",
+                            "request": {
+                                "method": "DELETE",
+                                "header": [
+                                    {
+                                        "key": "Authorization",
+                                        "value": "Bearer {{token}}"
+                                    }
+                                ],
+                                "url": {
+                                    "raw": "{{base_url}}/api/v2/admin/emails/newadmin@un.org",
+                                    "host": [
+                                        "{{base_url}}"
+                                    ],
+                                    "path": [
+                                        "api",
+                                        "v2",
+                                        "admin",
+                                        "emails",
+                                        "newadmin@un.org"
+                                    ]
+                                }
+                            }
+                        }
+                    ]
+                },
+                {
+                    "name": "🖥️ CMS Dashboard & Submissions",
+                    "item": [
+                        {
+                            "name": "CMS Dashboard Stats",
+                            "request": {
+                                "method": "GET",
+                                "header": [
+                                    {
+                                        "key": "Authorization",
+                                        "value": "Bearer {{token}}"
+                                    }
+                                ],
+                                "url": {
+                                    "raw": "{{base_url}}/api/v2/cms/dashboard",
+                                    "host": [
+                                        "{{base_url}}"
+                                    ],
+                                    "path": [
+                                        "api",
+                                        "v2",
+                                        "cms",
+                                        "dashboard"
+                                    ]
+                                }
+                            }
+                        },
+                        {
+                            "name": "CMS Recent Activity",
+                            "request": {
+                                "method": "GET",
+                                "header": [
+                                    {
+                                        "key": "Authorization",
+                                        "value": "Bearer {{token}}"
+                                    }
+                                ],
+                                "url": {
+                                    "raw": "{{base_url}}/api/v2/cms/activity",
+                                    "host": [
+                                        "{{base_url}}"
+                                    ],
+                                    "path": [
+                                        "api",
+                                        "v2",
+                                        "cms",
+                                        "activity"
+                                    ]
+                                }
+                            }
+                        },
+                        {
+                            "name": "List Submissions",
+                            "request": {
+                                "method": "GET",
+                                "header": [
+                                    {
+                                        "key": "Authorization",
+                                        "value": "Bearer {{token}}"
+                                    }
+                                ],
+                                "url": {
+                                    "raw": "{{base_url}}/api/v2/submissions?status=all",
+                                    "host": [
+                                        "{{base_url}}"
+                                    ],
+                                    "path": [
+                                        "api",
+                                        "v2",
+                                        "submissions"
+                                    ],
+                                    "query": [
+                                        {
+                                            "key": "status",
+                                            "value": "all"
+                                        }
+                                    ]
+                                }
+                            }
+                        },
+                        {
+                            "name": "Save Draft (Step 1-3)",
+                            "request": {
+                                "method": "POST",
+                                "header": [
+                                    {
+                                        "key": "Authorization",
+                                        "value": "Bearer {{token}}"
+                                    },
+                                    {
+                                        "key": "Content-Type",
+                                        "value": "application/json"
+                                    }
+                                ],
+                                "body": {
+                                    "mode": "raw",
+                                    "raw": "{\n  \"step\": 2,\n  \"data\": {\n    \"title\": \"Draf Laporan Perdagangan Digital\",\n    \"short_summary\": \"Analisis mendalam mengenai potensi digital rural...\",\n    \"focal_point_name\": \"Budi Santoso\"\n  }\n}",
+                                    "options": {
+                                        "raw": {
+                                            "language": "json"
+                                        }
+                                    }
+                                },
+                                "url": {
+                                    "raw": "{{base_url}}/api/v2/submissions/0/draft",
+                                    "host": [
+                                        "{{base_url}}"
+                                    ],
+                                    "path": [
+                                        "api",
+                                        "v2",
+                                        "submissions",
+                                        "0",
+                                        "draft"
+                                    ]
+                                }
+                            }
+                        },
+                        {
+                            "name": "Final Submit Document (Step 4)",
+                            "request": {
+                                "method": "POST",
+                                "header": [
+                                    {
+                                        "key": "Authorization",
+                                        "value": "Bearer {{token}}"
+                                    },
+                                    {
+                                        "key": "Content-Type",
+                                        "value": "application/json"
+                                    }
+                                ],
+                                "body": {
+                                    "mode": "raw",
+                                    "raw": "{\n  \"title\": \"Digital Economy and Financial Inclusion in Rural Indonesia\",\n  \"short_description\": \"Analysis of digital financial services...\",\n  \"abstract\": \"This comprehensive report analyzes...\",\n  \"detailed_summary\": \"<b>Executive Overview</b><br>This extensive report...\",\n  \"date_of_publication\": \"2024-06-15\",\n  \"total_pages\": 120,\n  \"language\": \"English\",\n  \"publication_status\": \"Published\",\n  \"tags\": [\"digital economy\", \"financial inclusion\"],\n  \"file_url\": \"/uploads/doc_test.pdf\",\n  \"file_size\": \"4.2 MB\",\n  \"cover_image_url\": \"/uploads/cover_test.jpg\",\n  \"agency\": \"UNDP\",\n  \"focal_point\": {\n    \"name\": \"Budi Santoso\",\n    \"email\": \"b.santoso@undp.org\",\n    \"phone\": \"+6281234567890\",\n    \"department\": \"Inclusive Growth Unit\"\n  },\n  \"sdgs\": [\"GOAL 1\", \"GOAL 8\"],\n  \"sectors\": [\"economic-development\"],\n  \"lnob_groups\": [\"women-girls\"],\n  \"joint_programme\": \"proklim\"\n}",
+                                    "options": {
+                                        "raw": {
+                                            "language": "json"
+                                        }
+                                    }
+                                },
+                                "url": {
+                                    "raw": "{{base_url}}/api/v2/submissions",
+                                    "host": [
+                                        "{{base_url}}"
+                                    ],
+                                    "path": [
+                                        "api",
+                                        "v2",
+                                        "submissions"
+                                    ]
+                                }
+                            }
+                        },
+                        {
+                            "name": "Publish Document",
+                            "request": {
+                                "method": "PUT",
+                                "header": [
+                                    {
+                                        "key": "Authorization",
+                                        "value": "Bearer {{token}}"
+                                    }
+                                ],
+                                "url": {
+                                    "raw": "{{base_url}}/api/v2/submissions/{{doc_id}}/publish",
+                                    "host": [
+                                        "{{base_url}}"
+                                    ],
+                                    "path": [
+                                        "api",
+                                        "v2",
+                                        "submissions",
+                                        "{{doc_id}}",
+                                        "publish"
+                                    ]
+                                }
+                            }
+                        },
+                        {
+                            "name": "Unpublish Document",
+                            "request": {
+                                "method": "PUT",
+                                "header": [
+                                    {
+                                        "key": "Authorization",
+                                        "value": "Bearer {{token}}"
+                                    }
+                                ],
+                                "url": {
+                                    "raw": "{{base_url}}/api/v2/submissions/{{doc_id}}/unpublish",
+                                    "host": [
+                                        "{{base_url}}"
+                                    ],
+                                    "path": [
+                                        "api",
+                                        "v2",
+                                        "submissions",
+                                        "{{doc_id}}",
+                                        "unpublish"
+                                    ]
+                                }
+                            }
+                        },
+                        {
+                            "name": "Delete Submission",
+                            "request": {
+                                "method": "DELETE",
+                                "header": [
+                                    {
+                                        "key": "Authorization",
+                                        "value": "Bearer {{token}}"
+                                    }
+                                ],
+                                "url": {
+                                    "raw": "{{base_url}}/api/v2/submissions/{{doc_id}}",
+                                    "host": [
+                                        "{{base_url}}"
+                                    ],
+                                    "path": [
+                                        "api",
+                                        "v2",
+                                        "submissions",
+                                        "{{doc_id}}"
+                                    ]
+                                }
+                            }
+                        }
+                    ]
+                },
+                {
+                    "name": "📁 CMS Reference Management",
+                    "item": [
+                        {
+                            "name": "Get Reference List",
+                            "request": {
+                                "method": "GET",
+                                "header": [
+                                    {
+                                        "key": "Authorization",
+                                        "value": "Bearer {{token}}"
+                                    }
+                                ],
+                                "url": {
+                                    "raw": "{{base_url}}/api/v2/cms/reference/sectors",
+                                    "host": [
+                                        "{{base_url}}"
+                                    ],
+                                    "path": [
+                                        "api",
+                                        "v2",
+                                        "cms",
+                                        "reference",
+                                        "sectors"
+                                    ]
+                                }
+                            }
+                        },
+                        {
+                            "name": "Create Reference Item",
+                            "request": {
+                                "method": "POST",
+                                "header": [
+                                    {
+                                        "key": "Authorization",
+                                        "value": "Bearer {{token}}"
+                                    },
+                                    {
+                                        "key": "Content-Type",
+                                        "value": "application/json"
+                                    }
+                                ],
+                                "body": {
+                                    "mode": "raw",
+                                    "raw": "{\n  \"code\": \"test-sector-xyz\",\n  \"name\": \"Test Sector XYZ\"\n}",
+                                    "options": {
+                                        "raw": {
+                                            "language": "json"
+                                        }
+                                    }
+                                },
+                                "url": {
+                                    "raw": "{{base_url}}/api/v2/cms/reference/sectors",
+                                    "host": [
+                                        "{{base_url}}"
+                                    ],
+                                    "path": [
+                                        "api",
+                                        "v2",
+                                        "cms",
+                                        "reference",
+                                        "sectors"
+                                    ]
+                                }
+                            }
+                        },
+                        {
+                            "name": "Edit Reference Item",
+                            "request": {
+                                "method": "PUT",
+                                "header": [
+                                    {
+                                        "key": "Authorization",
+                                        "value": "Bearer {{token}}"
+                                    },
+                                    {
+                                        "key": "Content-Type",
+                                        "value": "application/json"
+                                    }
+                                ],
+                                "body": {
+                                    "mode": "raw",
+                                    "raw": "{\n  \"name\": \"Updated Test Sector XYZ\"\n}",
+                                    "options": {
+                                        "raw": {
+                                            "language": "json"
+                                        }
+                                    }
+                                },
+                                "url": {
+                                    "raw": "{{base_url}}/api/v2/cms/reference/sectors/test-sector-xyz",
+                                    "host": [
+                                        "{{base_url}}"
+                                    ],
+                                    "path": [
+                                        "api",
+                                        "v2",
+                                        "cms",
+                                        "reference",
+                                        "sectors",
+                                        "test-sector-xyz"
+                                    ]
+                                }
+                            }
+                        },
+                        {
+                            "name": "Delete Reference Item",
+                            "request": {
+                                "method": "DELETE",
+                                "header": [
+                                    {
+                                        "key": "Authorization",
+                                        "value": "Bearer {{token}}"
+                                    }
+                                ],
+                                "url": {
+                                    "raw": "{{base_url}}/api/v2/cms/reference/sectors/test-sector-xyz",
+                                    "host": [
+                                        "{{base_url}}"
+                                    ],
+                                    "path": [
+                                        "api",
+                                        "v2",
+                                        "cms",
+                                        "reference",
+                                        "sectors",
+                                        "test-sector-xyz"
+                                    ]
+                                }
+                            }
+                        }
+                    ]
+                },
+                {
+                    "name": "👥 CMS User Management",
+                    "item": [
+                        {
+                            "name": "List Users",
+                            "request": {
+                                "method": "GET",
+                                "header": [
+                                    {
+                                        "key": "Authorization",
+                                        "value": "Bearer {{token}}"
+                                    }
+                                ],
+                                "url": {
+                                    "raw": "{{base_url}}/api/v2/users",
+                                    "host": [
+                                        "{{base_url}}"
+                                    ],
+                                    "path": [
+                                        "api",
+                                        "v2",
+                                        "users"
+                                    ]
+                                }
+                            }
+                        },
+                        {
+                            "name": "Create User",
+                            "request": {
+                                "method": "POST",
+                                "header": [
+                                    {
+                                        "key": "Authorization",
+                                        "value": "Bearer {{token}}"
+                                    },
+                                    {
+                                        "key": "Content-Type",
+                                        "value": "application/json"
+                                    }
+                                ],
+                                "body": {
+                                    "mode": "raw",
+                                    "raw": "{\n  \"first_name\": \"Budi\",\n  \"last_name\": \"Santoso\",\n  \"email\": \"budi.santoso@un.org\",\n  \"password\": \"password123\",\n  \"confirm_password\": \"password123\",\n  \"organization\": \"WHO\",\n  \"position\": \"Health Officer\",\n  \"phone_number\": \"+62811223344\",\n  \"role\": \"editor\",\n  \"status\": \"active\"\n}",
+                                    "options": {
+                                        "raw": {
+                                            "language": "json"
+                                        }
+                                    }
+                                },
+                                "url": {
+                                    "raw": "{{base_url}}/api/v2/users",
+                                    "host": [
+                                        "{{base_url}}"
+                                    ],
+                                    "path": [
+                                        "api",
+                                        "v2",
+                                        "users"
+                                    ]
+                                }
+                            }
+                        },
+                        {
+                            "name": "Edit User",
+                            "request": {
+                                "method": "PUT",
+                                "header": [
+                                    {
+                                        "key": "Authorization",
+                                        "value": "Bearer {{token}}"
+                                    },
+                                    {
+                                        "key": "Content-Type",
+                                        "value": "application/json"
+                                    }
+                                ],
+                                "body": {
+                                    "mode": "raw",
+                                    "raw": "{\n  \"position\": \"Senior Health Officer\",\n  \"status\": \"active\"\n}",
+                                    "options": {
+                                        "raw": {
+                                            "language": "json"
+                                        }
+                                    }
+                                },
+                                "url": {
+                                    "raw": "{{base_url}}/api/v2/users/{{user_id}}",
+                                    "host": [
+                                        "{{base_url}}"
+                                    ],
+                                    "path": [
+                                        "api",
+                                        "v2",
+                                        "users",
+                                        "{{user_id}}"
+                                    ]
+                                }
+                            }
+                        },
+                        {
+                            "name": "Delete User",
+                            "request": {
+                                "method": "DELETE",
+                                "header": [
+                                    {
+                                        "key": "Authorization",
+                                        "value": "Bearer {{token}}"
+                                    }
+                                ],
+                                "url": {
+                                    "raw": "{{base_url}}/api/v2/users/{{user_id}}",
+                                    "host": [
+                                        "{{base_url}}"
+                                    ],
+                                    "path": [
+                                        "api",
+                                        "v2",
+                                        "users",
+                                        "{{user_id}}"
+                                    ]
+                                }
+                            }
+                        }
+                    ]
+                },
+                {
+                    "name": "⚠️ CMS Reports Management",
+                    "item": [
+                        {
+                            "name": "List Reports",
+                            "request": {
+                                "method": "GET",
+                                "header": [
+                                    {
+                                        "key": "Authorization",
+                                        "value": "Bearer {{token}}"
+                                    }
+                                ],
+                                "url": {
+                                    "raw": "{{base_url}}/api/v2/reports?status=all",
+                                    "host": [
+                                        "{{base_url}}"
+                                    ],
+                                    "path": [
+                                        "api",
+                                        "v2",
+                                        "reports"
+                                    ],
+                                    "query": [
+                                        {
+                                            "key": "status",
+                                            "value": "all"
+                                        }
+                                    ]
+                                }
+                            }
+                        },
+                        {
+                            "name": "Update Report Status",
+                            "request": {
+                                "method": "PUT",
+                                "header": [
+                                    {
+                                        "key": "Authorization",
+                                        "value": "Bearer {{token}}"
+                                    },
+                                    {
+                                        "key": "Content-Type",
+                                        "value": "application/json"
+                                    }
+                                ],
+                                "body": {
+                                    "mode": "raw",
+                                    "raw": "{\n  \"status\": \"in_progress\"\n}",
+                                    "options": {
+                                        "raw": {
+                                            "language": "json"
+                                        }
+                                    }
+                                },
+                                "url": {
+                                    "raw": "{{base_url}}/api/v2/reports/{{report_id}}/status",
+                                    "host": [
+                                        "{{base_url}}"
+                                    ],
+                                    "path": [
+                                        "api",
+                                        "v2",
+                                        "reports",
+                                        "{{report_id}}",
+                                        "status"
+                                    ]
+                                }
+                            }
+                        }
+                    ]
+                },
+                {
+                    "name": "📈 CMS Analytics",
+                    "item": [
+                        {
+                            "name": "Analytics Summary",
+                            "request": {
+                                "method": "GET",
+                                "header": [
+                                    {
+                                        "key": "Authorization",
+                                        "value": "Bearer {{token}}"
+                                    }
+                                ],
+                                "url": {
+                                    "raw": "{{base_url}}/api/v2/analytics/summary",
+                                    "host": [
+                                        "{{base_url}}"
+                                    ],
+                                    "path": [
+                                        "api",
+                                        "v2",
+                                        "analytics",
+                                        "summary"
+                                    ]
+                                }
+                            }
+                        },
+                        {
+                            "name": "Top Downloads",
+                            "request": {
+                                "method": "GET",
+                                "header": [
+                                    {
+                                        "key": "Authorization",
+                                        "value": "Bearer {{token}}"
+                                    }
+                                ],
+                                "url": {
+                                    "raw": "{{base_url}}/api/v2/analytics/top-downloads",
+                                    "host": [
+                                        "{{base_url}}"
+                                    ],
+                                    "path": [
+                                        "api",
+                                        "v2",
+                                        "analytics",
+                                        "top-downloads"
+                                    ]
+                                }
+                            }
+                        },
+                        {
+                            "name": "Top Views",
+                            "request": {
+                                "method": "GET",
+                                "header": [
+                                    {
+                                        "key": "Authorization",
+                                        "value": "Bearer {{token}}"
+                                    }
+                                ],
+                                "url": {
+                                    "raw": "{{base_url}}/api/v2/analytics/top-views",
+                                    "host": [
+                                        "{{base_url}}"
+                                    ],
+                                    "path": [
+                                        "api",
+                                        "v2",
+                                        "analytics",
+                                        "top-views"
+                                    ]
+                                }
+                            }
+                        }
+                    ]
+                },
+                {
+                    "name": "📤 File Upload & Validation",
+                    "item": [
+                        {
+                            "name": "Upload File",
+                            "request": {
+                                "method": "POST",
+                                "header": [
+                                    {
+                                        "key": "Authorization",
+                                        "value": "Bearer {{token}}"
+                                    }
+                                ],
+                                "body": {
+                                    "mode": "formdata",
+                                    "formdata": [
+                                        {
+                                            "key": "file",
+                                            "type": "file",
+                                            "src": []
+                                        },
+                                        {
+                                            "key": "type",
+                                            "value": "document",
+                                            "type": "text"
+                                        }
+                                    ]
+                                },
+                                "url": {
+                                    "raw": "{{base_url}}/api/v2/upload",
+                                    "host": [
+                                        "{{base_url}}"
+                                    ],
+                                    "path": [
+                                        "api",
+                                        "v2",
+                                        "upload"
+                                    ]
+                                }
+                            }
+                        },
+                        {
+                            "name": "Validate External URL",
+                            "request": {
+                                "method": "POST",
+                                "header": [
+                                    {
+                                        "key": "Authorization",
+                                        "value": "Bearer {{token}}"
+                                    },
+                                    {
+                                        "key": "Content-Type",
+                                        "value": "application/json"
+                                    }
+                                ],
+                                "body": {
+                                    "mode": "raw",
+                                    "raw": "{\n  \"url\": \"https://www.un.org/sites/un2.un.org/files/un_charter.pdf\"\n}",
+                                    "options": {
+                                        "raw": {
+                                            "language": "json"
+                                        }
+                                    }
+                                },
+                                "url": {
+                                    "raw": "{{base_url}}/api/v2/upload/url-validate",
+                                    "host": [
+                                        "{{base_url}}"
+                                    ],
+                                    "path": [
+                                        "api",
+                                        "v2",
+                                        "upload",
+                                        "url-validate"
+                                    ]
+                                }
+                            }
+                        },
+                        {
+                            "name": "Upload Profile Avatar",
+                            "request": {
+                                "method": "POST",
+                                "header": [
+                                    {
+                                        "key": "Authorization",
+                                        "value": "Bearer {{token}}"
+                                    }
+                                ],
+                                "body": {
+                                    "mode": "formdata",
+                                    "formdata": [
+                                        {
+                                            "key": "avatar",
+                                            "type": "file",
+                                            "src": []
+                                        }
+                                    ]
+                                },
+                                "url": {
+                                    "raw": "{{base_url}}/api/v2/upload/avatar",
+                                    "host": [
+                                        "{{base_url}}"
+                                    ],
+                                    "path": [
+                                        "api",
+                                        "v2",
+                                        "upload",
+                                        "avatar"
+                                    ]
+                                }
+                            }
+                        }
+                    ]
+                }
+            ]
+        }
+    ],
+    "variable": [
+        {
+            "key": "base_url",
+            "value": "http://localhost:3000",
+            "type": "string"
+        },
+        {
+            "key": "token",
+            "value": "",
+            "type": "string"
+        },
+        {
+            "key": "doc_id",
+            "value": "1",
+            "type": "string"
+        },
+        {
+            "key": "user_id",
+            "value": "1",
+            "type": "string"
+        },
+        {
+            "key": "report_id",
+            "value": "1",
+            "type": "string"
+        }
+    ]
 }

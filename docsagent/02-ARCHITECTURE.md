@@ -52,28 +52,28 @@ Setiap layer menggunakan **Go interfaces** untuk testability:
 ## Alur Autentikasi
 
 ### Register
-1. Client POST `/api/auth/register` dengan `{first_name, last_name, position, organization, phone_number, email, password, confirm_password, captcha}`
+1. Client POST `/api/v2/auth/register` dengan `{first_name, last_name, position, organization, phone_number, email, password, confirm_password, captcha}`
 2. `AuthController.Register` -> parse body
 3. `AuthService.Register` -> verify captcha -> validasi input -> hash password (bcrypt) -> auto-generate username dari email -> `UserRepository.Create` -> generate JWT
 4. Response 201: `{token, user}`
 
 ### Login
-1. Client POST `/api/auth/login` dengan `{email, password, captcha}`
+1. Client POST `/api/v2/auth/login` dengan `{email, password, captcha}`
 2. `AuthController.Login` -> parse body
 3. `AuthService.Login` -> verify captcha -> `UserRepository.FindByEmail` -> compare bcrypt -> generate JWT
 4. Response 200: `{token, user}`
 
 ### Forgot Password
-1. Client POST `/api/auth/forgot-password` dengan `{email, captcha}`
+1. Client POST `/api/v2/auth/forgot-password` dengan `{email, captcha}`
 2. `AuthService.ForgotPassword` -> verify captcha -> cari user -> generate random token (32 byte hex) -> simpan token + expiry (1 jam) -> kirim email
 3. Response 200: pesan sukses (tetap sama meski email tidak ditemukan)
 
 ### Reset Password
-1. Client POST `/api/auth/reset-password` dengan `{token, password, confirm_password}`
+1. Client POST `/api/v2/auth/reset-password` dengan `{token, password, confirm_password}`
 2. `AuthService.ResetPassword` -> validasi input -> cari user by token (cek expiry) -> hash password baru -> update password, hapus token
 
 ### JWT Validation
-1. Client GET `/api/user/me` dengan header `Authorization: Bearer <token>`
+1. Client GET `/api/v2/user/me` dengan header `Authorization: Bearer <token>`
 2. `JWTMiddleware` -> extract token -> parse & validate -> set `c.Locals("user_id")` dan `c.Locals("user_email")`
 3. `AuthController.Me` -> panggil `AuthService.GetProfile` yang fetch dari DB -> return full profile
 

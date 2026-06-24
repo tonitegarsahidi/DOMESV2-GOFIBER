@@ -3,7 +3,7 @@ package model
 import "time"
 
 type Document struct {
-	ID                    uint             `json:"id" gorm:"primaryKey;column:id"`
+	V2Base
 	Code                  string           `json:"code" gorm:"size:100;column:code"`
 	Slug                  string           `json:"slug" gorm:"uniqueIndex;size:255;column:slug"`
 	Title                 string           `json:"title" gorm:"size:255;not null;column:title"`
@@ -26,9 +26,9 @@ type Document struct {
 	FocalPointPhone       string           `json:"focal_point_phone" gorm:"size:100;column:focal_point_phone"`
 	FocalPointDepartment  string           `json:"focal_point_department" gorm:"size:255;column:focal_point_department"`
 	LeadAgencyCode        string           `json:"lead_agency_code" gorm:"size:100;column:lead_agency_code"`
-	LeadAgency            *Agency          `json:"lead_agency,omitempty" gorm:"foreignKey:LeadAgencyCode;constraint:false"`
+	LeadAgency            *Agency          `json:"lead_agency,omitempty" gorm:"foreignKey:LeadAgencyCode;references:Code;constraint:false"`
 	JointProgrammeCode    string           `json:"joint_programme_code" gorm:"size:100;column:joint_programme_code"`
-	JointProgramme        *JointProgramme  `json:"joint_programme,omitempty" gorm:"foreignKey:JointProgrammeCode;constraint:false"`
+	JointProgramme        *JointProgramme  `json:"joint_programme,omitempty" gorm:"foreignKey:JointProgrammeCode;references:Code;constraint:false"`
 	GeographicScope       string           `json:"geographic_scope" gorm:"size:255;column:geographic_scope"`
 	ThematicAreas         string           `json:"thematic_areas" gorm:"type:text;column:thematic_areas"` // JSON list
 	Tags                  string           `json:"tags" gorm:"type:text;column:tags"`                     // JSON list
@@ -37,15 +37,13 @@ type Document struct {
 	SupportingFiles       string           `json:"supporting_files" gorm:"type:text;column:supporting_files"` // JSON list
 	AuthorID              uint             `json:"author_id" gorm:"column:author_id"`
 	Author                *User            `json:"author,omitempty" gorm:"foreignKey:AuthorID;constraint:false"`
-	Sdgs                  []Sdg            `json:"sdgs" gorm:"many2many:DocumentSdgs;constraint:false;"`
-	Sectors               []Sector         `json:"sectors" gorm:"many2many:DocumentSectors;constraint:false;"`
-	Lnobs                 []Lnob           `json:"lnob_groups" gorm:"many2many:DocumentLnobs;constraint:false;"`
-	CreatedAt             time.Time        `json:"created_at" gorm:"column:createdAt"`
-	UpdatedAt             time.Time        `json:"updated_at" gorm:"column:updatedAt"`
+	Sdgs                  []Sdg            `json:"sdgs" gorm:"many2many:V2DocumentSdgs;constraint:false;"`
+	Sectors               []Sector         `json:"sectors" gorm:"many2many:V2DocumentSectors;constraint:false;"`
+	Lnobs                 []Lnob           `json:"lnob_groups" gorm:"many2many:V2DocumentLnobs;constraint:false;"`
 }
 
 func (Document) TableName() string {
-	return "Documents"
+	return "V2Documents"
 }
 
 // Request payload structures
@@ -101,7 +99,7 @@ type PartnerDTO struct {
 
 // Detailed response structs
 type DocumentResponse struct {
-	ID              uint             `json:"id"`
+	ID              string           `json:"id"`
 	Code            string           `json:"code"`
 	Slug            string           `json:"slug"`
 	Title           string           `json:"title"`
@@ -146,23 +144,23 @@ type Classification struct {
 }
 
 type DocumentListItem struct {
-	ID         uint     `json:"id"`
-	Title      string   `json:"title"`
-	Slug       string   `json:"slug"`
-	Description string  `json:"description"`
-	Agency     string   `json:"agency"`
-	Year       int      `json:"year"`
-	Language   string   `json:"language"`
-	FileSize   string   `json:"file_size"`
-	TotalPages int      `json:"total_pages"`
-	Type       string   `json:"type"`
-	PubStatus  string   `json:"pub_status"`
-	CoverImage string   `json:"cover_image"`
-	Sdgs       []string `json:"sdgs"`
-	Tags       []string `json:"tags"`
-	Views      int      `json:"views"`
-	Downloads  int      `json:"downloads"`
-	CreatedAt  time.Time `json:"created_at"`
+	ID          string    `json:"id"`
+	Title       string    `json:"title"`
+	Slug        string    `json:"slug"`
+	Description string    `json:"description"`
+	Agency      string    `json:"agency"`
+	Year        int       `json:"year"`
+	Language    string    `json:"language"`
+	FileSize    string    `json:"file_size"`
+	TotalPages  int       `json:"total_pages"`
+	Type        string    `json:"type"`
+	PubStatus   string    `json:"pub_status"`
+	CoverImage  string    `json:"cover_image"`
+	Sdgs        []string  `json:"sdgs"`
+	Tags        []string  `json:"tags"`
+	Views       int       `json:"views"`
+	Downloads   int       `json:"downloads"`
+	CreatedAt   time.Time `json:"created_at"`
 }
 
 type DocumentListResponse struct {

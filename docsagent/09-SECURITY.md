@@ -77,7 +77,7 @@ bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(req.Password))
    ```
 2. User centang "I'm not a robot" → Google generate token
 3. **Frontend** kirim token ke backend via field `captcha` di request body
-4. **Backend** verifikasi token ke `https://www.google.com/recaptcha/api/siteverify` pakai **Secret Key** (`pkg/captcha/recaptcha.go:37`)
+4. **Backend** verifikasi token ke `https://www.google.com/recaptcha/api/v2/siteverify` pakai **Secret Key** (`pkg/captcha/recaptcha.go:37`)
 5. Jika invalid, return 422 dengan `CAPTCHA_INVALID`
 
 ## 4. Production Security Checklist

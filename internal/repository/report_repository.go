@@ -13,7 +13,7 @@ import (
 type ReportRepository interface {
 	Create(report *model.Report) error
 	List(status string, search string, page int, limit int) ([]model.Report, int, error)
-	UpdateStatus(id uint, status string) (*model.Report, error)
+	UpdateStatus(id string, status string) (*model.Report, error)
 }
 
 type reportRepository struct {
@@ -44,8 +44,8 @@ func (r *reportRepository) List(status string, search string, page int, limit in
 
 	if search != "" {
 		// Join documents to search by document title
-		query = query.Joins("JOIN Documents ON Documents.id = Reports.document_id").
-			Where("LOWER(Documents.title) LIKE ?", "%"+strings.ToLower(search)+"%")
+		query = query.Joins("JOIN V2Documents ON V2Documents.id = V2Reports.document_id").
+			Where("LOWER(V2Documents.title) LIKE ?", "%"+strings.ToLower(search)+"%")
 	}
 
 	var totalItems int64
@@ -61,9 +61,9 @@ func (r *reportRepository) List(status string, search string, page int, limit in
 	return reports, int(totalItems), nil
 }
 
-func (r *reportRepository) UpdateStatus(id uint, status string) (*model.Report, error) {
+func (r *reportRepository) UpdateStatus(id string, status string) (*model.Report, error) {
 	var report model.Report
-	if err := r.db.First(&report, id).Error; err != nil {
+	if err := r.db.First(&report, "id = ?", id).Error; err != nil {
 		if err == gorm.ErrRecordNotFound {
 			return nil, errors.NewNotFoundError("Report not found", "REPORT_NOT_FOUND")
 		}

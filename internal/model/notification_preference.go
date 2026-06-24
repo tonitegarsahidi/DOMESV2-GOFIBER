@@ -1,20 +1,16 @@
 package model
 
-import "time"
-
 type NotificationPreference struct {
-	ID                 uint      `json:"-" gorm:"primaryKey;column:id"`
-	UserID             uint      `json:"-" gorm:"uniqueIndex;not null;column:user_id"`
-	DocumentApprovals  bool      `json:"document_approvals" gorm:"column:document_approvals;default:true"`
-	BrokenLinkReports  bool      `json:"broken_link_reports" gorm:"column:broken_link_reports;default:true"`
-	SystemUpdates      bool      `json:"system_updates" gorm:"column:system_updates;default:false"`
-	EmailNotifications bool      `json:"email_notifications" gorm:"column:email_notifications;default:true"`
-	CreatedAt          time.Time `json:"-" gorm:"column:createdAt"`
-	UpdatedAt          time.Time `json:"-" gorm:"column:updatedAt"`
+	V2Base
+	UserID             uint `json:"-" gorm:"uniqueIndex;not null;column:user_id"`
+	DocumentApprovals  bool `json:"document_approvals" gorm:"column:document_approvals;default:true"`
+	BrokenLinkReports  bool `json:"broken_link_reports" gorm:"column:broken_link_reports;default:true"`
+	SystemUpdates      bool `json:"system_updates" gorm:"column:system_updates;default:false"`
+	EmailNotifications bool `json:"email_notifications" gorm:"column:email_notifications;default:true"`
 }
 
 func (NotificationPreference) TableName() string {
-	return "NotificationPreferences"
+	return "V2NotificationPreferences"
 }
 
 type UpdateNotificationRequest struct {

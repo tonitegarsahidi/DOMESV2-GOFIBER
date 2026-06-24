@@ -1,8 +1,6 @@
 package controller
 
 import (
-	"strconv"
-
 	"github.com/gofiber/fiber/v2"
 	"domesv2/internal/model"
 	"domesv2/internal/service"
@@ -54,8 +52,7 @@ func (ctrl *ReportController) ListReports(c *fiber.Ctx) error {
 
 func (ctrl *ReportController) UpdateStatus(c *fiber.Ctx) error {
 	idParam := c.Params("id")
-	id, err := strconv.Atoi(idParam)
-	if err != nil {
+	if idParam == "" {
 		return response.BadRequest(c, "Invalid report ID", "VALIDATION_FAILED")
 	}
 
@@ -64,7 +61,7 @@ func (ctrl *ReportController) UpdateStatus(c *fiber.Ctx) error {
 		return response.BadRequest(c, "Invalid request body", "INVALID_REQUEST_BODY")
 	}
 
-	report, err := ctrl.reportService.UpdateReportStatus(uint(id), req.Status)
+	report, err := ctrl.reportService.UpdateReportStatus(idParam, req.Status)
 	if err != nil {
 		return response.Error(c, err)
 	}

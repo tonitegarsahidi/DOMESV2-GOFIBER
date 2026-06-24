@@ -1,6 +1,7 @@
 package database
 
 import (
+	"os"
 	"time"
 
 	"domesv2/internal/model"
@@ -16,18 +17,23 @@ func MigrateAndSeed(db *gorm.DB) {
 
 	zap.L().Info("Running database migration check...")
 
-	// 1. Update Users Table columns manually if they don't exist
-	if !db.Migrator().HasColumn(&model.User{}, "role") {
-		zap.L().Info("Adding 'role' column to Users table")
-		db.Migrator().AddColumn(&model.User{}, "role")
-	}
-	if !db.Migrator().HasColumn(&model.User{}, "status") {
-		zap.L().Info("Adding 'status' column to Users table")
-		db.Migrator().AddColumn(&model.User{}, "status")
-	}
-	if !db.Migrator().HasColumn(&model.User{}, "avatar_url") {
-		zap.L().Info("Adding 'avatar_url' column to Users table")
-		db.Migrator().AddColumn(&model.User{}, "avatar_url")
+	// 1. Update Users Table columns manually if they don't exist (Only if explicitly requested)
+	if os.Getenv("RUN_USER_MIGRATION") == "true" {
+		zap.L().Info("Running explicit Users table migration...")
+		if !db.Migrator().HasColumn(&model.User{}, "role") {
+			zap.L().Info("Adding 'role' column to Users table")
+			db.Migrator().AddColumn(&model.User{}, "role")
+		}
+		if !db.Migrator().HasColumn(&model.User{}, "status") {
+			zap.L().Info("Adding 'status' column to Users table")
+			db.Migrator().AddColumn(&model.User{}, "status")
+		}
+		if !db.Migrator().HasColumn(&model.User{}, "avatar_url") {
+			zap.L().Info("Adding 'avatar_url' column to Users table")
+			db.Migrator().AddColumn(&model.User{}, "avatar_url")
+		}
+	} else {
+		zap.L().Info("Skipping Users table migration (RUN_USER_MIGRATION is not true)")
 	}
 
 	// 2. Create NotificationPreferences Table

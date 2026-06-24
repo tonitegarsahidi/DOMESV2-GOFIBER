@@ -1,96 +1,86 @@
 package model
 
-import "time"
-
 type Agency struct {
-	Code      string    `json:"code" gorm:"primaryKey;size:100;column:code"`
-	Name      string    `json:"name" gorm:"size:255;not null;column:name"`
-	LogoURL   string    `json:"logo_url" gorm:"size:255;column:logo_url"`
-	CreatedAt time.Time `json:"-" gorm:"column:createdAt"`
-	UpdatedAt time.Time `json:"-" gorm:"column:updatedAt"`
+	V2Base
+	Code    string `json:"code" gorm:"uniqueIndex;size:100;column:code"`
+	Name    string `json:"name" gorm:"size:255;not null;column:name"`
+	LogoURL string `json:"logo_url" gorm:"size:255;column:logo_url"`
 }
 
 func (Agency) TableName() string {
-	return "Agencies"
+	return "V2Agencies"
 }
 
 type Sdg struct {
-	Code      string    `json:"code" gorm:"primaryKey;size:100;column:code"`
-	Name      string    `json:"name" gorm:"size:255;not null;column:name"`
-	Icon      string    `json:"icon" gorm:"size:255;column:icon"`
-	Color     string    `json:"color" gorm:"size:50;column:color"`
-	CreatedAt time.Time `json:"-" gorm:"column:createdAt"`
-	UpdatedAt time.Time `json:"-" gorm:"column:updatedAt"`
+	V2Base
+	Code  string `json:"code" gorm:"uniqueIndex;size:100;column:code"`
+	Name  string `json:"name" gorm:"size:255;not null;column:name"`
+	Icon  string `json:"icon" gorm:"size:255;column:icon"`
+	Color string `json:"color" gorm:"size:50;column:color"`
 }
 
 func (Sdg) TableName() string {
-	return "Sdgs"
+	return "V2Sdgs"
 }
 
 type Sector struct {
-	Code      string    `json:"code" gorm:"primaryKey;size:100;column:code"`
-	Name      string    `json:"name" gorm:"size:255;not null;column:name"`
-	CreatedAt time.Time `json:"-" gorm:"column:createdAt"`
-	UpdatedAt time.Time `json:"-" gorm:"column:updatedAt"`
+	V2Base
+	Code string `json:"code" gorm:"uniqueIndex;size:100;column:code"`
+	Name string `json:"name" gorm:"size:255;not null;column:name"`
 }
 
 func (Sector) TableName() string {
-	return "Sectors"
+	return "V2Sectors"
 }
 
 type Language struct {
-	Code      string    `json:"code" gorm:"primaryKey;size:100;column:code"`
-	Name      string    `json:"name" gorm:"size:255;not null;column:name"`
-	CreatedAt time.Time `json:"-" gorm:"column:createdAt"`
-	UpdatedAt time.Time `json:"-" gorm:"column:updatedAt"`
+	V2Base
+	Code string `json:"code" gorm:"uniqueIndex;size:100;column:code"`
+	Name string `json:"name" gorm:"size:255;not null;column:name"`
 }
 
 func (Language) TableName() string {
-	return "Languages"
+	return "V2Languages"
 }
 
 type JointProgramme struct {
-	Code      string    `json:"code" gorm:"primaryKey;size:100;column:code"`
-	Name      string    `json:"name" gorm:"size:255;not null;column:name"`
-	CreatedAt time.Time `json:"-" gorm:"column:createdAt"`
-	UpdatedAt time.Time `json:"-" gorm:"column:updatedAt"`
+	V2Base
+	Code string `json:"code" gorm:"uniqueIndex;size:100;column:code"`
+	Name string `json:"name" gorm:"size:255;not null;column:name"`
 }
 
 func (JointProgramme) TableName() string {
-	return "JointProgrammes"
+	return "V2JointProgrammes"
 }
 
 type Lnob struct {
-	Code      string    `json:"code" gorm:"primaryKey;size:100;column:code"`
-	Name      string    `json:"name" gorm:"size:255;not null;column:name"`
-	CreatedAt time.Time `json:"-" gorm:"column:createdAt"`
-	UpdatedAt time.Time `json:"-" gorm:"column:updatedAt"`
+	V2Base
+	Code string `json:"code" gorm:"uniqueIndex;size:100;column:code"`
+	Name string `json:"name" gorm:"size:255;not null;column:name"`
 }
 
 func (Lnob) TableName() string {
-	return "Lnobs"
+	return "V2Lnobs"
 }
 
 type NonUnPartner struct {
-	Code      string    `json:"code" gorm:"primaryKey;size:100;column:code"`
-	Name      string    `json:"name" gorm:"size:255;not null;column:name"`
-	CreatedAt time.Time `json:"-" gorm:"column:createdAt"`
-	UpdatedAt time.Time `json:"-" gorm:"column:updatedAt"`
+	V2Base
+	Code string `json:"code" gorm:"uniqueIndex;size:100;column:code"`
+	Name string `json:"name" gorm:"size:255;not null;column:name"`
 }
 
 func (NonUnPartner) TableName() string {
-	return "NonUnPartners"
+	return "V2NonUnPartners"
 }
 
 type Organization struct {
-	Code      string    `json:"code" gorm:"primaryKey;size:100;column:code"`
-	Name      string    `json:"name" gorm:"size:255;not null;column:name"`
-	CreatedAt time.Time `json:"-" gorm:"column:createdAt"`
-	UpdatedAt time.Time `json:"-" gorm:"column:updatedAt"`
+	V2Base
+	Code string `json:"code" gorm:"uniqueIndex;size:100;column:code"`
+	Name string `json:"name" gorm:"size:255;not null;column:name"`
 }
 
 func (Organization) TableName() string {
-	return "Organizations"
+	return "V2Organizations"
 }
 
 type ReferenceRequest struct {

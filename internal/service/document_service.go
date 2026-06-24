@@ -17,16 +17,16 @@ import (
 
 type DocumentService interface {
 	CreateSubmission(userID uint, req *model.SubmissionRequest) (*model.Document, error)
-	SaveDraft(userID uint, submissionID uint, step int, data interface{}) (*model.Document, error)
-	GetDocumentByID(id uint) (*model.DocumentResponse, error)
+	SaveDraft(userID uint, submissionID string, step int, data interface{}) (*model.Document, error)
+	GetDocumentByID(id string) (*model.DocumentResponse, error)
 	GetDocumentBySlug(slug string) (*model.DocumentResponse, error)
 	ListPublicDocuments(filters map[string]interface{}) (*model.DocumentListResponse, error)
 	SearchPublicDocuments(q string, page int, limit int, sort string, filters map[string]interface{}) (map[string]interface{}, error)
-	DeleteSubmission(id uint) error
-	PublishDocument(id uint) (*model.Document, error)
-	UnpublishDocument(id uint) (*model.Document, error)
-	GetRelatedDocuments(id uint) ([]model.DocumentResponse, error)
-	GenerateDownloadLink(id uint) (map[string]interface{}, error)
+	DeleteSubmission(id string) error
+	PublishDocument(id string) (*model.Document, error)
+	UnpublishDocument(id string) (*model.Document, error)
+	GetRelatedDocuments(id string) ([]model.DocumentResponse, error)
+	GenerateDownloadLink(id string) (map[string]interface{}, error)
 	GetPlatformStats() (map[string]interface{}, error)
 	GetAnalyticsOverview() (map[string]interface{}, error)
 	GetUploadsOverTime(fromYear, toYear int) ([]map[string]interface{}, error)
@@ -142,12 +142,12 @@ func (s *documentService) CreateSubmission(userID uint, req *model.SubmissionReq
 	return doc, nil
 }
 
-func (s *documentService) SaveDraft(userID uint, submissionID uint, step int, data interface{}) (*model.Document, error) {
+func (s *documentService) SaveDraft(userID uint, submissionID string, step int, data interface{}) (*model.Document, error) {
 	// Let's create or fetch draft submission
 	var doc *model.Document
 	var err error
 
-	if submissionID > 0 {
+	if submissionID != "" {
 		doc, err = s.docRepo.GetByID(submissionID)
 		if err != nil {
 			return nil, err
@@ -201,10 +201,10 @@ func (s *documentService) SaveDraft(userID uint, submissionID uint, step int, da
 		}
 	case 3:
 		var step3Data struct {
-			Abstract        string           `json:"abstract"`
-			DetailedSummary string           `json:"detailed_summary"`
-			FileURL         string           `json:"file_url"`
-			FileSize        string           `json:"file_size"`
+			Abstract        string                 `json:"abstract"`
+			DetailedSummary string                 `json:"detailed_summary"`
+			FileURL         string                 `json:"file_url"`
+			FileSize        string                 `json:"file_size"`
 			CoverImageURL   string                 `json:"cover_image_url"`
 			SupportingFiles []model.SupportingFile `json:"supporting_files"`
 		}
@@ -227,7 +227,7 @@ func (s *documentService) SaveDraft(userID uint, submissionID uint, step int, da
 	return doc, nil
 }
 
-func (s *documentService) GetDocumentByID(id uint) (*model.DocumentResponse, error) {
+func (s *documentService) GetDocumentByID(id string) (*model.DocumentResponse, error) {
 	doc, err := s.docRepo.GetByID(id)
 	if err != nil {
 		return nil, err
@@ -279,6 +279,11 @@ func (s *documentService) ListPublicDocuments(filters map[string]interface{}) (*
 			agencyName = doc.LeadAgency.Name
 		}
 
+		createdAtVal := time.Time{}
+		if doc.CreatedAt != nil {
+			createdAtVal = *doc.CreatedAt
+		}
+
 		items = append(items, model.DocumentListItem{
 			ID:          doc.ID,
 			Title:       doc.Title,
@@ -296,7 +301,7 @@ func (s *documentService) ListPublicDocuments(filters map[string]interface{}) (*
 			Tags:        tags,
 			Views:       doc.Views,
 			Downloads:   doc.Downloads,
-			CreatedAt:   doc.CreatedAt,
+			CreatedAt:   createdAtVal,
 		})
 	}
 
@@ -336,7 +341,6 @@ func (s *documentService) SearchPublicDocuments(q string, page int, limit int, s
 		return nil, err
 	}
 
-	// Add highlighting & suggestions matching the contracts
 	var highlightedItems []map[string]interface{}
 	for _, item := range listResp.Items {
 		hlTitle := highlightWord(item.Title, q)
@@ -350,10 +354,10 @@ func (s *documentService) SearchPublicDocuments(q string, page int, limit int, s
 			"agency":      item.Agency,
 			"year":        item.Year,
 			"language":    item.Language,
-			"file_size":    item.FileSize,
+			"file_size":   item.FileSize,
 			"total_pages": item.TotalPages,
 			"type":        item.Type,
-			"pub_status":   item.PubStatus,
+			"pub_status":  item.PubStatus,
 			"cover_image": item.CoverImage,
 			"sdgs":        item.Sdgs,
 			"tags":        item.Tags,
@@ -380,11 +384,11 @@ func (s *documentService) SearchPublicDocuments(q string, page int, limit int, s
 	}, nil
 }
 
-func (s *documentService) DeleteSubmission(id uint) error {
+func (s *documentService) DeleteSubmission(id string) error {
 	return s.docRepo.Delete(id)
 }
 
-func (s *documentService) PublishDocument(id uint) (*model.Document, error) {
+func (s *documentService) PublishDocument(id string) (*model.Document, error) {
 	doc, err := s.docRepo.GetByID(id)
 	if err != nil {
 		return nil, err
@@ -397,7 +401,7 @@ func (s *documentService) PublishDocument(id uint) (*model.Document, error) {
 	return doc, nil
 }
 
-func (s *documentService) UnpublishDocument(id uint) (*model.Document, error) {
+func (s *documentService) UnpublishDocument(id string) (*model.Document, error) {
 	doc, err := s.docRepo.GetByID(id)
 	if err != nil {
 		return nil, err
@@ -410,7 +414,7 @@ func (s *documentService) UnpublishDocument(id uint) (*model.Document, error) {
 	return doc, nil
 }
 
-func (s *documentService) GetRelatedDocuments(id uint) ([]model.DocumentResponse, error) {
+func (s *documentService) GetRelatedDocuments(id string) ([]model.DocumentResponse, error) {
 	doc, err := s.docRepo.GetByID(id)
 	if err != nil {
 		return nil, err
@@ -428,7 +432,7 @@ func (s *documentService) GetRelatedDocuments(id uint) ([]model.DocumentResponse
 	return resp, nil
 }
 
-func (s *documentService) GenerateDownloadLink(id uint) (map[string]interface{}, error) {
+func (s *documentService) GenerateDownloadLink(id string) (map[string]interface{}, error) {
 	doc, err := s.docRepo.GetByID(id)
 	if err != nil {
 		return nil, err
@@ -524,13 +528,10 @@ func (s *documentService) ListSubmissions(status string, search string, page int
 // Private utilities
 func slugify(title string) string {
 	slug := strings.ToLower(title)
-	// Remove HTML
 	reHTML := regexp.MustCompile("<[^>]*>")
 	slug = reHTML.ReplaceAllString(slug, "")
-	// Replace non-alphanumeric with hyphen
 	re := regexp.MustCompile("[^a-z0-9]+")
 	slug = re.ReplaceAllString(slug, "-")
-	// Trim hyphens
 	slug = strings.Trim(slug, "-")
 	return slug
 }
@@ -547,7 +548,6 @@ func highlightWord(text, query string) string {
 	if query == "" {
 		return text
 	}
-	// Case-insensitive regex replace
 	escapedQuery := regexp.QuoteMeta(query)
 	re := regexp.MustCompile("(?i)" + escapedQuery)
 	return re.ReplaceAllStringFunc(text, func(m string) string {
@@ -556,7 +556,11 @@ func highlightWord(text, query string) string {
 }
 
 func mapToDocumentResponse(doc *model.Document) model.DocumentResponse {
-	dateAdded := doc.CreatedAt.Format("2006-01-02")
+	createdAtVal := time.Time{}
+	if doc.CreatedAt != nil {
+		createdAtVal = *doc.CreatedAt
+	}
+	dateAdded := createdAtVal.Format("2006-01-02")
 
 	var sdgs []model.SdgDTO
 	for _, s := range doc.Sdgs {
@@ -603,6 +607,11 @@ func mapToDocumentResponse(doc *model.Document) model.DocumentResponse {
 		jpName = doc.JointProgrammeCode
 	}
 
+	updatedAtVal := time.Time{}
+	if doc.UpdatedAt != nil {
+		updatedAtVal = *doc.UpdatedAt
+	}
+
 	return model.DocumentResponse{
 		ID:         doc.ID,
 		Code:       doc.Code,
@@ -640,8 +649,8 @@ func mapToDocumentResponse(doc *model.Document) model.DocumentResponse {
 		},
 		Views:           doc.Views,
 		Downloads:       doc.Downloads,
-		CreatedAt:       doc.CreatedAt,
-		UpdatedAt:       doc.UpdatedAt,
+		CreatedAt:       createdAtVal,
+		UpdatedAt:       updatedAtVal,
 		SupportingFiles: supportingFiles,
 	}
 }

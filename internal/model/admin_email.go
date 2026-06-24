@@ -3,12 +3,13 @@ package model
 import "time"
 
 type AdminEmail struct {
-	Email   string    `json:"email" gorm:"primaryKey;size:255;column:email"`
+	V2Base
+	Email   string    `json:"email" gorm:"uniqueIndex;size:255;column:email"`
 	AddedAt time.Time `json:"added_at" gorm:"column:added_at"`
 }
 
 func (AdminEmail) TableName() string {
-	return "AdminEmails"
+	return "V2AdminEmails"
 }
 
 type AddAdminEmailRequest struct {
