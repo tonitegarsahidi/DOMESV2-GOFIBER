@@ -21,18 +21,7 @@
 							"path": [""]
 						},
 						"description": "Informasi dasar API"
-					},
-					"response": [
-						{
-							"name": "Success",
-							"status": "OK",
-							"code": 200,
-							"header": [
-								{ "key": "Content-Type", "value": "application/json" }
-							],
-							"body": "{\n  \"success\": true,\n  \"message\": \"Hello Domes v2\",\n  \"version\": \"1.0.0\",\n  \"docs\": \"/api/health-check\"\n}"
-						}
-					]
+					}
 				},
 				{
 					"name": "❤️ Health Check",
@@ -45,27 +34,7 @@
 							"path": ["api", "health-check"]
 						},
 						"description": "Pengecekan status database, redis, dan aplikasi"
-					},
-					"response": [
-						{
-							"name": "Healthy",
-							"status": "OK",
-							"code": 200,
-							"header": [
-								{ "key": "Content-Type", "value": "application/json" }
-							],
-							"body": "{\n  \"success\": true,\n  \"message\": \"All systems operational\",\n  \"data\": {\n    \"status\": \"healthy\",\n    \"timestamp\": \"2024-06-23T10:00:00+07:00\",\n    \"services\": {\n      \"application\": \"healthy\",\n      \"database\": \"healthy\",\n      \"redis\": \"disabled\"\n    }\n  }\n}"
-						},
-						{
-							"name": "Unhealthy",
-							"status": "Service Unavailable",
-							"code": 503,
-							"header": [
-								{ "key": "Content-Type", "value": "application/json" }
-							],
-							"body": "{\n  \"status\": \"unhealthy\",\n  \"timestamp\": \"2024-06-23T10:00:00+07:00\",\n  \"services\": {\n    \"application\": \"healthy\",\n    \"database\": \"unhealthy\",\n    \"database_error\": \"database not initialized\",\n    \"redis\": \"disabled\"\n  }\n}"
-						}
-					]
+					}
 				},
 				{
 					"name": "📝 Register",
@@ -79,45 +48,15 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n  \"first_name\": \"Erlangga\",\n  \"last_name\": \"Agustino\",\n  \"position\": \"Administrator\",\n  \"organization\": \"UNITED NATIONS\",\n  \"phone_number\": \"+628123456789\",\n  \"email\": \"erlangga@un.org\",\n  \"password\": \"password123\",\n  \"confirm_password\": \"password123\",\n  \"captcha\": \"\"\n}",
+							"raw": "{\n  \"first_name\": \"Toni\",\n  \"last_name\": \"Tegar\",\n  \"position\": \"Staff\",\n  \"organization\": \"UNDP\",\n  \"phone_number\": \"+62812345678\",\n  \"email\": \"tonitegarsahidi@gmail.com\",\n  \"password\": \"rahasiaku123\",\n  \"confirm_password\": \"rahasiaku123\",\n  \"captcha\": \"\"\n}",
 							"options": { "raw": { "language": "json" } }
 						},
 						"url": {
 							"raw": "{{base_url}}/api/auth/register",
 							"host": ["{{base_url}}"],
 							"path": ["api", "auth", "register"]
-						},
-						"description": "Mendaftarkan user baru.\n\n**Validasi:**\n- `first_name`: required\n- `last_name`: required\n- `email`: required, format email\n- `password`: min 6 karakter\n- `confirm_password`: harus sama dengan password\n- `captcha`: required jika RECAPTCHA_ENABLED=true dan ENV!=local"
-					},
-					"response": [
-						{
-							"name": "Created",
-							"status": "Created",
-							"code": 201,
-							"header": [
-								{ "key": "Content-Type", "value": "application/json" }
-							],
-							"body": "{\n  \"success\": true,\n  \"message\": \"User registered successfully\",\n  \"data\": {\n    \"token\": \"eyJhbGciOiJIUzI1NiIs...\",\n    \"user\": {\n      \"id\": 1,\n      \"username\": \"erlangga\",\n      \"name\": \"Erlangga Agustino\",\n      \"first_name\": \"Erlangga\",\n      \"last_name\": \"Agustino\",\n      \"email\": \"erlangga@un.org\",\n      \"type\": null,\n      \"position\": \"Administrator\",\n      \"organization\": \"UNITED NATIONS\",\n      \"phone_number\": \"+628123456789\",\n      \"created_at\": \"2024-06-23T10:00:00+07:00\",\n      \"updated_at\": \"2024-06-23T10:00:00+07:00\"\n    }\n  }\n}"
-						},
-						{
-							"name": "Conflict - Email Already Exists",
-							"status": "Conflict",
-							"code": 409,
-							"header": [
-								{ "key": "Content-Type", "value": "application/json" }
-							],
-							"body": "{\n  \"success\": false,\n  \"message\": \"User with this email already exists\",\n  \"error\": \"USER_ALREADY_EXISTS\",\n  \"details\": \"User with this email already exists: USER_ALREADY_EXISTS\"\n}"
-						},
-						{
-							"name": "Validation Error",
-							"status": "Unprocessable Entity",
-							"code": 422,
-							"header": [
-								{ "key": "Content-Type", "value": "application/json" }
-							],
-							"body": "{\n  \"success\": false,\n  \"message\": \"Passwords do not match\",\n  \"error\": \"VALIDATION_FAILED\",\n  \"details\": \"Passwords do not match: VALIDATION_FAILED\"\n}"
 						}
-					]
+					}
 				},
 				{
 					"name": "🔑 Login",
@@ -146,45 +85,15 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n  \"email\": \"erlangga@un.org\",\n  \"password\": \"password123\",\n  \"captcha\": \"\"\n}",
+							"raw": "{\n  \"email\": \"tonitegarsahidi@gmail.com\",\n  \"password\": \"rahasiaku123\",\n  \"captcha\": \"\"\n}",
 							"options": { "raw": { "language": "json" } }
 						},
 						"url": {
 							"raw": "{{base_url}}/api/auth/login",
 							"host": ["{{base_url}}"],
 							"path": ["api", "auth", "login"]
-						},
-						"description": "Login user dan mendapatkan JWT token.\n\n**Test Script:** Token akan auto-ke set ke variable `{{token}}` untuk digunakan di endpoint lain."
-					},
-					"response": [
-						{
-							"name": "Success",
-							"status": "OK",
-							"code": 200,
-							"header": [
-								{ "key": "Content-Type", "value": "application/json" }
-							],
-							"body": "{\n  \"success\": true,\n  \"message\": \"Login successful\",\n  \"data\": {\n    \"token\": \"eyJhbGciOiJIUzI1NiIs...\",\n    \"user\": {\n      \"id\": 1,\n      \"username\": \"erlangga\",\n      \"name\": \"Erlangga Agustino\",\n      \"first_name\": \"Erlangga\",\n      \"last_name\": \"Agustino\",\n      \"email\": \"erlangga@un.org\",\n      \"type\": \"admin\",\n      \"position\": \"Administrator\",\n      \"organization\": \"UNITED NATIONS\",\n      \"phone_number\": \"+628123456789\",\n      \"created_at\": \"2024-06-23T10:00:00+07:00\",\n      \"updated_at\": \"2024-06-23T10:00:00+07:00\"\n    }\n  }\n}"
-						},
-						{
-							"name": "Invalid Credentials",
-							"status": "Unauthorized",
-							"code": 401,
-							"header": [
-								{ "key": "Content-Type", "value": "application/json" }
-							],
-							"body": "{\n  \"success\": false,\n  \"message\": \"Invalid credentials\",\n  \"error\": \"INVALID_CREDENTIALS\",\n  \"details\": \"Invalid credentials: INVALID_CREDENTIALS\"\n}"
-						},
-						{
-							"name": "User Not Found",
-							"status": "Not Found",
-							"code": 404,
-							"header": [
-								{ "key": "Content-Type", "value": "application/json" }
-							],
-							"body": "{\n  \"success\": false,\n  \"message\": \"User not found\",\n  \"error\": \"USER_NOT_FOUND\",\n  \"details\": \"User not found: USER_NOT_FOUND\"\n}"
 						}
-					]
+					}
 				},
 				{
 					"name": "🔐 Forgot Password",
@@ -198,27 +107,15 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n  \"email\": \"erlangga@un.org\",\n  \"captcha\": \"\"\n}",
+							"raw": "{\n  \"email\": \"tonitegarsahidi@gmail.com\",\n  \"captcha\": \"\"\n}",
 							"options": { "raw": { "language": "json" } }
 						},
 						"url": {
 							"raw": "{{base_url}}/api/auth/forgot-password",
 							"host": ["{{base_url}}"],
 							"path": ["api", "auth", "forgot-password"]
-						},
-						"description": "Mengirim email reset password.\n\n> Endpoint selalu return 200 meskipun email tidak ditemukan (mencegah email enumeration)."
-					},
-					"response": [
-						{
-							"name": "Success",
-							"status": "OK",
-							"code": 200,
-							"header": [
-								{ "key": "Content-Type", "value": "application/json" }
-							],
-							"body": "{\n  \"success\": true,\n  \"message\": \"If the email exists, a reset link has been sent\",\n  \"data\": null\n}"
 						}
-					]
+					}
 				},
 				{
 					"name": "🔄 Reset Password",
@@ -232,34 +129,305 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n  \"token\": \"a1b2c3d4e5f67890a1b2c3d4e5f67890a1b2c3d4e5f67890a1b2c3d4e5f67890\",\n  \"password\": \"newpassword123\",\n  \"confirm_password\": \"newpassword123\"\n}",
+							"raw": "{\n  \"token\": \"token-reset-password-dari-email\",\n  \"password\": \"passwordbaru123\",\n  \"confirm_password\": \"passwordbaru123\"\n}",
 							"options": { "raw": { "language": "json" } }
 						},
 						"url": {
 							"raw": "{{base_url}}/api/auth/reset-password",
 							"host": ["{{base_url}}"],
 							"path": ["api", "auth", "reset-password"]
-						},
-						"description": "Mereset password menggunakan token dari email.\n\n**Validasi:**\n- `token`: required, token 64 hex chars dari email\n- `password`: min 6 karakter\n- `confirm_password`: harus sama dengan password"
-					},
-					"response": [
+						}
+					}
+				},
+				{
+					"name": "📂 Reference Data",
+					"item": [
 						{
-							"name": "Success",
-							"status": "OK",
-							"code": 200,
-							"header": [
-								{ "key": "Content-Type", "value": "application/json" }
-							],
-							"body": "{\n  \"success\": true,\n  \"message\": \"Password has been reset successfully\",\n  \"data\": null\n}"
+							"name": "Agencies",
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{base_url}}/api/reference/agencies",
+									"host": ["{{base_url}}"],
+									"path": ["api", "reference", "agencies"]
+								}
+							}
 						},
 						{
-							"name": "Invalid / Expired Token",
-							"status": "Bad Request",
-							"code": 400,
-							"header": [
-								{ "key": "Content-Type", "value": "application/json" }
-							],
-							"body": "{\n  \"success\": false,\n  \"message\": \"Invalid or expired reset token\",\n  \"error\": \"INVALID_RESET_TOKEN\",\n  \"details\": \"Invalid or expired reset token: INVALID_RESET_TOKEN\"\n}"
+							"name": "SDGs",
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{base_url}}/api/reference/sdgs",
+									"host": ["{{base_url}}"],
+									"path": ["api", "reference", "sdgs"]
+								}
+							}
+						},
+						{
+							"name": "Sectors",
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{base_url}}/api/reference/sectors",
+									"host": ["{{base_url}}"],
+									"path": ["api", "reference", "sectors"]
+								}
+							}
+						},
+						{
+							"name": "Languages",
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{base_url}}/api/reference/languages",
+									"host": ["{{base_url}}"],
+									"path": ["api", "reference", "languages"]
+								}
+							}
+						},
+						{
+							"name": "Joint Programmes",
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{base_url}}/api/reference/joint-programmes",
+									"host": ["{{base_url}}"],
+									"path": ["api", "reference", "joint-programmes"]
+								}
+							}
+						},
+						{
+							"name": "LNOB Groups",
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{base_url}}/api/reference/lnobs",
+									"host": ["{{base_url}}"],
+									"path": ["api", "reference", "lnobs"]
+								}
+							}
+						},
+						{
+							"name": "Non-UN Partners",
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{base_url}}/api/reference/non-un-partners",
+									"host": ["{{base_url}}"],
+									"path": ["api", "reference", "non-un-partners"]
+								}
+							}
+						},
+						{
+							"name": "Organizations",
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{base_url}}/api/reference/organizations",
+									"host": ["{{base_url}}"],
+									"path": ["api", "reference", "organizations"]
+								}
+							}
+						}
+					]
+				},
+				{
+					"name": "📄 Documents Discovery",
+					"item": [
+						{
+							"name": "List Documents",
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{base_url}}/api/documents?page=1&limit=10&sort=newest",
+									"host": ["{{base_url}}"],
+									"path": ["api", "documents"],
+									"query": [
+										{ "key": "page", "value": "1" },
+										{ "key": "limit", "value": "10" },
+										{ "key": "sort", "value": "newest" },
+										{ "key": "agency", "value": "", "disabled": true },
+										{ "key": "sdg", "value": "", "disabled": true }
+									]
+								}
+							}
+						},
+						{
+							"name": "Search Documents",
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{base_url}}/api/documents/search?q=Digital",
+									"host": ["{{base_url}}"],
+									"path": ["api", "documents", "search"],
+									"query": [
+										{ "key": "q", "value": "Digital" }
+									]
+								}
+							}
+						},
+						{
+							"name": "Get Document Detail (ID or Slug)",
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{base_url}}/api/documents/{{doc_id}}",
+									"host": ["{{base_url}}"],
+									"path": ["api", "documents", "{{doc_id}}"]
+								}
+							}
+						},
+						{
+							"name": "Related Documents",
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{base_url}}/api/documents/{{doc_id}}/related",
+									"host": ["{{base_url}}"],
+									"path": ["api", "documents", "{{doc_id}}", "related"]
+								}
+							}
+						},
+						{
+							"name": "Download Document",
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{base_url}}/api/documents/{{doc_id}}/download",
+									"host": ["{{base_url}}"],
+									"path": ["api", "documents", "{{doc_id}}", "download"]
+								}
+							}
+						},
+						{
+							"name": "Platform Stats",
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{base_url}}/api/stats",
+									"host": ["{{base_url}}"],
+									"path": ["api", "stats"]
+								}
+							}
+						}
+					]
+				},
+				{
+					"name": "📊 Public Analytics",
+					"item": [
+						{
+							"name": "Analytics Overview",
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{base_url}}/api/analytics/overview",
+									"host": ["{{base_url}}"],
+									"path": ["api", "analytics", "overview"]
+								}
+							}
+						},
+						{
+							"name": "Uploads Over Time",
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{base_url}}/api/analytics/uploads-over-time",
+									"host": ["{{base_url}}"],
+									"path": ["api", "analytics", "uploads-over-time"]
+								}
+							}
+						},
+						{
+							"name": "By SDG",
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{base_url}}/api/analytics/by-sdg",
+									"host": ["{{base_url}}"],
+									"path": ["api", "analytics", "by-sdg"]
+								}
+							}
+						},
+						{
+							"name": "By Agency",
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{base_url}}/api/analytics/by-agency",
+									"host": ["{{base_url}}"],
+									"path": ["api", "analytics", "by-agency"]
+								}
+							}
+						},
+						{
+							"name": "By Sector",
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{base_url}}/api/analytics/by-sector",
+									"host": ["{{base_url}}"],
+									"path": ["api", "analytics", "by-sector"]
+								}
+							}
+						},
+						{
+							"name": "By Language",
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{base_url}}/api/analytics/by-language",
+									"host": ["{{base_url}}"],
+									"path": ["api", "analytics", "by-language"]
+								}
+							}
+						}
+					]
+				},
+				{
+					"name": "⚠️ Broken Link Report",
+					"item": [
+						{
+							"name": "Submit Report",
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n  \"document_id\": {{doc_id}},\n  \"reporter_name\": \"John Reporter\",\n  \"reporter_email\": \"reporter@example.com\",\n  \"details\": \"Link download PDF 404 Not Found\"\n}",
+									"options": { "raw": { "language": "json" } }
+								},
+								"url": {
+									"raw": "{{base_url}}/api/reports",
+									"host": ["{{base_url}}"],
+									"path": ["api", "reports"]
+								}
+							}
 						}
 					]
 				}
@@ -270,49 +438,511 @@
 			"description": "Endpoint yang memerlukan JWT token. Token akan otomatis terisi setelah login via endpoint Login.",
 			"item": [
 				{
-					"name": "👤 Get Profile (Me)",
-					"request": {
-						"method": "GET",
-						"header": [
-							{
-								"key": "Authorization",
-								"value": "Bearer {{token}}"
+					"name": "👤 User Settings",
+					"item": [
+						{
+							"name": "Get Profile (Me)",
+							"request": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "Authorization",
+										"value": "Bearer {{token}}"
+									}
+								],
+								"url": {
+									"raw": "{{base_url}}/api/user/me",
+									"host": ["{{base_url}}"],
+									"path": ["api", "user", "me"]
+								}
 							}
-						],
-						"url": {
-							"raw": "{{base_url}}/api/user/me",
-							"host": ["{{base_url}}"],
-							"path": ["api", "user", "me"]
-						},
-						"description": "Mendapatkan profil user yang sedang login.\n\n**Header:** `Authorization: Bearer {{token}}`\n\n> Token auto-terisi dari response endpoint Login."
-					},
-					"response": [
-						{
-							"name": "Success",
-							"status": "OK",
-							"code": 200,
-							"header": [
-								{ "key": "Content-Type", "value": "application/json" }
-							],
-							"body": "{\n  \"success\": true,\n  \"message\": \"User profile retrieved successfully\",\n  \"data\": {\n    \"id\": 1,\n    \"username\": \"erlangga\",\n    \"name\": \"Erlangga Agustino\",\n    \"first_name\": \"Erlangga\",\n    \"last_name\": \"Agustino\",\n    \"email\": \"erlangga@un.org\",\n    \"type\": \"admin\",\n    \"position\": \"Administrator\",\n    \"organization\": \"UNITED NATIONS\",\n    \"phone_number\": \"+628123456789\"\n  }\n}"
 						},
 						{
-							"name": "Unauthorized - No Token",
-							"status": "Unauthorized",
-							"code": 401,
-							"header": [
-								{ "key": "Content-Type", "value": "application/json" }
-							],
-							"body": "{\n  \"success\": false,\n  \"message\": \"Missing authorization header\",\n  \"error\": \"TOKEN_MISSING\",\n  \"details\": \"Missing authorization header: TOKEN_MISSING\"\n}"
+							"name": "Update Profile",
+							"request": {
+								"method": "PUT",
+								"header": [
+									{ "key": "Authorization", "value": "Bearer {{token}}" },
+									{ "key": "Content-Type", "value": "application/json" }
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n  \"first_name\": \"Toni\",\n  \"last_name\": \"Sahidi\",\n  \"position\": \"Senior Staff\",\n  \"organization\": \"UNDP\",\n  \"phone_number\": \"+6289999999\"\n}",
+									"options": { "raw": { "language": "json" } }
+								},
+								"url": {
+									"raw": "{{base_url}}/api/user/profile",
+									"host": ["{{base_url}}"],
+									"path": ["api", "user", "profile"]
+								}
+							}
 						},
 						{
-							"name": "Unauthorized - Invalid Token",
-							"status": "Unauthorized",
-							"code": 401,
-							"header": [
-								{ "key": "Content-Type", "value": "application/json" }
-							],
-							"body": "{\n  \"success\": false,\n  \"message\": \"Invalid or expired token\",\n  \"error\": \"INVALID_TOKEN\",\n  \"details\": \"Invalid or expired token: INVALID_TOKEN\"\n}"
+							"name": "Change Password",
+							"request": {
+								"method": "PUT",
+								"header": [
+									{ "key": "Authorization", "value": "Bearer {{token}}" },
+									{ "key": "Content-Type", "value": "application/json" }
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n  \"current_password\": \"rahasiaku123\",\n  \"new_password\": \"passwordbaru123\",\n  \"confirm_password\": \"passwordbaru123\"\n}",
+									"options": { "raw": { "language": "json" } }
+								},
+								"url": {
+									"raw": "{{base_url}}/api/user/password",
+									"host": ["{{base_url}}"],
+									"path": ["api", "user", "password"]
+								}
+							}
+						},
+						{
+							"name": "Get Notification Preferences",
+							"request": {
+								"method": "GET",
+								"header": [
+									{ "key": "Authorization", "value": "Bearer {{token}}" }
+								],
+								"url": {
+									"raw": "{{base_url}}/api/user/notifications",
+									"host": ["{{base_url}}"],
+									"path": ["api", "user", "notifications"]
+								}
+							}
+						},
+						{
+							"name": "Update Notification Preferences",
+							"request": {
+								"method": "PUT",
+								"header": [
+									{ "key": "Authorization", "value": "Bearer {{token}}" },
+									{ "key": "Content-Type", "value": "application/json" }
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n  \"document_approvals\": true,\n  \"broken_link_reports\": false,\n  \"system_updates\": true,\n  \"email_notifications\": true\n}",
+									"options": { "raw": { "language": "json" } }
+								},
+								"url": {
+									"raw": "{{base_url}}/api/user/notifications",
+									"host": ["{{base_url}}"],
+									"path": ["api", "user", "notifications"]
+								}
+							}
+						}
+					]
+				},
+				{
+					"name": "🛠️ Admin Settings",
+					"item": [
+						{
+							"name": "Get Whitelist Emails",
+							"request": {
+								"method": "GET",
+								"header": [
+									{ "key": "Authorization", "value": "Bearer {{token}}" }
+								],
+								"url": {
+									"raw": "{{base_url}}/api/admin/emails",
+									"host": ["{{base_url}}"],
+									"path": ["api", "admin", "emails"]
+								}
+							}
+						},
+						{
+							"name": "Add Whitelist Email",
+							"request": {
+								"method": "POST",
+								"header": [
+									{ "key": "Authorization", "value": "Bearer {{token}}" },
+									{ "key": "Content-Type", "value": "application/json" }
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n  \"email\": \"newadmin@un.org\"\n}",
+									"options": { "raw": { "language": "json" } }
+								},
+								"url": {
+									"raw": "{{base_url}}/api/admin/emails",
+									"host": ["{{base_url}}"],
+									"path": ["api", "admin", "emails"]
+								}
+							}
+						},
+						{
+							"name": "Delete Whitelist Email",
+							"request": {
+								"method": "DELETE",
+								"header": [
+									{ "key": "Authorization", "value": "Bearer {{token}}" }
+								],
+								"url": {
+									"raw": "{{base_url}}/api/admin/emails/newadmin@un.org",
+									"host": ["{{base_url}}"],
+									"path": ["api", "admin", "emails", "newadmin@un.org"]
+								}
+							}
+						}
+					]
+				},
+				{
+					"name": "🖥️ CMS Dashboard & Submissions",
+					"item": [
+						{
+							"name": "CMS Dashboard Stats",
+							"request": {
+								"method": "GET",
+								"header": [
+									{ "key": "Authorization", "value": "Bearer {{token}}" }
+								],
+								"url": {
+									"raw": "{{base_url}}/api/cms/dashboard",
+									"host": ["{{base_url}}"],
+									"path": ["api", "cms", "dashboard"]
+								}
+							}
+						},
+						{
+							"name": "CMS Recent Activity",
+							"request": {
+								"method": "GET",
+								"header": [
+									{ "key": "Authorization", "value": "Bearer {{token}}" }
+								],
+								"url": {
+									"raw": "{{base_url}}/api/cms/activity",
+									"host": ["{{base_url}}"],
+									"path": ["api", "cms", "activity"]
+								}
+							}
+						},
+						{
+							"name": "List Submissions",
+							"request": {
+								"method": "GET",
+								"header": [
+									{ "key": "Authorization", "value": "Bearer {{token}}" }
+								],
+								"url": {
+									"raw": "{{base_url}}/api/submissions?status=all",
+									"host": ["{{base_url}}"],
+									"path": ["api", "submissions"],
+									"query": [
+										{ "key": "status", "value": "all" }
+									]
+								}
+							}
+						},
+						{
+							"name": "Save Draft (Step 1-3)",
+							"request": {
+								"method": "POST",
+								"header": [
+									{ "key": "Authorization", "value": "Bearer {{token}}" },
+									{ "key": "Content-Type", "value": "application/json" }
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n  \"step\": 2,\n  \"data\": {\n    \"title\": \"Draf Laporan Perdagangan Digital\",\n    \"short_summary\": \"Analisis mendalam mengenai potensi digital rural...\",\n    \"focal_point_name\": \"Budi Santoso\"\n  }\n}",
+									"options": { "raw": { "language": "json" } }
+								},
+								"url": {
+									"raw": "{{base_url}}/api/submissions/0/draft",
+									"host": ["{{base_url}}"],
+									"path": ["api", "submissions", "0", "draft"]
+								}
+							}
+						},
+						{
+							"name": "Final Submit Document (Step 4)",
+							"request": {
+								"method": "POST",
+								"header": [
+									{ "key": "Authorization", "value": "Bearer {{token}}" },
+									{ "key": "Content-Type", "value": "application/json" }
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n  \"title\": \"Digital Economy and Financial Inclusion in Rural Indonesia\",\n  \"short_description\": \"Analysis of digital financial services...\",\n  \"abstract\": \"This comprehensive report analyzes...\",\n  \"detailed_summary\": \"<b>Executive Overview</b><br>This extensive report...\",\n  \"date_of_publication\": \"2024-06-15\",\n  \"total_pages\": 120,\n  \"language\": \"English\",\n  \"publication_status\": \"Published\",\n  \"tags\": [\"digital economy\", \"financial inclusion\"],\n  \"file_url\": \"/uploads/doc_test.pdf\",\n  \"file_size\": \"4.2 MB\",\n  \"cover_image_url\": \"/uploads/cover_test.jpg\",\n  \"agency\": \"UNDP\",\n  \"focal_point\": {\n    \"name\": \"Budi Santoso\",\n    \"email\": \"b.santoso@undp.org\",\n    \"phone\": \"+6281234567890\",\n    \"department\": \"Inclusive Growth Unit\"\n  },\n  \"sdgs\": [\"GOAL 1\", \"GOAL 8\"],\n  \"sectors\": [\"economic-development\"],\n  \"lnob_groups\": [\"women-girls\"],\n  \"joint_programme\": \"proklim\"\n}",
+									"options": { "raw": { "language": "json" } }
+								},
+								"url": {
+									"raw": "{{base_url}}/api/submissions",
+									"host": ["{{base_url}}"],
+									"path": ["api", "submissions"]
+								}
+							}
+						},
+						{
+							"name": "Publish Document",
+							"request": {
+								"method": "PUT",
+								"header": [
+									{ "key": "Authorization", "value": "Bearer {{token}}" }
+								],
+								"url": {
+									"raw": "{{base_url}}/api/submissions/{{doc_id}}/publish",
+									"host": ["{{base_url}}"],
+									"path": ["api", "submissions", "{{doc_id}}", "publish"]
+								}
+							}
+						},
+						{
+							"name": "Unpublish Document",
+							"request": {
+								"method": "PUT",
+								"header": [
+									{ "key": "Authorization", "value": "Bearer {{token}}" }
+								],
+								"url": {
+									"raw": "{{base_url}}/api/submissions/{{doc_id}}/unpublish",
+									"host": ["{{base_url}}"],
+									"path": ["api", "submissions", "{{doc_id}}", "unpublish"]
+								}
+							}
+						},
+						{
+							"name": "Delete Submission",
+							"request": {
+								"method": "DELETE",
+								"header": [
+									{ "key": "Authorization", "value": "Bearer {{token}}" }
+								],
+								"url": {
+									"raw": "{{base_url}}/api/submissions/{{doc_id}}",
+									"host": ["{{base_url}}"],
+									"path": ["api", "submissions", "{{doc_id}}"]
+								}
+							}
+						}
+					]
+				},
+				{
+					"name": "👥 CMS User Management",
+					"item": [
+						{
+							"name": "List Users",
+							"request": {
+								"method": "GET",
+								"header": [
+									{ "key": "Authorization", "value": "Bearer {{token}}" }
+								],
+								"url": {
+									"raw": "{{base_url}}/api/users",
+									"host": ["{{base_url}}"],
+									"path": ["api", "users"]
+								}
+							}
+						},
+						{
+							"name": "Create User",
+							"request": {
+								"method": "POST",
+								"header": [
+									{ "key": "Authorization", "value": "Bearer {{token}}" },
+									{ "key": "Content-Type", "value": "application/json" }
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n  \"first_name\": \"Budi\",\n  \"last_name\": \"Santoso\",\n  \"email\": \"budi.santoso@un.org\",\n  \"password\": \"password123\",\n  \"confirm_password\": \"password123\",\n  \"organization\": \"WHO\",\n  \"position\": \"Health Officer\",\n  \"phone_number\": \"+62811223344\",\n  \"role\": \"editor\",\n  \"status\": \"active\"\n}",
+									"options": { "raw": { "language": "json" } }
+								},
+								"url": {
+									"raw": "{{base_url}}/api/users",
+									"host": ["{{base_url}}"],
+									"path": ["api", "users"]
+								}
+							}
+						},
+						{
+							"name": "Edit User",
+							"request": {
+								"method": "PUT",
+								"header": [
+									{ "key": "Authorization", "value": "Bearer {{token}}" },
+									{ "key": "Content-Type", "value": "application/json" }
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n  \"position\": \"Senior Health Officer\",\n  \"status\": \"active\"\n}",
+									"options": { "raw": { "language": "json" } }
+								},
+								"url": {
+									"raw": "{{base_url}}/api/users/{{user_id}}",
+									"host": ["{{base_url}}"],
+									"path": ["api", "users", "{{user_id}}"]
+								}
+							}
+						},
+						{
+							"name": "Delete User",
+							"request": {
+								"method": "DELETE",
+								"header": [
+									{ "key": "Authorization", "value": "Bearer {{token}}" }
+								],
+								"url": {
+									"raw": "{{base_url}}/api/users/{{user_id}}",
+									"host": ["{{base_url}}"],
+									"path": ["api", "users", "{{user_id}}"]
+								}
+							}
+						}
+					]
+				},
+				{
+					"name": "⚠️ CMS Reports Management",
+					"item": [
+						{
+							"name": "List Reports",
+							"request": {
+								"method": "GET",
+								"header": [
+									{ "key": "Authorization", "value": "Bearer {{token}}" }
+								],
+								"url": {
+									"raw": "{{base_url}}/api/reports?status=all",
+									"host": ["{{base_url}}"],
+									"path": ["api", "reports"],
+									"query": [
+										{ "key": "status", "value": "all" }
+									]
+								}
+							}
+						},
+						{
+							"name": "Update Report Status",
+							"request": {
+								"method": "PUT",
+								"header": [
+									{ "key": "Authorization", "value": "Bearer {{token}}" },
+									{ "key": "Content-Type", "value": "application/json" }
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n  \"status\": \"in_progress\"\n}",
+									"options": { "raw": { "language": "json" } }
+								},
+								"url": {
+									"raw": "{{base_url}}/api/reports/{{report_id}}/status",
+									"host": ["{{base_url}}"],
+									"path": ["api", "reports", "{{report_id}}", "status"]
+								}
+							}
+						}
+					]
+				},
+				{
+					"name": "📈 CMS Analytics",
+					"item": [
+						{
+							"name": "Analytics Summary",
+							"request": {
+								"method": "GET",
+								"header": [
+									{ "key": "Authorization", "value": "Bearer {{token}}" }
+								],
+								"url": {
+									"raw": "{{base_url}}/api/analytics/summary",
+									"host": ["{{base_url}}"],
+									"path": ["api", "analytics", "summary"]
+								}
+							}
+						},
+						{
+							"name": "Top Downloads",
+							"request": {
+								"method": "GET",
+								"header": [
+									{ "key": "Authorization", "value": "Bearer {{token}}" }
+								],
+								"url": {
+									"raw": "{{base_url}}/api/analytics/top-downloads",
+									"host": ["{{base_url}}"],
+									"path": ["api", "analytics", "top-downloads"]
+								}
+							}
+						},
+						{
+							"name": "Top Views",
+							"request": {
+								"method": "GET",
+								"header": [
+									{ "key": "Authorization", "value": "Bearer {{token}}" }
+								],
+								"url": {
+									"raw": "{{base_url}}/api/analytics/top-views",
+									"host": ["{{base_url}}"],
+									"path": ["api", "analytics", "top-views"]
+								}
+							}
+						}
+					]
+				},
+				{
+					"name": "📤 File Upload & Validation",
+					"item": [
+						{
+							"name": "Upload File",
+							"request": {
+								"method": "POST",
+								"header": [
+									{ "key": "Authorization", "value": "Bearer {{token}}" }
+								],
+								"body": {
+									"mode": "formdata",
+									"formdata": [
+										{ "key": "file", "type": "file", "src": [] },
+										{ "key": "type", "value": "document", "type": "text" }
+									]
+								},
+								"url": {
+									"raw": "{{base_url}}/api/upload",
+									"host": ["{{base_url}}"],
+									"path": ["api", "upload"]
+								}
+							}
+						},
+						{
+							"name": "Validate External URL",
+							"request": {
+								"method": "POST",
+								"header": [
+									{ "key": "Authorization", "value": "Bearer {{token}}" },
+									{ "key": "Content-Type", "value": "application/json" }
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n  \"url\": \"https://www.un.org/sites/un2.un.org/files/un_charter.pdf\"\n}",
+									"options": { "raw": { "language": "json" } }
+								},
+								"url": {
+									"raw": "{{base_url}}/api/upload/url-validate",
+									"host": ["{{base_url}}"],
+									"path": ["api", "upload", "url-validate"]
+								}
+							}
+						},
+						{
+							"name": "Upload Profile Avatar",
+							"request": {
+								"method": "POST",
+								"header": [
+									{ "key": "Authorization", "value": "Bearer {{token}}" }
+								],
+								"body": {
+									"mode": "formdata",
+									"formdata": [
+										{ "key": "avatar", "type": "file", "src": [] }
+									]
+								},
+								"url": {
+									"raw": "{{base_url}}/api/upload/avatar",
+									"host": ["{{base_url}}"],
+									"path": ["api", "upload", "avatar"]
+								}
+							}
 						}
 					]
 				}
@@ -328,6 +958,21 @@
 		{
 			"key": "token",
 			"value": "",
+			"type": "string"
+		},
+		{
+			"key": "doc_id",
+			"value": "1",
+			"type": "string"
+		},
+		{
+			"key": "user_id",
+			"value": "1",
+			"type": "string"
+		},
+		{
+			"key": "report_id",
+			"value": "1",
 			"type": "string"
 		}
 	]
