@@ -25,6 +25,7 @@ func main() {
 
 	// Initialize database
 	database.InitMySQL(cfg)
+	database.MigrateAndSeed(database.GetDB())
 
 	// Initialize Redis (optional)
 	redis.InitRedis(cfg)

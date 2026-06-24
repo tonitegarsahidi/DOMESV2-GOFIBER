@@ -22,6 +22,13 @@ type AuthService interface {
 	ForgotPassword(req *model.ForgotPasswordRequest) error
 	ResetPassword(req *model.ResetPasswordRequest) error
 	GetProfile(userID uint) (*model.UserProfileResponse, error)
+	UpdateProfile(userID uint, req *model.UpdateProfileRequest) (*model.UserProfileResponse, error)
+	ChangePassword(userID uint, req *model.ChangePasswordRequest) error
+	GetNotificationPreferences(userID uint) (*model.NotificationPreference, error)
+	UpdateNotificationPreferences(userID uint, req *model.UpdateNotificationRequest) (*model.NotificationPreference, error)
+	GetAdminEmails() ([]model.AdminEmail, error)
+	AddAdminEmail(email string) (*model.AdminEmail, error)
+	DeleteAdminEmail(email string) error
 }
 
 type authService struct {
@@ -65,6 +72,24 @@ func (s *authService) Register(req *model.RegisterRequest) (*model.AuthResponse,
 	fullName := req.FirstName + " " + req.LastName
 	username := strings.Split(req.Email, "@")[0]
 
+	// Determine role & type based on admin email whitelist
+	isAdmin, err := s.userRepo.IsAdminEmail(req.Email)
+	if err != nil {
+		return nil, err
+	}
+
+	var userRole string
+	var userType string
+	if isAdmin {
+		userRole = "administrator"
+		userType = "admin"
+	} else {
+		userRole = "editor"
+		userType = "user"
+	}
+
+	statusActive := "active"
+
 	user := &model.User{
 		Username:     &username,
 		Name:         &fullName,
@@ -75,6 +100,15 @@ func (s *authService) Register(req *model.RegisterRequest) (*model.AuthResponse,
 		Position:     &req.Position,
 		Organization: &req.Organization,
 		PhoneNumber:  &req.PhoneNumber,
+		Role:         &userRole,
+		Type:         &userType,
+		Status:       &statusActive,
+		NotificationPreferences: &model.NotificationPreference{
+			DocumentApprovals:  true,
+			BrokenLinkReports:  true,
+			SystemUpdates:      false,
+			EmailNotifications: true,
+		},
 	}
 
 	if err := s.userRepo.Create(user); err != nil {
@@ -183,17 +217,118 @@ func (s *authService) GetProfile(userID uint) (*model.UserProfileResponse, error
 	}
 
 	return &model.UserProfileResponse{
-		ID:           user.ID,
-		Username:     user.Username,
-		Name:         user.Name,
-		FirstName:    user.FirstName,
-		LastName:     user.LastName,
-		Email:        user.Email,
-		Type:         user.Type,
-		Position:     user.Position,
-		Organization: user.Organization,
-		PhoneNumber:  user.PhoneNumber,
+		ID:                      user.ID,
+		Username:                user.Username,
+		Name:                    user.Name,
+		FirstName:               user.FirstName,
+		LastName:                user.LastName,
+		Email:                   user.Email,
+		Type:                    user.Type,
+		Role:                    user.Role,
+		Status:                  user.Status,
+		Position:                user.Position,
+		Organization:            user.Organization,
+		PhoneNumber:             user.PhoneNumber,
+		AvatarURL:               user.AvatarURL,
+		NotificationPreferences: user.NotificationPreferences,
+		CreatedAt:               user.CreatedAt,
+		UpdatedAt:               user.UpdatedAt,
 	}, nil
+}
+
+func (s *authService) UpdateProfile(userID uint, req *model.UpdateProfileRequest) (*model.UserProfileResponse, error) {
+	if req.FirstName == "" || req.LastName == "" {
+		return nil, errors.NewValidationError("First name and last name are required", "VALIDATION_FAILED")
+	}
+	user, err := s.userRepo.FindByID(userID)
+	if err != nil {
+		return nil, err
+	}
+
+	fullName := req.FirstName + " " + req.LastName
+	user.FirstName = &req.FirstName
+	user.LastName = &req.LastName
+	user.Name = &fullName
+	user.Position = &req.Position
+	user.Organization = &req.Organization
+	user.PhoneNumber = &req.PhoneNumber
+
+	if err := s.userRepo.Update(user); err != nil {
+		return nil, err
+	}
+
+	return s.GetProfile(userID)
+}
+
+func (s *authService) ChangePassword(userID uint, req *model.ChangePasswordRequest) error {
+	if req.CurrentPassword == "" || req.NewPassword == "" {
+		return errors.NewValidationError("Current and new passwords are required", "VALIDATION_FAILED")
+	}
+	if len(req.NewPassword) < 6 {
+		return errors.NewValidationError("Password must be at least 6 characters", "VALIDATION_FAILED")
+	}
+	if req.NewPassword != req.ConfirmPassword {
+		return errors.NewValidationError("Passwords do not match", "VALIDATION_FAILED")
+	}
+
+	user, err := s.userRepo.FindByID(userID)
+	if err != nil {
+		return err
+	}
+
+	err = bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(req.CurrentPassword))
+	if err != nil {
+		return errors.NewBadRequestError("Current password is incorrect", "INVALID_CURRENT_PASSWORD")
+	}
+
+	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(req.NewPassword), bcrypt.DefaultCost)
+	if err != nil {
+		zap.L().Error("Failed to hash new password", zap.Error(err))
+		return errors.NewInternalServerError("Failed to change password", "PASSWORD_HASH_ERROR")
+	}
+
+	return s.userRepo.UpdatePassword(user, string(hashedPassword))
+}
+
+func (s *authService) GetNotificationPreferences(userID uint) (*model.NotificationPreference, error) {
+	return s.userRepo.GetNotificationPreferences(userID)
+}
+
+func (s *authService) UpdateNotificationPreferences(userID uint, req *model.UpdateNotificationRequest) (*model.NotificationPreference, error) {
+	if req.DocumentApprovals == nil || req.BrokenLinkReports == nil || req.SystemUpdates == nil || req.EmailNotifications == nil {
+		return nil, errors.NewValidationError("All preference fields are required", "VALIDATION_FAILED")
+	}
+
+	prefs := &model.NotificationPreference{
+		DocumentApprovals:  *req.DocumentApprovals,
+		BrokenLinkReports:  *req.BrokenLinkReports,
+		SystemUpdates:      *req.SystemUpdates,
+		EmailNotifications: *req.EmailNotifications,
+	}
+
+	if err := s.userRepo.UpdateNotificationPreferences(userID, prefs); err != nil {
+		return nil, err
+	}
+
+	return s.GetNotificationPreferences(userID)
+}
+
+func (s *authService) GetAdminEmails() ([]model.AdminEmail, error) {
+	return s.userRepo.GetAdminEmails()
+}
+
+func (s *authService) AddAdminEmail(email string) (*model.AdminEmail, error) {
+	if email == "" {
+		return nil, errors.NewValidationError("Email is required", "VALIDATION_FAILED")
+	}
+	return s.userRepo.AddAdminEmail(email)
+}
+
+func (s *authService) DeleteAdminEmail(email string) error {
+	if email == "" {
+		return errors.NewValidationError("Email is required", "VALIDATION_FAILED")
+	}
+	return s.userRepo.DeleteAdminEmail(email)
 }
 
 func (s *authService) generateToken(user *model.User) (string, error) {
