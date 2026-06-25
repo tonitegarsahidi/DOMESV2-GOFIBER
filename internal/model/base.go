@@ -14,11 +14,16 @@ type V2Base struct {
 	CreatedBy *string        `json:"created_by" gorm:"column:createdBy;type:varchar(255);default:null"`
 	UpdatedBy *string        `json:"updated_by" gorm:"column:updatedBy;type:varchar(255);default:null"`
 	DeletedAt gorm.DeletedAt `json:"deleted_at,omitempty" gorm:"index;column:deletedAt"`
+	IsActive  *bool          `json:"is_active" gorm:"column:isActive;type:boolean;default:true"`
 }
 
 func (base *V2Base) BeforeCreate(tx *gorm.DB) (err error) {
 	if base.ID == "" {
 		base.ID = uuid.New().String()
+	}
+	if base.IsActive == nil {
+		active := true
+		base.IsActive = &active
 	}
 	return nil
 }

@@ -113,7 +113,7 @@ func (r *documentRepository) Delete(id string) error {
 
 func (r *documentRepository) ListPublic(filters map[string]interface{}) ([]model.Document, int, error) {
 	var docs []model.Document
-	query := r.db.Model(&model.Document{}).Where("status = ?", "published")
+	query := r.db.Model(&model.Document{}).Where("status = ? AND isActive = ?", "published", true)
 
 	// Apply filter: Search Text
 	if q, ok := filters["q"].(string); ok && q != "" {
@@ -157,8 +157,8 @@ func (r *documentRepository) ListPublic(filters map[string]interface{}) ([]model
 	if sdgsStr, ok := filters["sdgs"].(string); ok && sdgsStr != "" {
 		sdgs := strings.Split(sdgsStr, ",")
 		query = query.Joins("JOIN v2_document_sdgs ON v2_document_sdgs.document_id = V2Documents.id").
-			Joins("JOIN V2Sdgs ON V2Sdgs.id = v2_document_sdgs.sdg_id").
-			Where("V2Sdgs.code IN (?)", sdgs).
+			Joins("JOIN V2MasterSdgs ON V2MasterSdgs.id = v2_document_sdgs.sdg_id").
+			Where("V2MasterSdgs.code IN (?)", sdgs).
 			Group("V2Documents.id")
 	}
 
@@ -166,8 +166,8 @@ func (r *documentRepository) ListPublic(filters map[string]interface{}) ([]model
 	if sectorsStr, ok := filters["sectors"].(string); ok && sectorsStr != "" {
 		sectors := strings.Split(sectorsStr, ",")
 		query = query.Joins("JOIN v2_document_sectors ON v2_document_sectors.document_id = V2Documents.id").
-			Joins("JOIN V2Sectors ON V2Sectors.id = v2_document_sectors.sector_id").
-			Where("V2Sectors.code IN (?)", sectors).
+			Joins("JOIN V2MasterSectors ON V2MasterSectors.id = v2_document_sectors.sector_id").
+			Where("V2MasterSectors.code IN (?)", sectors).
 			Group("V2Documents.id")
 	}
 
@@ -175,8 +175,8 @@ func (r *documentRepository) ListPublic(filters map[string]interface{}) ([]model
 	if lnobsStr, ok := filters["lnobs"].(string); ok && lnobsStr != "" {
 		lnobs := strings.Split(lnobsStr, ",")
 		query = query.Joins("JOIN v2_document_lnobs ON v2_document_lnobs.document_id = V2Documents.id").
-			Joins("JOIN V2Lnobs ON V2Lnobs.id = v2_document_lnobs.lnob_id").
-			Where("V2Lnobs.code IN (?)", lnobs).
+			Joins("JOIN V2MasterLnobs ON V2MasterLnobs.id = v2_document_lnobs.lnob_id").
+			Where("V2MasterLnobs.code IN (?)", lnobs).
 			Group("V2Documents.id")
 	}
 
@@ -213,18 +213,18 @@ func (r *documentRepository) ListPublic(filters map[string]interface{}) ([]model
 	}
 	if sdgsStr, ok := filters["sdgs"].(string); ok && sdgsStr != "" {
 		countQuery = countQuery.Joins("JOIN v2_document_sdgs ON v2_document_sdgs.document_id = V2Documents.id").
-			Joins("JOIN V2Sdgs ON V2Sdgs.id = v2_document_sdgs.sdg_id").
-			Where("V2Sdgs.code IN (?)", strings.Split(sdgsStr, ","))
+			Joins("JOIN V2MasterSdgs ON V2MasterSdgs.id = v2_document_sdgs.sdg_id").
+			Where("V2MasterSdgs.code IN (?)", strings.Split(sdgsStr, ","))
 	}
 	if sectorsStr, ok := filters["sectors"].(string); ok && sectorsStr != "" {
 		countQuery = countQuery.Joins("JOIN v2_document_sectors ON v2_document_sectors.document_id = V2Documents.id").
-			Joins("JOIN V2Sectors ON V2Sectors.id = v2_document_sectors.sector_id").
-			Where("V2Sectors.code IN (?)", strings.Split(sectorsStr, ","))
+			Joins("JOIN V2MasterSectors ON V2MasterSectors.id = v2_document_sectors.sector_id").
+			Where("V2MasterSectors.code IN (?)", strings.Split(sectorsStr, ","))
 	}
 	if lnobsStr, ok := filters["lnobs"].(string); ok && lnobsStr != "" {
 		countQuery = countQuery.Joins("JOIN v2_document_lnobs ON v2_document_lnobs.document_id = V2Documents.id").
-			Joins("JOIN V2Lnobs ON V2Lnobs.id = v2_document_lnobs.lnob_id").
-			Where("V2Lnobs.code IN (?)", strings.Split(lnobsStr, ","))
+			Joins("JOIN V2MasterLnobs ON V2MasterLnobs.id = v2_document_lnobs.lnob_id").
+			Where("V2MasterLnobs.code IN (?)", strings.Split(lnobsStr, ","))
 	}
 
 	countQuery.Select("COUNT(DISTINCT V2Documents.id)").Count(&totalItems)
@@ -313,8 +313,8 @@ func (r *documentRepository) GetRelated(doc *model.Document) ([]model.Document, 
 
 	err := r.db.Model(&model.Document{}).
 		Joins("JOIN v2_document_sdgs ON v2_document_sdgs.document_id = V2Documents.id").
-		Joins("JOIN V2Sdgs ON V2Sdgs.id = v2_document_sdgs.sdg_id").
-		Where("V2Sdgs.code IN (?) AND V2Documents.id != ? AND V2Documents.status = ?", sdgCodes, doc.ID, "published").
+		Joins("JOIN V2MasterSdgs ON V2MasterSdgs.id = v2_document_sdgs.sdg_id").
+		Where("V2MasterSdgs.code IN (?) AND V2Documents.id != ? AND V2Documents.status = ?", sdgCodes, doc.ID, "published").
 		Group("V2Documents.id").
 		Limit(3).
 		Preload("Sdgs").
@@ -415,9 +415,9 @@ func (r *documentRepository) GetBySdgAnalytics() ([]map[string]interface{}, erro
 	}
 
 	err := r.db.Table("v2_document_sdgs").
-		Select("V2Sdgs.code as sdg_code, count(v2_document_sdgs.document_id) as count").
-		Joins("JOIN V2Sdgs ON V2Sdgs.id = v2_document_sdgs.sdg_id").
-		Group("V2Sdgs.code").
+		Select("V2MasterSdgs.code as sdg_code, count(v2_document_sdgs.document_id) as count").
+		Joins("JOIN V2MasterSdgs ON V2MasterSdgs.id = v2_document_sdgs.sdg_id").
+		Group("V2MasterSdgs.code").
 		Scan(&results).Error
 
 	if err != nil {
@@ -484,9 +484,9 @@ func (r *documentRepository) GetBySectorAnalytics() ([]map[string]interface{}, e
 	}
 
 	err := r.db.Table("v2_document_sectors").
-		Select("V2Sectors.code as sector_code, count(v2_document_sectors.document_id) as count").
-		Joins("JOIN V2Sectors ON V2Sectors.id = v2_document_sectors.sector_id").
-		Group("V2Sectors.code").
+		Select("V2MasterSectors.code as sector_code, count(v2_document_sectors.document_id) as count").
+		Joins("JOIN V2MasterSectors ON V2MasterSectors.id = v2_document_sectors.sector_id").
+		Group("V2MasterSectors.code").
 		Scan(&results).Error
 
 	if err != nil {

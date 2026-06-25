@@ -16,7 +16,7 @@ func SetupRoutes(app *fiber.App) {
 	// Repositories
 	userRepo := repository.NewUserRepository()
 	healthRepo := repository.NewHealthRepository()
-	refRepo := repository.NewReferenceRepository()
+	masterRepo := repository.NewMasterRepository()
 	docRepo := repository.NewDocumentRepository()
 	reportRepo := repository.NewReportRepository()
 	cmsRepo := repository.NewCmsRepository()
@@ -25,7 +25,7 @@ func SetupRoutes(app *fiber.App) {
 	mailService := service.NewMailService()
 	authService := service.NewAuthService(userRepo, mailService)
 	healthService := service.NewHealthService(healthRepo)
-	refService := service.NewReferenceService(refRepo)
+	masterService := service.NewMasterService(masterRepo)
 	docService := service.NewDocumentService(docRepo, userRepo)
 	reportService := service.NewReportService(reportRepo)
 	cmsService := service.NewCmsService(cmsRepo, userRepo)
@@ -33,7 +33,7 @@ func SetupRoutes(app *fiber.App) {
 	// Controllers
 	authController := controller.NewAuthController(authService)
 	healthController := controller.NewHealthController(healthService)
-	refController := controller.NewReferenceController(refService)
+	masterController := controller.NewMasterController(masterService)
 	uploadController := controller.NewUploadController()
 	docController := controller.NewDocumentController(docService)
 	reportController := controller.NewReportController(reportService)
@@ -63,17 +63,18 @@ func SetupRoutes(app *fiber.App) {
 			auth.Post("/reset-password", authController.ResetPassword)
 		}
 
-		// Public Reference Endpoints
-		ref := api.Group("/reference")
+		// Public Master Endpoints
+		master := api.Group("/master")
 		{
-			ref.Get("/agencies", refController.GetAgencies)
-			ref.Get("/sdgs", refController.GetSdgs)
-			ref.Get("/sectors", refController.GetSectors)
-			ref.Get("/languages", refController.GetLanguages)
-			ref.Get("/joint-programmes", refController.GetJointProgrammes)
-			ref.Get("/lnobs", refController.GetLnobs)
-			ref.Get("/non-un-partners", refController.GetNonUnPartners)
-			ref.Get("/organizations", refController.GetOrganizations)
+			master.Get("/agencies", masterController.GetAgencies)
+			master.Get("/sdgs", masterController.GetSdgs)
+			master.Get("/sectors", masterController.GetSectors)
+			master.Get("/languages", masterController.GetLanguages)
+			master.Get("/joint-programmes", masterController.GetJointProgrammes)
+			master.Get("/lnobs", masterController.GetLnobs)
+			master.Get("/non-un-partners", masterController.GetNonUnPartners)
+			master.Get("/organizations", masterController.GetOrganizations)
+			master.Get("/thematic-areas", masterController.GetThematicAreas)
 		}
 
 		// Public Documents Endpoints
@@ -121,11 +122,11 @@ func SetupRoutes(app *fiber.App) {
 			protected.Get("/cms/dashboard", cmsController.GetDashboardStats)
 			protected.Get("/cms/activity", cmsController.GetRecentActivity)
 
-			// CMS Reference Management
-			protected.Get("/cms/reference/:type", cmsController.ListReferences)
-			protected.Post("/cms/reference/:type", cmsController.CreateReference)
-			protected.Put("/cms/reference/:type/:code", cmsController.UpdateReference)
-			protected.Delete("/cms/reference/:type/:code", cmsController.DeleteReference)
+			// CMS Master Management
+			protected.Get("/cms/master/:type", cmsController.ListMasters)
+			protected.Post("/cms/master/:type", cmsController.CreateMaster)
+			protected.Put("/cms/master/:type/:code", cmsController.UpdateMaster)
+			protected.Delete("/cms/master/:type/:code", cmsController.DeleteMaster)
 
 			// CMS Submissions Wizard & Mgmt
 			protected.Get("/submissions", docController.ListSubmissions)

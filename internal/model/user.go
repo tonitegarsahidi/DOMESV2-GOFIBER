@@ -24,6 +24,7 @@ type User struct {
 	ResetPasswordToken      *string                 `json:"-" gorm:"column:reset_password_token;size:255"`
 	ResetPasswordExpiry     *time.Time              `json:"-" gorm:"column:reset_password_expiry"`
 	NotificationPreferences *NotificationPreference `json:"notification_preferences,omitempty" gorm:"foreignKey:UserID;constraint:false"`
+	IsActive                *bool                   `json:"is_active" gorm:"column:isActive;type:boolean;default:true"`
 	CreatedAt               time.Time               `json:"created_at" gorm:"column:createdAt"`
 	UpdatedAt               time.Time               `json:"updated_at" gorm:"column:updatedAt"`
 }
@@ -81,6 +82,7 @@ type UserProfileResponse struct {
 	PhoneNumber             *string                 `json:"phone_number"`
 	AvatarURL               *string                 `json:"avatar_url"`
 	NotificationPreferences *NotificationPreference `json:"notification_preferences,omitempty"`
+	IsActive                *bool                   `json:"is_active"`
 	CreatedAt               time.Time               `json:"created_at"`
 	UpdatedAt               time.Time               `json:"updated_at"`
 }
@@ -110,6 +112,7 @@ type CreateUserRequest struct {
 	PhoneNumber     string `json:"phone_number"`
 	Role            string `json:"role"`
 	Status          string `json:"status"`
+	IsActive        *bool  `json:"is_active"`
 }
 
 type UpdateUserRequest struct {
@@ -120,4 +123,5 @@ type UpdateUserRequest struct {
 	PhoneNumber  *string `json:"phone_number"`
 	Role         *string `json:"role"`
 	Status       *string `json:"status"`
+	IsActive     *bool   `json:"is_active"`
 }

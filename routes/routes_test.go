@@ -53,7 +53,8 @@ func TestMain(m *testing.M) {
 		db.Exec("DELETE FROM v2_document_sectors")
 		db.Exec("DELETE FROM v2_document_lnobs")
 		db.Exec("DELETE FROM V2Documents")
-		db.Exec("DELETE FROM V2Sectors WHERE code = 'test-sector-xyz'")
+		db.Exec("DELETE FROM V2MasterSectors WHERE code = 'test-sector-xyz'")
+		db.Exec("DELETE FROM V2MasterThematicAreas WHERE code = 'test-sector-xyz'")
 		db.Exec("DELETE FROM V2AdminEmails WHERE email = 'test-admin@un.org'")
 	}
 
@@ -236,17 +237,17 @@ func TestD_AdminEmailsWhitelist(t *testing.T) {
 	}
 }
 
-func TestE_PublicReferenceData(t *testing.T) {
-	refs := []string{
-		"agencies", "sdgs", "sectors", "languages", "joint-programmes", "lnobs", "non-un-partners", "organizations",
+func TestE_PublicMasterData(t *testing.T) {
+	masters := []string{
+		"agencies", "sdgs", "sectors", "languages", "joint-programmes", "lnobs", "non-un-partners", "organizations", "thematic-areas",
 	}
 
-	for _, endpoint := range refs {
-		t.Run("GET /api/v2/reference/"+endpoint, func(t *testing.T) {
-			req := httptest.NewRequest("GET", "/api/v2/reference/"+endpoint, nil)
+	for _, endpoint := range masters {
+		t.Run("GET /api/v2/master/"+endpoint, func(t *testing.T) {
+			req := httptest.NewRequest("GET", "/api/v2/master/"+endpoint, nil)
 			resp, err := app.Test(req)
 			if err != nil {
-				t.Fatalf("Failed to query /api/v2/reference/%s: %v", endpoint, err)
+				t.Fatalf("Failed to query /api/v2/master/%s: %v", endpoint, err)
 			}
 			if resp.StatusCode != http.StatusOK {
 				t.Errorf("Expected 200, got %d", resp.StatusCode)
@@ -710,62 +711,62 @@ func TestM_CmsAnalyticsSummary(t *testing.T) {
 	}
 }
 
-func TestN_CmsReferenceManagement(t *testing.T) {
+func TestN_CmsMasterManagement(t *testing.T) {
 	if token == "" {
-		t.Skip("Token is empty, skipping CMS reference management tests")
+		t.Skip("Token is empty, skipping CMS master management tests")
 	}
 
-	// 1. GET /api/v2/cms/reference/sectors
-	req := httptest.NewRequest("GET", "/api/v2/cms/reference/sectors", nil)
+	// 1. GET /api/v2/cms/master/sectors
+	req := httptest.NewRequest("GET", "/api/v2/cms/master/sectors", nil)
 	req.Header.Set("Authorization", "Bearer "+token)
 	resp, err := app.Test(req)
 	if err != nil {
-		t.Fatalf("Failed to GET cms reference: %v", err)
+		t.Fatalf("Failed to GET cms master: %v", err)
 	}
 	if resp.StatusCode != http.StatusOK {
 		t.Errorf("Expected 200, got %d", resp.StatusCode)
 	}
 
-	// 2. POST /api/v2/cms/reference/sectors (Create new sector)
-	sectorPayload := model.ReferenceRequest{
+	// 2. POST /api/v2/cms/master/sectors (Create new sector)
+	sectorPayload := model.MasterRequest{
 		Code: "test-sector-xyz",
 		Name: "Test Sector XYZ",
 	}
 	body, _ := json.Marshal(sectorPayload)
-	req = httptest.NewRequest("POST", "/api/v2/cms/reference/sectors", bytes.NewBuffer(body))
+	req = httptest.NewRequest("POST", "/api/v2/cms/master/sectors", bytes.NewBuffer(body))
 	req.Header.Set("Authorization", "Bearer "+token)
 	req.Header.Set("Content-Type", "application/json")
 	resp, err = app.Test(req)
 	if err != nil {
-		t.Fatalf("Failed to POST cms reference: %v", err)
+		t.Fatalf("Failed to POST cms master: %v", err)
 	}
 	if resp.StatusCode != http.StatusCreated {
 		bodyBytes, _ := io.ReadAll(resp.Body)
 		t.Fatalf("Expected 201, got %d. Body: %s", resp.StatusCode, string(bodyBytes))
 	}
 
-	// 3. PUT /api/v2/cms/reference/sectors/test-sector-xyz (Update sector)
-	updatePayload := model.ReferenceRequest{
+	// 3. PUT /api/v2/cms/master/sectors/test-sector-xyz (Update sector)
+	updatePayload := model.MasterRequest{
 		Name: "Updated Test Sector XYZ",
 	}
 	body, _ = json.Marshal(updatePayload)
-	req = httptest.NewRequest("PUT", "/api/v2/cms/reference/sectors/test-sector-xyz", bytes.NewBuffer(body))
+	req = httptest.NewRequest("PUT", "/api/v2/cms/master/sectors/test-sector-xyz", bytes.NewBuffer(body))
 	req.Header.Set("Authorization", "Bearer "+token)
 	req.Header.Set("Content-Type", "application/json")
 	resp, err = app.Test(req)
 	if err != nil {
-		t.Fatalf("Failed to PUT cms reference: %v", err)
+		t.Fatalf("Failed to PUT cms master: %v", err)
 	}
 	if resp.StatusCode != http.StatusOK {
 		t.Errorf("Expected 200, got %d", resp.StatusCode)
 	}
 
-	// 4. DELETE /api/v2/cms/reference/sectors/test-sector-xyz (Delete sector)
-	req = httptest.NewRequest("DELETE", "/api/v2/cms/reference/sectors/test-sector-xyz", nil)
+	// 4. DELETE /api/v2/cms/master/sectors/test-sector-xyz (Delete sector)
+	req = httptest.NewRequest("DELETE", "/api/v2/cms/master/sectors/test-sector-xyz", nil)
 	req.Header.Set("Authorization", "Bearer "+token)
 	resp, err = app.Test(req)
 	if err != nil {
-		t.Fatalf("Failed to DELETE cms reference: %v", err)
+		t.Fatalf("Failed to DELETE cms master: %v", err)
 	}
 	if resp.StatusCode != http.StatusOK {
 		t.Errorf("Expected 200, got %d", resp.StatusCode)

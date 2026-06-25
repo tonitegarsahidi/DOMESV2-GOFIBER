@@ -8,7 +8,7 @@ type Agency struct {
 }
 
 func (Agency) TableName() string {
-	return "V2Agencies"
+	return "V2MasterAgencies"
 }
 
 type Sdg struct {
@@ -20,7 +20,7 @@ type Sdg struct {
 }
 
 func (Sdg) TableName() string {
-	return "V2Sdgs"
+	return "V2MasterSdgs"
 }
 
 type Sector struct {
@@ -30,7 +30,7 @@ type Sector struct {
 }
 
 func (Sector) TableName() string {
-	return "V2Sectors"
+	return "V2MasterSectors"
 }
 
 type Language struct {
@@ -40,7 +40,7 @@ type Language struct {
 }
 
 func (Language) TableName() string {
-	return "V2Languages"
+	return "V2MasterLanguages"
 }
 
 type JointProgramme struct {
@@ -50,7 +50,7 @@ type JointProgramme struct {
 }
 
 func (JointProgramme) TableName() string {
-	return "V2JointProgrammes"
+	return "V2MasterJointProgrammes"
 }
 
 type Lnob struct {
@@ -60,7 +60,7 @@ type Lnob struct {
 }
 
 func (Lnob) TableName() string {
-	return "V2Lnobs"
+	return "V2MasterLnobs"
 }
 
 type NonUnPartner struct {
@@ -70,7 +70,7 @@ type NonUnPartner struct {
 }
 
 func (NonUnPartner) TableName() string {
-	return "V2NonUnPartners"
+	return "V2MasterNonUnPartners"
 }
 
 type Organization struct {
@@ -80,13 +80,24 @@ type Organization struct {
 }
 
 func (Organization) TableName() string {
-	return "V2Organizations"
+	return "V2MasterOrganizations"
 }
 
-type ReferenceRequest struct {
-	Code    string `json:"code"`
-	Name    string `json:"name"`
-	LogoURL string `json:"logo_url,omitempty"`
-	Icon    string `json:"icon,omitempty"`
-	Color   string `json:"color,omitempty"`
+type ThematicArea struct {
+	V2Base
+	Code string `json:"code" gorm:"uniqueIndex;size:100;column:code"`
+	Name string `json:"name" gorm:"size:255;not null;column:name"`
+}
+
+func (ThematicArea) TableName() string {
+	return "V2MasterThematicAreas"
+}
+
+type MasterRequest struct {
+	Code     string `json:"code"`
+	Name     string `json:"name"`
+	LogoURL  string `json:"logo_url,omitempty"`
+	Icon     string `json:"icon,omitempty"`
+	Color    string `json:"color,omitempty"`
+	IsActive *bool  `json:"is_active,omitempty"`
 }

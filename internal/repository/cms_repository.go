@@ -15,11 +15,11 @@ type CmsRepository interface {
 	GetTopDownloads(limit int) ([]model.Document, error)
 	GetTopViews(limit int) ([]model.Document, error)
 	GetDashboardStats() (map[string]interface{}, error)
-	ListReferences(refType string) (interface{}, error)
-	GetReferenceByCode(refType string, code string) (interface{}, error)
-	CreateReference(refType string, item interface{}) error
-	UpdateReference(refType string, code string, item interface{}) error
-	DeleteReference(refType string, code string) error
+	ListMasters(masterType string) (interface{}, error)
+	GetMasterByCode(masterType string, code string) (interface{}, error)
+	CreateMaster(masterType string, item interface{}) error
+	UpdateMaster(masterType string, code string, item interface{}) error
+	DeleteMaster(masterType string, code string) error
 }
 
 type cmsRepository struct {
@@ -113,8 +113,8 @@ func (r *cmsRepository) GetDashboardStats() (map[string]interface{}, error) {
 	}, nil
 }
 
-func (r *cmsRepository) ListReferences(refType string) (interface{}, error) {
-	switch strings.ToLower(refType) {
+func (r *cmsRepository) ListMasters(masterType string) (interface{}, error) {
+	switch strings.ToLower(masterType) {
 	case "agencies":
 		var list []model.Agency
 		if err := r.db.Order("code asc").Find(&list).Error; err != nil {
@@ -163,18 +163,24 @@ func (r *cmsRepository) ListReferences(refType string) (interface{}, error) {
 			return nil, errors.NewInternalServerError("Failed to fetch organizations", "DATABASE_ERROR")
 		}
 		return list, nil
+	case "thematic-areas":
+		var list []model.ThematicArea
+		if err := r.db.Order("name asc").Find(&list).Error; err != nil {
+			return nil, errors.NewInternalServerError("Failed to fetch thematic areas", "DATABASE_ERROR")
+		}
+		return list, nil
 	default:
-		return nil, errors.NewValidationError("Invalid reference type", "INVALID_REF_TYPE")
+		return nil, errors.NewValidationError("Invalid master type", "INVALID_MASTER_TYPE")
 	}
 }
 
-func (r *cmsRepository) GetReferenceByCode(refType string, code string) (interface{}, error) {
-	switch strings.ToLower(refType) {
+func (r *cmsRepository) GetMasterByCode(masterType string, code string) (interface{}, error) {
+	switch strings.ToLower(masterType) {
 	case "agencies":
 		var item model.Agency
 		if err := r.db.Where("code = ?", code).First(&item).Error; err != nil {
 			if err == gorm.ErrRecordNotFound {
-				return nil, errors.NewNotFoundError("Agency not found", "REF_NOT_FOUND")
+				return nil, errors.NewNotFoundError("Agency not found", "MASTER_NOT_FOUND")
 			}
 			return nil, errors.NewInternalServerError("Database error", "DATABASE_ERROR")
 		}
@@ -183,7 +189,7 @@ func (r *cmsRepository) GetReferenceByCode(refType string, code string) (interfa
 		var item model.Sdg
 		if err := r.db.Where("code = ?", code).First(&item).Error; err != nil {
 			if err == gorm.ErrRecordNotFound {
-				return nil, errors.NewNotFoundError("SDG not found", "REF_NOT_FOUND")
+				return nil, errors.NewNotFoundError("SDG not found", "MASTER_NOT_FOUND")
 			}
 			return nil, errors.NewInternalServerError("Database error", "DATABASE_ERROR")
 		}
@@ -192,7 +198,7 @@ func (r *cmsRepository) GetReferenceByCode(refType string, code string) (interfa
 		var item model.Sector
 		if err := r.db.Where("code = ?", code).First(&item).Error; err != nil {
 			if err == gorm.ErrRecordNotFound {
-				return nil, errors.NewNotFoundError("Sector not found", "REF_NOT_FOUND")
+				return nil, errors.NewNotFoundError("Sector not found", "MASTER_NOT_FOUND")
 			}
 			return nil, errors.NewInternalServerError("Database error", "DATABASE_ERROR")
 		}
@@ -201,7 +207,7 @@ func (r *cmsRepository) GetReferenceByCode(refType string, code string) (interfa
 		var item model.Language
 		if err := r.db.Where("code = ?", code).First(&item).Error; err != nil {
 			if err == gorm.ErrRecordNotFound {
-				return nil, errors.NewNotFoundError("Language not found", "REF_NOT_FOUND")
+				return nil, errors.NewNotFoundError("Language not found", "MASTER_NOT_FOUND")
 			}
 			return nil, errors.NewInternalServerError("Database error", "DATABASE_ERROR")
 		}
@@ -210,7 +216,7 @@ func (r *cmsRepository) GetReferenceByCode(refType string, code string) (interfa
 		var item model.JointProgramme
 		if err := r.db.Where("code = ?", code).First(&item).Error; err != nil {
 			if err == gorm.ErrRecordNotFound {
-				return nil, errors.NewNotFoundError("Joint programme not found", "REF_NOT_FOUND")
+				return nil, errors.NewNotFoundError("Joint programme not found", "MASTER_NOT_FOUND")
 			}
 			return nil, errors.NewInternalServerError("Database error", "DATABASE_ERROR")
 		}
@@ -219,7 +225,7 @@ func (r *cmsRepository) GetReferenceByCode(refType string, code string) (interfa
 		var item model.Lnob
 		if err := r.db.Where("code = ?", code).First(&item).Error; err != nil {
 			if err == gorm.ErrRecordNotFound {
-				return nil, errors.NewNotFoundError("LNOB group not found", "REF_NOT_FOUND")
+				return nil, errors.NewNotFoundError("LNOB group not found", "MASTER_NOT_FOUND")
 			}
 			return nil, errors.NewInternalServerError("Database error", "DATABASE_ERROR")
 		}
@@ -228,7 +234,7 @@ func (r *cmsRepository) GetReferenceByCode(refType string, code string) (interfa
 		var item model.NonUnPartner
 		if err := r.db.Where("code = ?", code).First(&item).Error; err != nil {
 			if err == gorm.ErrRecordNotFound {
-				return nil, errors.NewNotFoundError("Non-UN partner not found", "REF_NOT_FOUND")
+				return nil, errors.NewNotFoundError("Non-UN partner not found", "MASTER_NOT_FOUND")
 			}
 			return nil, errors.NewInternalServerError("Database error", "DATABASE_ERROR")
 		}
@@ -237,17 +243,26 @@ func (r *cmsRepository) GetReferenceByCode(refType string, code string) (interfa
 		var item model.Organization
 		if err := r.db.Where("code = ?", code).First(&item).Error; err != nil {
 			if err == gorm.ErrRecordNotFound {
-				return nil, errors.NewNotFoundError("Organization not found", "REF_NOT_FOUND")
+				return nil, errors.NewNotFoundError("Organization not found", "MASTER_NOT_FOUND")
+			}
+			return nil, errors.NewInternalServerError("Database error", "DATABASE_ERROR")
+		}
+		return &item, nil
+	case "thematic-areas":
+		var item model.ThematicArea
+		if err := r.db.Where("code = ?", code).First(&item).Error; err != nil {
+			if err == gorm.ErrRecordNotFound {
+				return nil, errors.NewNotFoundError("Thematic area not found", "MASTER_NOT_FOUND")
 			}
 			return nil, errors.NewInternalServerError("Database error", "DATABASE_ERROR")
 		}
 		return &item, nil
 	default:
-		return nil, errors.NewValidationError("Invalid reference type", "INVALID_REF_TYPE")
+		return nil, errors.NewValidationError("Invalid master type", "INVALID_MASTER_TYPE")
 	}
 }
 
-func (r *cmsRepository) CreateReference(refType string, item interface{}) error {
+func (r *cmsRepository) CreateMaster(masterType string, item interface{}) error {
 	var code string
 	switch v := item.(type) {
 	case *model.Agency:
@@ -266,46 +281,48 @@ func (r *cmsRepository) CreateReference(refType string, item interface{}) error 
 		code = v.Code
 	case *model.Organization:
 		code = v.Code
+	case *model.ThematicArea:
+		code = v.Code
 	}
 
 	if code == "" {
 		return errors.NewValidationError("Code is required", "VALIDATION_FAILED")
 	}
 
-	existing, _ := r.GetReferenceByCode(refType, code)
+	existing, _ := r.GetMasterByCode(masterType, code)
 	if existing != nil {
-		return errors.NewConflictError("Reference item with this code already exists", "REF_CODE_EXISTS")
+		return errors.NewConflictError("Master item with this code already exists", "MASTER_CODE_EXISTS")
 	}
 
 	if err := r.db.Create(item).Error; err != nil {
-		zap.L().Error("Failed to create reference item", zap.Error(err))
-		return errors.NewInternalServerError("Failed to save reference item", "DATABASE_ERROR")
+		zap.L().Error("Failed to create master item", zap.Error(err))
+		return errors.NewInternalServerError("Failed to save master item", "DATABASE_ERROR")
 	}
 	return nil
 }
 
-func (r *cmsRepository) UpdateReference(refType string, code string, item interface{}) error {
-	_, err := r.GetReferenceByCode(refType, code)
+func (r *cmsRepository) UpdateMaster(masterType string, code string, item interface{}) error {
+	_, err := r.GetMasterByCode(masterType, code)
 	if err != nil {
 		return err
 	}
 
 	if err := r.db.Save(item).Error; err != nil {
-		zap.L().Error("Failed to update reference item", zap.Error(err))
-		return errors.NewInternalServerError("Failed to update reference item", "DATABASE_ERROR")
+		zap.L().Error("Failed to update master item", zap.Error(err))
+		return errors.NewInternalServerError("Failed to update master item", "DATABASE_ERROR")
 	}
 	return nil
 }
 
-func (r *cmsRepository) DeleteReference(refType string, code string) error {
-	existing, err := r.GetReferenceByCode(refType, code)
+func (r *cmsRepository) DeleteMaster(masterType string, code string) error {
+	existing, err := r.GetMasterByCode(masterType, code)
 	if err != nil {
 		return err
 	}
 
 	if err := r.db.Delete(existing).Error; err != nil {
-		zap.L().Error("Failed to delete reference item", zap.Error(err))
-		return errors.NewInternalServerError("Failed to delete reference item", "DATABASE_ERROR")
+		zap.L().Error("Failed to delete master item", zap.Error(err))
+		return errors.NewInternalServerError("Failed to delete master item", "DATABASE_ERROR")
 	}
 	return nil
 }

@@ -72,6 +72,7 @@ type SubmissionRequest struct {
 	NonUnPartners     []PartnerDTO     `json:"non_un_partners"`
 	ThematicAreas     []string         `json:"thematic_areas"`
 	GeographicScope   string           `json:"geographic_scope"`
+	IsActive          *bool            `json:"is_active"`
 }
 
 type DraftRequest struct {
@@ -126,6 +127,7 @@ type DocumentResponse struct {
 	Downloads       int              `json:"downloads"`
 	CreatedAt       time.Time        `json:"created_at"`
 	UpdatedAt       time.Time        `json:"updated_at"`
+	IsActive        *bool            `json:"is_active"`
 	SupportingFiles []SupportingFile `json:"supporting_files,omitempty"`
 }
 
@@ -160,6 +162,7 @@ type DocumentListItem struct {
 	Tags        []string  `json:"tags"`
 	Views       int       `json:"views"`
 	Downloads   int       `json:"downloads"`
+	IsActive    *bool     `json:"is_active"`
 	CreatedAt   time.Time `json:"created_at"`
 }
 

@@ -47,8 +47,8 @@ func MigrateAndSeed(db *gorm.DB) {
 	}
 	seedAdminEmails(db)
 
-	// 4. Create Reference Tables & seed them
-	migrateAndSeedReferences(db)
+	// 4. Create Master Tables & seed them
+	migrateAndSeedMasters(db)
 
 	// 5. Create Documents Table
 	if err := db.AutoMigrate(&model.Document{}); err != nil {
@@ -79,7 +79,7 @@ func seedAdminEmails(db *gorm.DB) {
 	}
 }
 
-func migrateAndSeedReferences(db *gorm.DB) {
+func migrateAndSeedMasters(db *gorm.DB) {
 	// Agencies
 	if err := db.AutoMigrate(&model.Agency{}); err == nil {
 		var count int64
@@ -304,6 +304,22 @@ func migrateAndSeedReferences(db *gorm.DB) {
 				{Code: "other", Name: "Other"},
 			}
 			db.Create(&orgs)
+		}
+	}
+
+	// Thematic Areas (UNSDCF)
+	if err := db.AutoMigrate(&model.ThematicArea{}); err == nil {
+		var count int64
+		db.Model(&model.ThematicArea{}).Count(&count)
+		if count == 0 {
+			zap.L().Info("Seeding Thematic Areas...")
+			areas := []model.ThematicArea{
+				{Code: "inclusive-economic-transformation", Name: "Inclusive Economic Transformation"},
+				{Code: "environmental-development-climate-resilience", Name: "Environmental Development and Climate Change Resilience"},
+				{Code: "human-development", Name: "Human Development"},
+				{Code: "democratic-governance-security", Name: "Democratic Governance and Security"},
+			}
+			db.Create(&areas)
 		}
 	}
 }

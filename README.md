@@ -99,14 +99,14 @@ curl http://localhost:3000/api/v2/health-check
 Semua endpoint API sekarang berada di bawah namespace `/api/v2/`. Backend ini menyediakan endpoint lengkap untuk sistem manajemen dokumen PBB:
 * **Authentication & Profiles:** Registrasi, login, edit profil, ganti password, preferensi notifikasi di `/api/v2/auth` dan `/api/v2/user`.
 * **Admin Whitelist Settings:** Whitelist email admin di `/api/v2/admin/emails`.
-* **Reference Data:** Data SDGs, PBB Agencies, Sectors, Languages, Joint Programmes, dll. di `/api/v2/reference`.
+* **Master Data:** Data SDGs, PBB Agencies, Sectors, Languages, Joint Programmes, dll. di `/api/v2/master`.
 * **Public Documents & Search:** Pencarian dokumen, list dokumen, detail, related docs, tracking download di `/api/v2/documents`.
 * **Broken Link Reports:** Pelaporan tautan rusak oleh publik dan manajemen status laporan di `/api/v2/reports`.
 * **CMS Dashboard & Submissions:** Draft submissions wizard (Step 1-4), publishing/unpublishing dokumen di `/api/v2/submissions`.
 * **CMS User Management:** CRUD akun pengelola (admin/editor) oleh administrator di `/api/v2/users`.
 * **File Upload:** Upload file PDF/Word, cover dokumen, avatar user, dan validasi tautan eksternal di `/api/v2/upload`.
 
-Dokumentasi lengkap kontrak API: [API-REFERENCE.md](API-REFERENCE.md)
+Dokumentasi lengkap kontrak API: [apicontracts.md](apicontracts.md)
 
 
 ## 🌐 Deployment ke Production Server

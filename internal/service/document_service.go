@@ -134,6 +134,9 @@ func (s *documentService) CreateSubmission(userID uint, req *model.SubmissionReq
 		Sectors:              sectors,
 		Lnobs:                lnobs,
 	}
+	if req.IsActive != nil {
+		doc.IsActive = req.IsActive
+	}
 
 	if err := s.docRepo.Create(doc); err != nil {
 		return nil, err
@@ -182,6 +185,7 @@ func (s *documentService) SaveDraft(userID uint, submissionID string, step int, 
 			FocalPointEmail   string        `json:"focal_point_email"`
 			FocalPointPhone   string        `json:"focal_point_phone"`
 			FocalPointDept    string        `json:"focal_point_department"`
+			IsActive          *bool         `json:"is_active"`
 		}
 		if err := json.Unmarshal(dataBytes, &step2Data); err == nil {
 			if step2Data.Title != "" {
@@ -198,6 +202,9 @@ func (s *documentService) SaveDraft(userID uint, submissionID string, step int, 
 			doc.FocalPointDepartment = step2Data.FocalPointDept
 			tagsBytes, _ := json.Marshal(step2Data.Tags)
 			doc.Tags = string(tagsBytes)
+			if step2Data.IsActive != nil {
+				doc.IsActive = step2Data.IsActive
+			}
 		}
 	case 3:
 		var step3Data struct {
@@ -301,6 +308,7 @@ func (s *documentService) ListPublicDocuments(filters map[string]interface{}) (*
 			Tags:        tags,
 			Views:       doc.Views,
 			Downloads:   doc.Downloads,
+			IsActive:    doc.IsActive,
 			CreatedAt:   createdAtVal,
 		})
 	}
@@ -651,6 +659,7 @@ func mapToDocumentResponse(doc *model.Document) model.DocumentResponse {
 		Downloads:       doc.Downloads,
 		CreatedAt:       createdAtVal,
 		UpdatedAt:       updatedAtVal,
+		IsActive:        doc.IsActive,
 		SupportingFiles: supportingFiles,
 	}
 }

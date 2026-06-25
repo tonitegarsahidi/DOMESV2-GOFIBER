@@ -8,7 +8,7 @@ import (
 	"gorm.io/gorm"
 )
 
-type ReferenceRepository interface {
+type MasterRepository interface {
 	GetAgencies() ([]model.Agency, error)
 	GetSdgs() ([]model.Sdg, error)
 	GetSectors() ([]model.Sector, error)
@@ -17,89 +17,99 @@ type ReferenceRepository interface {
 	GetLnobs() ([]model.Lnob, error)
 	GetNonUnPartners() ([]model.NonUnPartner, error)
 	GetOrganizations() ([]model.Organization, error)
+	GetThematicAreas() ([]model.ThematicArea, error)
 }
 
-type referenceRepository struct {
+type masterRepository struct {
 	db *gorm.DB
 }
 
-func NewReferenceRepository() ReferenceRepository {
-	return &referenceRepository{
+func NewMasterRepository() MasterRepository {
+	return &masterRepository{
 		db: database.GetDB(),
 	}
 }
 
-func (r *referenceRepository) GetAgencies() ([]model.Agency, error) {
+func (r *masterRepository) GetAgencies() ([]model.Agency, error) {
 	var agencies []model.Agency
-	if err := r.db.Order("code asc").Find(&agencies).Error; err != nil {
+	if err := r.db.Where("isActive = ?", true).Order("code asc").Find(&agencies).Error; err != nil {
 		zap.L().Error("Failed to fetch agencies", zap.Error(err))
 		return nil, errors.NewInternalServerError("Failed to fetch agencies", "DATABASE_ERROR")
 	}
 	return agencies, nil
 }
 
-func (r *referenceRepository) GetSdgs() ([]model.Sdg, error) {
+func (r *masterRepository) GetSdgs() ([]model.Sdg, error) {
 	var sdgs []model.Sdg
 	// Sort by number from GOAL XX.
 	// Since code is "GOAL 1", "GOAL 10", we can sort them properly.
 	// In MySQL: ORDER BY CAST(SUBSTRING(code, 6) AS UNSIGNED)
-	if err := r.db.Order("CAST(SUBSTRING(code, 6) AS UNSIGNED) asc").Find(&sdgs).Error; err != nil {
+	if err := r.db.Where("isActive = ?", true).Order("CAST(SUBSTRING(code, 6) AS UNSIGNED) asc").Find(&sdgs).Error; err != nil {
 		zap.L().Error("Failed to fetch SDGs", zap.Error(err))
 		return nil, errors.NewInternalServerError("Failed to fetch SDGs", "DATABASE_ERROR")
 	}
 	return sdgs, nil
 }
 
-func (r *referenceRepository) GetSectors() ([]model.Sector, error) {
+func (r *masterRepository) GetSectors() ([]model.Sector, error) {
 	var sectors []model.Sector
-	if err := r.db.Order("name asc").Find(&sectors).Error; err != nil {
+	if err := r.db.Where("isActive = ?", true).Order("name asc").Find(&sectors).Error; err != nil {
 		zap.L().Error("Failed to fetch sectors", zap.Error(err))
 		return nil, errors.NewInternalServerError("Failed to fetch sectors", "DATABASE_ERROR")
 	}
 	return sectors, nil
 }
 
-func (r *referenceRepository) GetLanguages() ([]model.Language, error) {
+func (r *masterRepository) GetLanguages() ([]model.Language, error) {
 	var languages []model.Language
-	if err := r.db.Order("name asc").Find(&languages).Error; err != nil {
+	if err := r.db.Where("isActive = ?", true).Order("name asc").Find(&languages).Error; err != nil {
 		zap.L().Error("Failed to fetch languages", zap.Error(err))
 		return nil, errors.NewInternalServerError("Failed to fetch languages", "DATABASE_ERROR")
 	}
 	return languages, nil
 }
 
-func (r *referenceRepository) GetJointProgrammes() ([]model.JointProgramme, error) {
+func (r *masterRepository) GetJointProgrammes() ([]model.JointProgramme, error) {
 	var jps []model.JointProgramme
-	if err := r.db.Order("name asc").Find(&jps).Error; err != nil {
+	if err := r.db.Where("isActive = ?", true).Order("name asc").Find(&jps).Error; err != nil {
 		zap.L().Error("Failed to fetch joint programmes", zap.Error(err))
 		return nil, errors.NewInternalServerError("Failed to fetch joint programmes", "DATABASE_ERROR")
 	}
 	return jps, nil
 }
 
-func (r *referenceRepository) GetLnobs() ([]model.Lnob, error) {
+func (r *masterRepository) GetLnobs() ([]model.Lnob, error) {
 	var lnobs []model.Lnob
-	if err := r.db.Order("name asc").Find(&lnobs).Error; err != nil {
+	if err := r.db.Where("isActive = ?", true).Order("name asc").Find(&lnobs).Error; err != nil {
 		zap.L().Error("Failed to fetch LNOBs", zap.Error(err))
 		return nil, errors.NewInternalServerError("Failed to fetch LNOB groups", "DATABASE_ERROR")
 	}
 	return lnobs, nil
 }
 
-func (r *referenceRepository) GetNonUnPartners() ([]model.NonUnPartner, error) {
+func (r *masterRepository) GetNonUnPartners() ([]model.NonUnPartner, error) {
 	var partners []model.NonUnPartner
-	if err := r.db.Order("name asc").Find(&partners).Error; err != nil {
+	if err := r.db.Where("isActive = ?", true).Order("name asc").Find(&partners).Error; err != nil {
 		zap.L().Error("Failed to fetch non-UN partners", zap.Error(err))
 		return nil, errors.NewInternalServerError("Failed to fetch non-UN partner types", "DATABASE_ERROR")
 	}
 	return partners, nil
 }
 
-func (r *referenceRepository) GetOrganizations() ([]model.Organization, error) {
+func (r *masterRepository) GetOrganizations() ([]model.Organization, error) {
 	var orgs []model.Organization
-	if err := r.db.Order("name asc").Find(&orgs).Error; err != nil {
+	if err := r.db.Where("isActive = ?", true).Order("name asc").Find(&orgs).Error; err != nil {
 		zap.L().Error("Failed to fetch organizations", zap.Error(err))
 		return nil, errors.NewInternalServerError("Failed to fetch organizations", "DATABASE_ERROR")
 	}
 	return orgs, nil
+}
+
+func (r *masterRepository) GetThematicAreas() ([]model.ThematicArea, error) {
+	var areas []model.ThematicArea
+	if err := r.db.Where("isActive = ?", true).Order("name asc").Find(&areas).Error; err != nil {
+		zap.L().Error("Failed to fetch thematic areas", zap.Error(err))
+		return nil, errors.NewInternalServerError("Failed to fetch thematic areas", "DATABASE_ERROR")
+	}
+	return areas, nil
 }

@@ -22,10 +22,10 @@ type CmsService interface {
 	CreateUser(req *model.CreateUserRequest) (*model.User, error)
 	UpdateUser(id uint, req *model.UpdateUserRequest) (*model.User, error)
 	DeleteUser(id uint) error
-	ListReferences(refType string) (interface{}, error)
-	CreateReference(refType string, req *model.ReferenceRequest) (interface{}, error)
-	UpdateReference(refType string, code string, req *model.ReferenceRequest) (interface{}, error)
-	DeleteReference(refType string, code string) error
+	ListMasters(masterType string) (interface{}, error)
+	CreateMaster(masterType string, req *model.MasterRequest) (interface{}, error)
+	UpdateMaster(masterType string, code string, req *model.MasterRequest) (interface{}, error)
+	DeleteMaster(masterType string, code string) error
 }
 
 type cmsService struct {
@@ -272,6 +272,11 @@ func (s *cmsService) CreateUser(req *model.CreateUserRequest) (*model.User, erro
 		userType = "admin"
 	}
 
+	isActiveDefault := true
+	if req.IsActive != nil {
+		isActiveDefault = *req.IsActive
+	}
+
 	user := &model.User{
 		Username:     &username,
 		Name:         &fullName,
@@ -285,6 +290,7 @@ func (s *cmsService) CreateUser(req *model.CreateUserRequest) (*model.User, erro
 		Role:         &userRole,
 		Status:       &userStatus,
 		Type:         &userType,
+		IsActive:     &isActiveDefault,
 		NotificationPreferences: &model.NotificationPreference{
 			DocumentApprovals:  true,
 			BrokenLinkReports:  true,
@@ -332,6 +338,9 @@ func (s *cmsService) UpdateUser(id uint, req *model.UpdateUserRequest) (*model.U
 	if req.Status != nil {
 		user.Status = req.Status
 	}
+	if req.IsActive != nil {
+		user.IsActive = req.IsActive
+	}
 
 	// Update name if first_name or last_name changed
 	fullName := *user.FirstName + " " + *user.LastName
@@ -366,49 +375,87 @@ func (s *cmsService) DeleteUser(id uint) error {
 	return nil
 }
 
-func (s *cmsService) ListReferences(refType string) (interface{}, error) {
-	return s.cmsRepo.ListReferences(refType)
+func (s *cmsService) ListMasters(masterType string) (interface{}, error) {
+	return s.cmsRepo.ListMasters(masterType)
 }
 
-func (s *cmsService) CreateReference(refType string, req *model.ReferenceRequest) (interface{}, error) {
+func (s *cmsService) CreateMaster(masterType string, req *model.MasterRequest) (interface{}, error) {
 	if req.Code == "" || req.Name == "" {
 		return nil, errors.NewValidationError("Code and name are required", "VALIDATION_FAILED")
 	}
 
 	var item interface{}
-	switch strings.ToLower(refType) {
+	switch strings.ToLower(masterType) {
 	case "agencies":
-		item = &model.Agency{Code: req.Code, Name: req.Name, LogoURL: req.LogoURL}
+		agency := &model.Agency{Code: req.Code, Name: req.Name, LogoURL: req.LogoURL}
+		if req.IsActive != nil {
+			agency.IsActive = req.IsActive
+		}
+		item = agency
 	case "sdgs":
-		item = &model.Sdg{Code: req.Code, Name: req.Name, Icon: req.Icon, Color: req.Color}
+		sdg := &model.Sdg{Code: req.Code, Name: req.Name, Icon: req.Icon, Color: req.Color}
+		if req.IsActive != nil {
+			sdg.IsActive = req.IsActive
+		}
+		item = sdg
 	case "sectors":
-		item = &model.Sector{Code: req.Code, Name: req.Name}
+		sector := &model.Sector{Code: req.Code, Name: req.Name}
+		if req.IsActive != nil {
+			sector.IsActive = req.IsActive
+		}
+		item = sector
 	case "languages":
-		item = &model.Language{Code: req.Code, Name: req.Name}
+		lang := &model.Language{Code: req.Code, Name: req.Name}
+		if req.IsActive != nil {
+			lang.IsActive = req.IsActive
+		}
+		item = lang
 	case "joint-programmes":
-		item = &model.JointProgramme{Code: req.Code, Name: req.Name}
+		jp := &model.JointProgramme{Code: req.Code, Name: req.Name}
+		if req.IsActive != nil {
+			jp.IsActive = req.IsActive
+		}
+		item = jp
 	case "lnobs":
-		item = &model.Lnob{Code: req.Code, Name: req.Name}
+		lnob := &model.Lnob{Code: req.Code, Name: req.Name}
+		if req.IsActive != nil {
+			lnob.IsActive = req.IsActive
+		}
+		item = lnob
 	case "non-un-partners":
-		item = &model.NonUnPartner{Code: req.Code, Name: req.Name}
+		partner := &model.NonUnPartner{Code: req.Code, Name: req.Name}
+		if req.IsActive != nil {
+			partner.IsActive = req.IsActive
+		}
+		item = partner
 	case "organizations":
-		item = &model.Organization{Code: req.Code, Name: req.Name}
+		org := &model.Organization{Code: req.Code, Name: req.Name}
+		if req.IsActive != nil {
+			org.IsActive = req.IsActive
+		}
+		item = org
+	case "thematic-areas":
+		area := &model.ThematicArea{Code: req.Code, Name: req.Name}
+		if req.IsActive != nil {
+			area.IsActive = req.IsActive
+		}
+		item = area
 	default:
-		return nil, errors.NewValidationError("Invalid reference type", "INVALID_REF_TYPE")
+		return nil, errors.NewValidationError("Invalid master type", "INVALID_MASTER_TYPE")
 	}
 
-	if err := s.cmsRepo.CreateReference(refType, item); err != nil {
+	if err := s.cmsRepo.CreateMaster(masterType, item); err != nil {
 		return nil, err
 	}
 	return item, nil
 }
 
-func (s *cmsService) UpdateReference(refType string, code string, req *model.ReferenceRequest) (interface{}, error) {
+func (s *cmsService) UpdateMaster(masterType string, code string, req *model.MasterRequest) (interface{}, error) {
 	if req.Name == "" {
 		return nil, errors.NewValidationError("Name is required", "VALIDATION_FAILED")
 	}
 
-	existing, err := s.cmsRepo.GetReferenceByCode(refType, code)
+	existing, err := s.cmsRepo.GetMasterByCode(masterType, code)
 	if err != nil {
 		return nil, err
 	}
@@ -419,6 +466,9 @@ func (s *cmsService) UpdateReference(refType string, code string, req *model.Ref
 		if req.LogoURL != "" {
 			v.LogoURL = req.LogoURL
 		}
+		if req.IsActive != nil {
+			v.IsActive = req.IsActive
+		}
 	case *model.Sdg:
 		v.Name = req.Name
 		if req.Icon != "" {
@@ -427,26 +477,52 @@ func (s *cmsService) UpdateReference(refType string, code string, req *model.Ref
 		if req.Color != "" {
 			v.Color = req.Color
 		}
+		if req.IsActive != nil {
+			v.IsActive = req.IsActive
+		}
 	case *model.Sector:
 		v.Name = req.Name
+		if req.IsActive != nil {
+			v.IsActive = req.IsActive
+		}
 	case *model.Language:
 		v.Name = req.Name
+		if req.IsActive != nil {
+			v.IsActive = req.IsActive
+		}
 	case *model.JointProgramme:
 		v.Name = req.Name
+		if req.IsActive != nil {
+			v.IsActive = req.IsActive
+		}
 	case *model.Lnob:
 		v.Name = req.Name
+		if req.IsActive != nil {
+			v.IsActive = req.IsActive
+		}
 	case *model.NonUnPartner:
 		v.Name = req.Name
+		if req.IsActive != nil {
+			v.IsActive = req.IsActive
+		}
 	case *model.Organization:
 		v.Name = req.Name
+		if req.IsActive != nil {
+			v.IsActive = req.IsActive
+		}
+	case *model.ThematicArea:
+		v.Name = req.Name
+		if req.IsActive != nil {
+			v.IsActive = req.IsActive
+		}
 	}
 
-	if err := s.cmsRepo.UpdateReference(refType, code, existing); err != nil {
+	if err := s.cmsRepo.UpdateMaster(masterType, code, existing); err != nil {
 		return nil, err
 	}
 	return existing, nil
 }
 
-func (s *cmsService) DeleteReference(refType string, code string) error {
-	return s.cmsRepo.DeleteReference(refType, code)
+func (s *cmsService) DeleteMaster(masterType string, code string) error {
+	return s.cmsRepo.DeleteMaster(masterType, code)
 }

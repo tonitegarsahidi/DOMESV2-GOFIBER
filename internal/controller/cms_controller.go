@@ -110,6 +110,7 @@ func (ctrl *CmsController) CreateUser(c *fiber.Ctx) error {
 		"position":     user.Position,
 		"role":         user.Role,
 		"status":       user.Status,
+		"is_active":    user.IsActive,
 		"created_at":   user.CreatedAt,
 	}, "User created successfully")
 }
@@ -144,6 +145,7 @@ func (ctrl *CmsController) UpdateUser(c *fiber.Ctx) error {
 		"position":     user.Position,
 		"role":         user.Role,
 		"status":       user.Status,
+		"is_active":    user.IsActive,
 		"updated_at":   user.UpdatedAt,
 	}, "User updated successfully")
 }
@@ -179,63 +181,63 @@ func (ctrl *CmsController) verifyAdmin(c *fiber.Ctx) error {
 	return nil
 }
 
-func (ctrl *CmsController) ListReferences(c *fiber.Ctx) error {
-	refType := c.Params("type")
-	result, err := ctrl.cmsService.ListReferences(refType)
+func (ctrl *CmsController) ListMasters(c *fiber.Ctx) error {
+	masterType := c.Params("type")
+	result, err := ctrl.cmsService.ListMasters(masterType)
 	if err != nil {
 		return response.Error(c, err)
 	}
-	return response.Success(c, result, "Reference list retrieved successfully")
+	return response.Success(c, result, "Master list retrieved successfully")
 }
 
-func (ctrl *CmsController) CreateReference(c *fiber.Ctx) error {
+func (ctrl *CmsController) CreateMaster(c *fiber.Ctx) error {
 	if err := ctrl.verifyAdmin(c); err != nil {
 		return response.Error(c, err)
 	}
 
-	refType := c.Params("type")
-	var req model.ReferenceRequest
+	masterType := c.Params("type")
+	var req model.MasterRequest
 	if err := c.BodyParser(&req); err != nil {
 		return response.BadRequest(c, "Invalid request body", "INVALID_REQUEST_BODY")
 	}
 
-	result, err := ctrl.cmsService.CreateReference(refType, &req)
+	result, err := ctrl.cmsService.CreateMaster(masterType, &req)
 	if err != nil {
 		return response.Error(c, err)
 	}
-	return response.Created(c, result, "Reference item created successfully")
+	return response.Created(c, result, "Master item created successfully")
 }
 
-func (ctrl *CmsController) UpdateReference(c *fiber.Ctx) error {
+func (ctrl *CmsController) UpdateMaster(c *fiber.Ctx) error {
 	if err := ctrl.verifyAdmin(c); err != nil {
 		return response.Error(c, err)
 	}
 
-	refType := c.Params("type")
+	masterType := c.Params("type")
 	code := c.Params("code")
 
-	var req model.ReferenceRequest
+	var req model.MasterRequest
 	if err := c.BodyParser(&req); err != nil {
 		return response.BadRequest(c, "Invalid request body", "INVALID_REQUEST_BODY")
 	}
 
-	result, err := ctrl.cmsService.UpdateReference(refType, code, &req)
+	result, err := ctrl.cmsService.UpdateMaster(masterType, code, &req)
 	if err != nil {
 		return response.Error(c, err)
 	}
-	return response.Success(c, result, "Reference item updated successfully")
+	return response.Success(c, result, "Master item updated successfully")
 }
 
-func (ctrl *CmsController) DeleteReference(c *fiber.Ctx) error {
+func (ctrl *CmsController) DeleteMaster(c *fiber.Ctx) error {
 	if err := ctrl.verifyAdmin(c); err != nil {
 		return response.Error(c, err)
 	}
 
-	refType := c.Params("type")
+	masterType := c.Params("type")
 	code := c.Params("code")
 
-	if err := ctrl.cmsService.DeleteReference(refType, code); err != nil {
+	if err := ctrl.cmsService.DeleteMaster(masterType, code); err != nil {
 		return response.Error(c, err)
 	}
-	return response.Success(c, nil, "Reference item deleted successfully")
+	return response.Success(c, nil, "Master item deleted successfully")
 }

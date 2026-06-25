@@ -194,7 +194,7 @@
                     }
                 },
                 {
-                    "name": "📂 Reference Data",
+                    "name": "📂 Master Data",
                     "item": [
                         {
                             "name": "Agencies",
@@ -202,14 +202,14 @@
                                 "method": "GET",
                                 "header": [],
                                 "url": {
-                                    "raw": "{{base_url}}/api/v2/reference/agencies",
+                                    "raw": "{{base_url}}/api/v2/master/agencies",
                                     "host": [
                                         "{{base_url}}"
                                     ],
                                     "path": [
                                         "api",
                                         "v2",
-                                        "reference",
+                                        "master",
                                         "agencies"
                                     ]
                                 }
@@ -221,14 +221,14 @@
                                 "method": "GET",
                                 "header": [],
                                 "url": {
-                                    "raw": "{{base_url}}/api/v2/reference/sdgs",
+                                    "raw": "{{base_url}}/api/v2/master/sdgs",
                                     "host": [
                                         "{{base_url}}"
                                     ],
                                     "path": [
                                         "api",
                                         "v2",
-                                        "reference",
+                                        "master",
                                         "sdgs"
                                     ]
                                 }
@@ -240,14 +240,14 @@
                                 "method": "GET",
                                 "header": [],
                                 "url": {
-                                    "raw": "{{base_url}}/api/v2/reference/sectors",
+                                    "raw": "{{base_url}}/api/v2/master/sectors",
                                     "host": [
                                         "{{base_url}}"
                                     ],
                                     "path": [
                                         "api",
                                         "v2",
-                                        "reference",
+                                        "master",
                                         "sectors"
                                     ]
                                 }
@@ -259,14 +259,14 @@
                                 "method": "GET",
                                 "header": [],
                                 "url": {
-                                    "raw": "{{base_url}}/api/v2/reference/languages",
+                                    "raw": "{{base_url}}/api/v2/master/languages",
                                     "host": [
                                         "{{base_url}}"
                                     ],
                                     "path": [
                                         "api",
                                         "v2",
-                                        "reference",
+                                        "master",
                                         "languages"
                                     ]
                                 }
@@ -278,14 +278,14 @@
                                 "method": "GET",
                                 "header": [],
                                 "url": {
-                                    "raw": "{{base_url}}/api/v2/reference/joint-programmes",
+                                    "raw": "{{base_url}}/api/v2/master/joint-programmes",
                                     "host": [
                                         "{{base_url}}"
                                     ],
                                     "path": [
                                         "api",
                                         "v2",
-                                        "reference",
+                                        "master",
                                         "joint-programmes"
                                     ]
                                 }
@@ -297,14 +297,14 @@
                                 "method": "GET",
                                 "header": [],
                                 "url": {
-                                    "raw": "{{base_url}}/api/v2/reference/lnobs",
+                                    "raw": "{{base_url}}/api/v2/master/lnobs",
                                     "host": [
                                         "{{base_url}}"
                                     ],
                                     "path": [
                                         "api",
                                         "v2",
-                                        "reference",
+                                        "master",
                                         "lnobs"
                                     ]
                                 }
@@ -316,14 +316,14 @@
                                 "method": "GET",
                                 "header": [],
                                 "url": {
-                                    "raw": "{{base_url}}/api/v2/reference/non-un-partners",
+                                    "raw": "{{base_url}}/api/v2/master/non-un-partners",
                                     "host": [
                                         "{{base_url}}"
                                     ],
                                     "path": [
                                         "api",
                                         "v2",
-                                        "reference",
+                                        "master",
                                         "non-un-partners"
                                     ]
                                 }
@@ -335,15 +335,34 @@
                                 "method": "GET",
                                 "header": [],
                                 "url": {
-                                    "raw": "{{base_url}}/api/v2/reference/organizations",
+                                    "raw": "{{base_url}}/api/v2/master/organizations",
                                     "host": [
                                         "{{base_url}}"
                                     ],
                                     "path": [
                                         "api",
                                         "v2",
-                                        "reference",
+                                        "master",
                                         "organizations"
+                                    ]
+                                }
+                            }
+                        },
+                        {
+                            "name": "Thematic Areas",
+                            "request": {
+                                "method": "GET",
+                                "header": [],
+                                "url": {
+                                    "raw": "{{base_url}}/api/v2/master/thematic-areas",
+                                    "host": [
+                                        "{{base_url}}"
+                                    ],
+                                    "path": [
+                                        "api",
+                                        "v2",
+                                        "master",
+                                        "thematic-areas"
                                     ]
                                 }
                             }
@@ -1012,7 +1031,7 @@
                                 ],
                                 "body": {
                                     "mode": "raw",
-                                    "raw": "{\n  \"step\": 2,\n  \"data\": {\n    \"title\": \"Draf Laporan Perdagangan Digital\",\n    \"short_summary\": \"Analisis mendalam mengenai potensi digital rural...\",\n    \"focal_point_name\": \"Budi Santoso\"\n  }\n}",
+                                    "raw": "{\n  \"step\": 2,\n  \"data\": {\n    \"title\": \"Draf Laporan Perdagangan Digital\",\n    \"short_summary\": \"Analisis mendalam mengenai potensi digital rural...\",\n    \"focal_point_name\": \"Budi Santoso\",\n    \"is_active\": true\n  }\n}",
                                     "options": {
                                         "raw": {
                                             "language": "json"
@@ -1050,7 +1069,7 @@
                                 ],
                                 "body": {
                                     "mode": "raw",
-                                    "raw": "{\n  \"title\": \"Digital Economy and Financial Inclusion in Rural Indonesia\",\n  \"short_description\": \"Analysis of digital financial services...\",\n  \"abstract\": \"This comprehensive report analyzes...\",\n  \"detailed_summary\": \"<b>Executive Overview</b><br>This extensive report...\",\n  \"date_of_publication\": \"2024-06-15\",\n  \"total_pages\": 120,\n  \"language\": \"English\",\n  \"publication_status\": \"Published\",\n  \"tags\": [\"digital economy\", \"financial inclusion\"],\n  \"file_url\": \"/uploads/doc_test.pdf\",\n  \"file_size\": \"4.2 MB\",\n  \"cover_image_url\": \"/uploads/cover_test.jpg\",\n  \"agency\": \"UNDP\",\n  \"focal_point\": {\n    \"name\": \"Budi Santoso\",\n    \"email\": \"b.santoso@undp.org\",\n    \"phone\": \"+6281234567890\",\n    \"department\": \"Inclusive Growth Unit\"\n  },\n  \"sdgs\": [\"GOAL 1\", \"GOAL 8\"],\n  \"sectors\": [\"economic-development\"],\n  \"lnob_groups\": [\"women-girls\"],\n  \"joint_programme\": \"proklim\"\n}",
+                                    "raw": "{\n  \"title\": \"Digital Economy and Financial Inclusion in Rural Indonesia\",\n  \"short_description\": \"Analysis of digital financial services...\",\n  \"abstract\": \"This comprehensive report analyzes...\",\n  \"detailed_summary\": \"<b>Executive Overview</b><br>This extensive report...\",\n  \"date_of_publication\": \"2024-06-15\",\n  \"total_pages\": 120,\n  \"language\": \"English\",\n  \"publication_status\": \"Published\",\n  \"tags\": [\"digital economy\", \"financial inclusion\"],\n  \"file_url\": \"/uploads/doc_test.pdf\",\n  \"file_size\": \"4.2 MB\",\n  \"cover_image_url\": \"/uploads/cover_test.jpg\",\n  \"agency\": \"UNDP\",\n  \"focal_point\": {\n    \"name\": \"Budi Santoso\",\n    \"email\": \"b.santoso@undp.org\",\n    \"phone\": \"+6281234567890\",\n    \"department\": \"Inclusive Growth Unit\"\n  },\n  \"sdgs\": [\"GOAL 1\", \"GOAL 8\"],\n  \"sectors\": [\"economic-development\"],\n  \"lnob_groups\": [\"women-girls\"],\n  \"joint_programme\": \"proklim\",\n  \"is_active\": true\n}",
                                     "options": {
                                         "raw": {
                                             "language": "json"
@@ -1147,10 +1166,10 @@
                     ]
                 },
                 {
-                    "name": "📁 CMS Reference Management",
+                    "name": "📁 CMS Master Management",
                     "item": [
                         {
-                            "name": "Get Reference List",
+                            "name": "Get Master List",
                             "request": {
                                 "method": "GET",
                                 "header": [
@@ -1160,7 +1179,7 @@
                                     }
                                 ],
                                 "url": {
-                                    "raw": "{{base_url}}/api/v2/cms/reference/sectors",
+                                    "raw": "{{base_url}}/api/v2/cms/master/sectors",
                                     "host": [
                                         "{{base_url}}"
                                     ],
@@ -1168,14 +1187,14 @@
                                         "api",
                                         "v2",
                                         "cms",
-                                        "reference",
+                                        "master",
                                         "sectors"
                                     ]
                                 }
                             }
                         },
                         {
-                            "name": "Create Reference Item",
+                            "name": "Create Master Item",
                             "request": {
                                 "method": "POST",
                                 "header": [
@@ -1190,7 +1209,7 @@
                                 ],
                                 "body": {
                                     "mode": "raw",
-                                    "raw": "{\n  \"code\": \"test-sector-xyz\",\n  \"name\": \"Test Sector XYZ\"\n}",
+                                    "raw": "{\n  \"code\": \"test-sector-xyz\",\n  \"name\": \"Test Sector XYZ\",\n  \"is_active\": true\n}",
                                     "options": {
                                         "raw": {
                                             "language": "json"
@@ -1198,7 +1217,7 @@
                                     }
                                 },
                                 "url": {
-                                    "raw": "{{base_url}}/api/v2/cms/reference/sectors",
+                                    "raw": "{{base_url}}/api/v2/cms/master/sectors",
                                     "host": [
                                         "{{base_url}}"
                                     ],
@@ -1206,14 +1225,14 @@
                                         "api",
                                         "v2",
                                         "cms",
-                                        "reference",
+                                        "master",
                                         "sectors"
                                     ]
                                 }
                             }
                         },
                         {
-                            "name": "Edit Reference Item",
+                            "name": "Edit Master Item",
                             "request": {
                                 "method": "PUT",
                                 "header": [
@@ -1228,7 +1247,7 @@
                                 ],
                                 "body": {
                                     "mode": "raw",
-                                    "raw": "{\n  \"name\": \"Updated Test Sector XYZ\"\n}",
+                                    "raw": "{\n  \"name\": \"Updated Test Sector XYZ\",\n  \"is_active\": true\n}",
                                     "options": {
                                         "raw": {
                                             "language": "json"
@@ -1236,7 +1255,7 @@
                                     }
                                 },
                                 "url": {
-                                    "raw": "{{base_url}}/api/v2/cms/reference/sectors/test-sector-xyz",
+                                    "raw": "{{base_url}}/api/v2/cms/master/sectors/test-sector-xyz",
                                     "host": [
                                         "{{base_url}}"
                                     ],
@@ -1244,7 +1263,7 @@
                                         "api",
                                         "v2",
                                         "cms",
-                                        "reference",
+                                        "master",
                                         "sectors",
                                         "test-sector-xyz"
                                     ]
@@ -1252,7 +1271,7 @@
                             }
                         },
                         {
-                            "name": "Delete Reference Item",
+                            "name": "Delete Master Item",
                             "request": {
                                 "method": "DELETE",
                                 "header": [
@@ -1262,7 +1281,7 @@
                                     }
                                 ],
                                 "url": {
-                                    "raw": "{{base_url}}/api/v2/cms/reference/sectors/test-sector-xyz",
+                                    "raw": "{{base_url}}/api/v2/cms/master/sectors/test-sector-xyz",
                                     "host": [
                                         "{{base_url}}"
                                     ],
@@ -1270,7 +1289,7 @@
                                         "api",
                                         "v2",
                                         "cms",
-                                        "reference",
+                                        "master",
                                         "sectors",
                                         "test-sector-xyz"
                                     ]
@@ -1321,7 +1340,7 @@
                                 ],
                                 "body": {
                                     "mode": "raw",
-                                    "raw": "{\n  \"first_name\": \"Budi\",\n  \"last_name\": \"Santoso\",\n  \"email\": \"budi.santoso@un.org\",\n  \"password\": \"password123\",\n  \"confirm_password\": \"password123\",\n  \"organization\": \"WHO\",\n  \"position\": \"Health Officer\",\n  \"phone_number\": \"+62811223344\",\n  \"role\": \"editor\",\n  \"status\": \"active\"\n}",
+                                    "raw": "{\n  \"first_name\": \"Budi\",\n  \"last_name\": \"Santoso\",\n  \"email\": \"budi.santoso@un.org\",\n  \"password\": \"password123\",\n  \"confirm_password\": \"password123\",\n  \"organization\": \"WHO\",\n  \"position\": \"Health Officer\",\n  \"phone_number\": \"+62811223344\",\n  \"role\": \"editor\",\n  \"status\": \"active\",\n  \"is_active\": true\n}",
                                     "options": {
                                         "raw": {
                                             "language": "json"
@@ -1357,7 +1376,7 @@
                                 ],
                                 "body": {
                                     "mode": "raw",
-                                    "raw": "{\n  \"position\": \"Senior Health Officer\",\n  \"status\": \"active\"\n}",
+                                    "raw": "{\n  \"position\": \"Senior Health Officer\",\n  \"status\": \"active\",\n  \"is_active\": true\n}",
                                     "options": {
                                         "raw": {
                                             "language": "json"

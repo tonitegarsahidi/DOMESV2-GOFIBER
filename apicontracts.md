@@ -113,6 +113,7 @@ Mendaftarkan user baru ke sistem. Jika email yang didaftarkan terdaftar dalam wh
       "type": "admin",
       "role": "administrator",
       "status": "active",
+      "is_active": true,
       "position": "Administrator",
       "organization": "UNITED NATIONS",
       "phone_number": "+628123456789",
@@ -150,7 +151,7 @@ Mendaftarkan user baru ke sistem. Jika email yang didaftarkan terdaftar dalam wh
 
 ### POST /api/v2/auth/login (Public)
 
-Melakukan autentikasi menggunakan email dan password untuk mendapatkan JWT Token.
+Melakukan autentikasi menggunakan email dan password untuk mendapatkan JWT Token. Menolak autentikasi jika user telah dinonaktifkan (`is_active` bernilai `false`).
 
 **Request Body:**
 ```json
@@ -184,6 +185,7 @@ Melakukan autentikasi menggunakan email dan password untuk mendapatkan JWT Token
       "type": "admin",
       "role": "administrator",
       "status": "active",
+      "is_active": true,
       "position": "Administrator",
       "organization": "UNITED NATIONS",
       "phone_number": "+628123456789",
@@ -197,13 +199,13 @@ Melakukan autentikasi menggunakan email dan password untuk mendapatkan JWT Token
 }
 ```
 
-**Response 401 (Unauthorized):**
+**Response 401 (Unauthorized / Deactivated):**
 ```json
 {
   "success": false,
-  "message": "Invalid credentials",
-  "error": "INVALID_CREDENTIALS",
-  "details": "Invalid credentials: INVALID_CREDENTIALS"
+  "message": "User account is deactivated",
+  "error": "USER_DEACTIVATED",
+  "details": "User account is deactivated: USER_DEACTIVATED"
 }
 ```
 
@@ -290,6 +292,7 @@ Authorization: Bearer <token>
     "type": "admin",
     "role": "administrator",
     "status": "active",
+    "is_active": true,
     "position": "Administrator",
     "organization": "UNITED NATIONS",
     "phone_number": "+628123456789",
@@ -300,6 +303,7 @@ Authorization: Bearer <token>
       "updated_at": "2026-06-25T10:00:00+07:00",
       "created_by": "System",
       "updated_by": "System",
+      "is_active": true,
       "document_approvals": true,
       "broken_link_reports": true,
       "system_updates": false,
@@ -350,6 +354,7 @@ Mengubah data informasi diri dari user yang sedang login.
     "position": "Senior Administrator",
     "organization": "UNITED NATIONS (UNDP)",
     "phone_number": "+628123456789",
+    "is_active": true,
     "updated_at": "2026-06-25T11:00:00+07:00"
   }
 }
@@ -406,6 +411,7 @@ Mengambil data preferensi notifikasi user.
     "updated_at": "2026-06-25T10:00:00+07:00",
     "created_by": "System",
     "updated_by": "System",
+    "is_active": true,
     "document_approvals": true,
     "broken_link_reports": true,
     "system_updates": false,
@@ -441,6 +447,7 @@ Mengubah preferensi notifikasi user.
     "updated_at": "2026-06-25T11:30:00+07:00",
     "created_by": "System",
     "updated_by": "System",
+    "is_active": true,
     "document_approvals": true,
     "broken_link_reports": false,
     "system_updates": true,
@@ -453,11 +460,13 @@ Mengubah preferensi notifikasi user.
 
 ## B. Public — Documents (Discovery)
 
+Hanya dokumen yang memiliki `status` = `published` dan `is_active` = `true` yang akan tampil pada endpoint pencarian dan penemuan dokumen publik.
+
 ---
 
 ### GET /api/v2/documents (Public)
 
-Mendapatkan daftar semua dokumen terbitan publik dengan dukungan filtering, sorting, dan pagination.
+Mendapatkan daftar semua dokumen terbitan publik yang aktif dengan dukungan filtering, sorting, dan pagination.
 
 **Query Parameters:**
 
@@ -500,6 +509,7 @@ Mendapatkan daftar semua dokumen terbitan publik dengan dukungan filtering, sort
         "tags": ["digital economy", "financial inclusion", "fintech"],
         "views": 1234,
         "downloads": 567,
+        "is_active": true,
         "created_at": "2026-06-25T10:00:00+07:00"
       }
     ],
@@ -517,7 +527,7 @@ Mendapatkan daftar semua dokumen terbitan publik dengan dukungan filtering, sort
 
 ### GET /api/v2/documents/search (Public)
 
-Pencarian dokumen dengan free-text query (termasuk fitur highlight kata kunci dan suggestions).
+Pencarian dokumen aktif dengan free-text query (termasuk fitur highlight kata kunci dan suggestions).
 
 **Query Parameters:**
 
@@ -553,6 +563,7 @@ Pencarian dokumen dengan free-text query (termasuk fitur highlight kata kunci da
         "tags": ["digital economy", "financial inclusion", "fintech"],
         "views": 1234,
         "downloads": 567,
+        "is_active": true,
         "highlight": {
           "title": "Digital Economy and <mark>Financial Inclusion</mark> in Rural Indonesia",
           "description": "...analyzes the rapid expansion of digital <mark>financial</mark> services..."
@@ -574,7 +585,7 @@ Pencarian dokumen dengan free-text query (termasuk fitur highlight kata kunci da
 
 ### GET /api/v2/documents/{id} (Public)
 
-Mengembalikan detail lengkap dari suatu dokumen publik berdasarkan UUID v4 ID atau Slug uniknya.
+Mengembalikan detail lengkap dari suatu dokumen publik yang aktif berdasarkan UUID v4 ID atau Slug uniknya.
 
 **Response 200 (Success):**
 ```json
@@ -627,6 +638,7 @@ Mengembalikan detail lengkap dari suatu dokumen publik berdasarkan UUID v4 ID at
     "downloads": 567,
     "created_at": "2026-06-25T10:00:00+07:00",
     "updated_at": "2026-06-25T10:00:00+07:00",
+    "is_active": true,
     "supporting_files": [
       { "url": "/uploads/supporting/appendix_a.pdf", "type": "appendix", "description": "Appendix A: Data Tables" }
     ]
@@ -648,7 +660,7 @@ Mengembalikan detail lengkap dari suatu dokumen publik berdasarkan UUID v4 ID at
 
 ### GET /api/v2/documents/{id}/related (Public)
 
-Mendapatkan rekomendasi dokumen lain yang memiliki kesamaan SDG atau Sektor.
+Mendapatkan rekomendasi dokumen lain yang memiliki kesamaan SDG atau Sektor dan bertatus aktif.
 
 **Response 200 (Success):**
 ```json
@@ -664,6 +676,7 @@ Mendapatkan rekomendasi dokumen lain yang memiliki kesamaan SDG atau Sektor.
       "agency": "UNEP",
       "year": 2026,
       "cover_image": "/uploads/covers/doc_002.jpg",
+      "is_active": true,
       "sdgs": [
         { "code": "GOAL 13", "name": "Climate Action", "icon": "/images/SDG-logos/SDG-13.png" }
       ]
@@ -874,6 +887,7 @@ Melaporkan link PDF yang rusak atau 404 dari dokumen publik.
     "id": "9ca10cbd-1334-4591-9fc7-2ef9da135019",
     "document_id": "7da60cbd-1334-4591-9fc7-2ef9da135014",
     "status": "open",
+    "is_active": true,
     "created_at": "2026-06-25T10:00:00+07:00"
   }
 }
@@ -881,13 +895,13 @@ Melaporkan link PDF yang rusak atau 404 dari dokumen publik.
 
 ---
 
-## E. Reference Data (Public)
+## E. Master Data (Public)
 
-Mengembalikan data statis/dinamis pilihan untuk dropdown isian form di Front End. Setiap objek referensi memiliki struktur `V2Base` dengan UUID v4 ID.
+Mengembalikan data statis dropdown isian form di Front End yang **aktif** (`is_active` = `true`). Setiap objek referensi memiliki struktur `V2Base` dengan UUID v4 ID.
 
 ---
 
-### GET /api/v2/reference/agencies (Public)
+### GET /api/v2/master/agencies (Public)
 
 **Response 200 (Success):**
 ```json
@@ -901,6 +915,7 @@ Mengembalikan data statis/dinamis pilihan untuk dropdown isian form di Front End
       "updated_at": "2026-06-25T10:00:00+07:00",
       "created_by": "System",
       "updated_by": "System",
+      "is_active": true,
       "code": "UNDP",
       "name": "United Nations Development Programme",
       "logo_url": "/images/agency-logos/undp.png"
@@ -911,7 +926,7 @@ Mengembalikan data statis/dinamis pilihan untuk dropdown isian form di Front End
 
 ---
 
-### GET /api/v2/reference/sdgs (Public)
+### GET /api/v2/master/sdgs (Public)
 
 **Response 200 (Success):**
 ```json
@@ -925,6 +940,7 @@ Mengembalikan data statis/dinamis pilihan untuk dropdown isian form di Front End
       "updated_at": "2026-06-25T10:00:00+07:00",
       "created_by": "System",
       "updated_by": "System",
+      "is_active": true,
       "code": "GOAL 1",
       "name": "No Poverty",
       "icon": "/images/SDG-logos/SDG-1.png",
@@ -936,7 +952,7 @@ Mengembalikan data statis/dinamis pilihan untuk dropdown isian form di Front End
 
 ---
 
-### GET /api/v2/reference/sectors (Public)
+### GET /api/v2/master/sectors (Public)
 
 **Response 200 (Success):**
 ```json
@@ -950,6 +966,7 @@ Mengembalikan data statis/dinamis pilihan untuk dropdown isian form di Front End
       "updated_at": "2026-06-25T10:00:00+07:00",
       "created_by": "System",
       "updated_by": "System",
+      "is_active": true,
       "code": "economic-development",
       "name": "Economic Development"
     }
@@ -959,7 +976,7 @@ Mengembalikan data statis/dinamis pilihan untuk dropdown isian form di Front End
 
 ---
 
-### GET /api/v2/reference/languages (Public)
+### GET /api/v2/master/languages (Public)
 
 **Response 200 (Success):**
 ```json
@@ -973,6 +990,7 @@ Mengembalikan data statis/dinamis pilihan untuk dropdown isian form di Front End
       "updated_at": "2026-06-25T10:00:00+07:00",
       "created_by": "System",
       "updated_by": "System",
+      "is_active": true,
       "code": "english",
       "name": "English"
     }
@@ -982,7 +1000,7 @@ Mengembalikan data statis/dinamis pilihan untuk dropdown isian form di Front End
 
 ---
 
-### GET /api/v2/reference/joint-programmes (Public)
+### GET /api/v2/master/joint-programmes (Public)
 
 **Response 200 (Success):**
 ```json
@@ -996,6 +1014,7 @@ Mengembalikan data statis/dinamis pilihan untuk dropdown isian form di Front End
       "updated_at": "2026-06-25T10:00:00+07:00",
       "created_by": "System",
       "updated_by": "System",
+      "is_active": true,
       "code": "proklim",
       "name": "Climate Village Project (PROKLIM)"
     }
@@ -1005,7 +1024,7 @@ Mengembalikan data statis/dinamis pilihan untuk dropdown isian form di Front End
 
 ---
 
-### GET /api/v2/reference/lnobs (Public)
+### GET /api/v2/master/lnobs (Public)
 
 **Response 200 (Success):**
 ```json
@@ -1019,6 +1038,7 @@ Mengembalikan data statis/dinamis pilihan untuk dropdown isian form di Front End
       "updated_at": "2026-06-25T10:00:00+07:00",
       "created_by": "System",
       "updated_by": "System",
+      "is_active": true,
       "code": "women-girls",
       "name": "Women and Girls"
     }
@@ -1028,7 +1048,7 @@ Mengembalikan data statis/dinamis pilihan untuk dropdown isian form di Front End
 
 ---
 
-### GET /api/v2/reference/non-un-partners (Public)
+### GET /api/v2/master/non-un-partners (Public)
 
 **Response 200 (Success):**
 ```json
@@ -1042,6 +1062,7 @@ Mengembalikan data statis/dinamis pilihan untuk dropdown isian form di Front End
       "updated_at": "2026-06-25T10:00:00+07:00",
       "created_by": "System",
       "updated_by": "System",
+      "is_active": true,
       "code": "government",
       "name": "Government"
     }
@@ -1051,7 +1072,7 @@ Mengembalikan data statis/dinamis pilihan untuk dropdown isian form di Front End
 
 ---
 
-### GET /api/v2/reference/organizations (Public)
+### GET /api/v2/master/organizations (Public)
 
 **Response 200 (Success):**
 ```json
@@ -1065,8 +1086,33 @@ Mengembalikan data statis/dinamis pilihan untuk dropdown isian form di Front End
       "updated_at": "2026-06-25T10:00:00+07:00",
       "created_by": "System",
       "updated_by": "System",
+      "is_active": true,
       "code": "united-nations",
       "name": "UNITED NATIONS"
+    }
+  ]
+}
+```
+
+---
+
+### GET /api/v2/master/thematic-areas (Public)
+
+**Response 200 (Success):**
+```json
+{
+  "success": true,
+  "message": "Thematic areas retrieved successfully",
+  "data": [
+    {
+      "id": "3fa86cfa-5b12-4cfb-bfe3-aa837df21609",
+      "created_at": "2026-06-25T10:00:00+07:00",
+      "updated_at": "2026-06-25T10:00:00+07:00",
+      "created_by": "System",
+      "updated_by": "System",
+      "is_active": true,
+      "code": "inclusive-economic-transformation",
+      "name": "Inclusive Economic Transformation"
     }
   ]
 }
@@ -1137,7 +1183,7 @@ Mengambil daftar log aktivitas terbaru yang dilakukan para kontributor sistem.
 
 ### GET /api/v2/submissions (Auth Required)
 
-Mengambil daftar berkas submissions (pengajuan) dokumen dengan status draf, pending, maupun terbit.
+Mengambil daftar berkas submissions (pengajuan) dokumen dengan status draf, pending, maupun terbit (menampilkan baik data yang aktif maupun dinonaktifkan).
 
 **Query Parameters:**
 | Parameter | Tipe | Required | Deskripsi |
@@ -1160,6 +1206,7 @@ Mengambil daftar berkas submissions (pengajuan) dokumen dengan status draf, pend
         "short_description": "Analysis of digital financial services expansion...",
         "date_of_publication": "2026-06-15",
         "status": "published",
+        "is_active": true,
         "agency": "United Nations Development Programme",
         "author": "Erlangga Agustino",
         "created_at": "2026-06-25T10:00:00+07:00"
@@ -1179,7 +1226,7 @@ Mengambil daftar berkas submissions (pengajuan) dokumen dengan status draf, pend
 
 ### POST /api/v2/submissions (Auth Required)
 
-Membuat pengajuan dokumen secara final (pada Step 4 Wizard).
+Membuat pengajuan dokumen secara final (pada Step 4 Wizard). Bisa melampirkan parameter `is_active` jika ingin diubah status keaktifannya.
 
 **Request Body (Lengkap):**
 ```json
@@ -1216,7 +1263,8 @@ Membuat pengajuan dokumen secara final (pada Step 4 Wizard).
     { "type": "government", "name": "Ministry of Villages" }
   ],
   "thematic_areas": ["Inclusive Economic Transformation"],
-  "geographic_scope": "National (Indonesia)"
+  "geographic_scope": "National (Indonesia)",
+  "is_active": true
 }
 ```
 
@@ -1231,6 +1279,7 @@ Membuat pengajuan dokumen secara final (pada Step 4 Wizard).
     "slug": "digital-economy-financial-inclusion-rural-indonesia",
     "title": "Digital Economy and Financial Inclusion in Rural Indonesia",
     "status": "pending_review",
+    "is_active": true,
     "created_at": "2026-06-25T10:00:00+07:00"
   }
 }
@@ -1240,7 +1289,7 @@ Membuat pengajuan dokumen secara final (pada Step 4 Wizard).
 
 ### POST /api/v2/submissions/{id}/draft (Auth Required)
 
-Menyimpan langkah draf (langkah 1-3) ke database untuk disimpan sementara. Gunakan `id` = `0` (atau abaikan) untuk pembuatan draft baru, dan gunakan UUID v4 yang sudah di-generate di response sebelumnya untuk memperbarui progress draf langkah berikutnya.
+Menyimpan langkah draf (langkah 1-3) ke database untuk disimpan sementara. Bisa menambahkan `"is_active": false` untuk menonaktifkan sementara dari sistem.
 
 **Request Body:**
 ```json
@@ -1250,7 +1299,8 @@ Menyimpan langkah draf (langkah 1-3) ke database untuk disimpan sementara. Gunak
     "title": "Draf Dokumen Baru",
     "short_summary": "Summary draf...",
     "focal_point_name": "Budi Santoso",
-    "focal_point_email": "b.santoso@undp.org"
+    "focal_point_email": "b.santoso@undp.org",
+    "is_active": true
   }
 }
 ```
@@ -1322,22 +1372,22 @@ Menarik kembali publikasi dokumen agar kembali ke status unpublished (CMS only).
 
 ---
 
-## H. CMS — Reference Management (Auth Required - Admin / Editor)
+## H. CMS — Master Management (Auth Required - Admin / Editor)
 
-Menyediakan fungsi pengelolaan data pilihan referensi secara modular oleh Administrator.
+Menyediakan fungsi pengelolaan data pilihan master secara modular oleh Administrator. Mendukung set `is_active` = `false` agar data master disembunyikan dari dropdown publik namun datanya tidak hilang untuk relasi tabel yang sudah ada.
 
 ---
 
-### GET /api/v2/cms/reference/{type} (Auth Required)
+### GET /api/v2/cms/master/{type} (Auth Required)
 
-Mengambil seluruh data referensi dari tipe tertentu.
-* **Tipe valid (`{type}`):** `agencies`, `sdgs`, `sectors`, `languages`, `joint-programmes`, `lnobs`, `non-un-partners`, `organizations`
+Mengambil seluruh data master dari tipe tertentu (termasuk yang aktif maupun tidak).
+* **Tipe valid (`{type}`):** `agencies`, `sdgs`, `sectors`, `languages`, `joint-programmes`, `lnobs`, `non-un-partners`, `organizations`, `thematic-areas`
 
 **Response 200 (Success):**
 ```json
 {
   "success": true,
-  "message": "Reference list retrieved successfully",
+  "message": "Master list retrieved successfully",
   "data": [
     {
       "id": "dfa86cfa-5b12-4cfb-bfe3-aa837df21603",
@@ -1345,6 +1395,7 @@ Mengambil seluruh data referensi dari tipe tertentu.
       "updated_at": "2026-06-25T10:00:00+07:00",
       "created_by": "System",
       "updated_by": "System",
+      "is_active": true,
       "code": "economic-development",
       "name": "Economic Development"
     }
@@ -1354,9 +1405,9 @@ Mengambil seluruh data referensi dari tipe tertentu.
 
 ---
 
-### POST /api/v2/cms/reference/{type} (Auth Required - Admin Only)
+### POST /api/v2/cms/master/{type} (Auth Required - Admin Only)
 
-Menambahkan data referensi baru.
+Menambahkan data master baru.
 
 **Request Body:**
 ```json
@@ -1365,7 +1416,8 @@ Menambahkan data referensi baru.
   "name": "Test Sector XYZ",
   "logo_url": "",
   "icon": "",
-  "color": ""
+  "color": "",
+  "is_active": true
 }
 ```
 
@@ -1373,13 +1425,14 @@ Menambahkan data referensi baru.
 ```json
 {
   "success": true,
-  "message": "Reference item created successfully",
+  "message": "Master item created successfully",
   "data": {
     "id": "8fa86cfa-5b12-4cfb-bfe3-aa837df21612",
     "created_at": "2026-06-25T10:35:00+07:00",
     "updated_at": "2026-06-25T10:35:00+07:00",
     "created_by": "admin@un.org",
     "updated_by": "admin@un.org",
+    "is_active": true,
     "code": "test-sector-xyz",
     "name": "Test Sector XYZ"
   }
@@ -1388,15 +1441,16 @@ Menambahkan data referensi baru.
 
 ---
 
-### PUT /api/v2/cms/reference/{type}/{code} (Auth Required - Admin Only)
+### PUT /api/v2/cms/master/{type}/{code} (Auth Required - Admin Only)
 
-Memperbarui data referensi berdasarkan parameter kode unik.
+Memperbarui data master berdasarkan parameter kode unik. Mendukung update parameter `is_active`.
 
 **Request Body:**
 ```json
 {
   "name": "Test Sector XYZ Updated",
-  "logo_url": "/images/logo-updated.png"
+  "logo_url": "/images/logo-updated.png",
+  "is_active": false
 }
 ```
 
@@ -1404,13 +1458,14 @@ Memperbarui data referensi berdasarkan parameter kode unik.
 ```json
 {
   "success": true,
-  "message": "Reference item updated successfully",
+  "message": "Master item updated successfully",
   "data": {
     "id": "8fa86cfa-5b12-4cfb-bfe3-aa837df21612",
     "created_at": "2026-06-25T10:35:00+07:00",
     "updated_at": "2026-06-25T10:40:00+07:00",
     "created_by": "admin@un.org",
     "updated_by": "admin@un.org",
+    "is_active": false,
     "code": "test-sector-xyz",
     "name": "Test Sector XYZ Updated",
     "logo_url": "/images/logo-updated.png"
@@ -1420,15 +1475,15 @@ Memperbarui data referensi berdasarkan parameter kode unik.
 
 ---
 
-### DELETE /api/v2/cms/reference/{type}/{code} (Auth Required - Admin Only)
+### DELETE /api/v2/cms/master/{type}/{code} (Auth Required - Admin Only)
 
-Menghapus item referensi.
+Menghapus item master secara permanen dari database.
 
 **Response 200 (Success):**
 ```json
 {
   "success": true,
-  "message": "Reference item deleted successfully",
+  "message": "Master item deleted successfully",
   "data": null
 }
 ```
@@ -1469,6 +1524,7 @@ Mengembalikan daftar user pengelola sistem.
         "position": "Administrator",
         "role": "administrator",
         "status": "active",
+        "is_active": true,
         "avatar_url": "/uploads/avatars/erlangga.jpg",
         "created_at": "2026-06-25T10:00:00+07:00",
         "last_login": "2026-06-25T10:05:00+07:00"
@@ -1502,7 +1558,8 @@ Membuat user baru secara manual dari CMS panel.
   "position": "Health Officer",
   "phone_number": "+6281122334455",
   "role": "editor",
-  "status": "active"
+  "status": "active",
+  "is_active": true
 }
 ```
 
@@ -1518,6 +1575,7 @@ Membuat user baru secara manual dari CMS panel.
 | `phone_number` | ❌ | Nomor telepon |
 | `role` | ✅ | Pilihan: `administrator`, `editor`, `viewer` |
 | `status` | ❌ | Status aktif: `active`, `inactive` |
+| `is_active` | ❌ | Flag aktif akun (Default: `true`) |
 
 **Response 201 (Created):**
 ```json
@@ -1533,6 +1591,7 @@ Membuat user baru secara manual dari CMS panel.
     "position": "Health Officer",
     "role": "editor",
     "status": "active",
+    "is_active": true,
     "created_at": "2026-06-25T10:45:00+07:00"
   }
 }
@@ -1542,7 +1601,7 @@ Membuat user baru secara manual dari CMS panel.
 
 ### PUT /api/v2/users/{id} (Auth Required - Admin Only)
 
-Memperbarui data pengelola sistem.
+Memperbarui data pengelola sistem. Mendukung pembaruan parameter `is_active` (misal untuk deaktivasi akun editor).
 
 **Request Body:**
 ```json
@@ -1553,7 +1612,8 @@ Memperbarui data pengelola sistem.
   "position": "Senior Health Officer",
   "phone_number": "+6281122334455",
   "role": "administrator",
-  "status": "active"
+  "status": "active",
+  "is_active": false
 }
 ```
 
@@ -1571,6 +1631,7 @@ Memperbarui data pengelola sistem.
     "position": "Senior Health Officer",
     "role": "administrator",
     "status": "active",
+    "is_active": false,
     "updated_at": "2026-06-25T10:50:00+07:00"
   }
 }
@@ -1698,6 +1759,7 @@ Mengambil seluruh daftar laporan broken links yang diajukan oleh user publik.
         "reporter_email": "budi@example.com",
         "details": "The PDF link leads to a 404 error page.",
         "status": "open",
+        "is_active": true,
         "created_at": "2026-06-25T10:00:00+07:00"
       }
     ],
@@ -1736,6 +1798,7 @@ Mengubah status penyelesaian laporan kerusakan link (e.g. dari `open` menjadi `i
   "data": {
     "id": "9ca10cbd-1334-4591-9fc7-2ef9da135019",
     "status": "in_progress",
+    "is_active": true,
     "updated_at": "2026-06-25T11:00:00+07:00"
   }
 }
@@ -1773,6 +1836,7 @@ Mengembalikan seluruh daftar alamat email whitelist admin. User yang melakukan r
       "updated_at": "2026-06-25T10:00:00+07:00",
       "created_by": "System",
       "updated_by": "System",
+      "is_active": true,
       "email": "admin@un.org",
       "added_at": "2026-06-25T10:00:00+07:00"
     }
@@ -1808,6 +1872,7 @@ Menambahkan alamat email baru ke dalam daftar whitelist admin.
     "updated_at": "2026-06-25T11:15:00+07:00",
     "created_by": "admin@un.org",
     "updated_by": "admin@un.org",
+    "is_active": true,
     "email": "newadmin@un.org",
     "added_at": "2026-06-25T11:15:00+07:00"
   }
@@ -1992,6 +2057,7 @@ Daftar parameter standard kesalahan internal API yang dikirimkan di dalam proper
 | `INVALID_RESET_TOKEN` | 400 | Token reset password tidak valid atau telah expired |
 | `INVALID_CURRENT_PASSWORD` | 400 | Password saat ini salah / tidak cocok |
 | `INVALID_CREDENTIALS` | 401 | Email atau password tidak sesuai |
+| `USER_DEACTIVATED` | 401 | Akun user telah dinonaktifkan (`is_active` = `false`) |
 | `TOKEN_MISSING` | 401 | Header request `Authorization` JWT tidak ditemukan |
 | `INVALID_TOKEN` | 401 | Tanda tangan Token JWT tidak valid / telah rusak |
 | `TOKEN_EXPIRED` | 401 | Token JWT telah melewati batas waktu berlaku |

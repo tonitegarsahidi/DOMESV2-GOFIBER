@@ -141,6 +141,10 @@ func (s *authService) Login(req *model.LoginRequest) (*model.AuthResponse, error
 		return nil, errors.NewUnauthorizedError("Invalid credentials", "INVALID_CREDENTIALS")
 	}
 
+	if user.IsActive != nil && !*user.IsActive {
+		return nil, errors.NewUnauthorizedError("User account is deactivated", "USER_DEACTIVATED")
+	}
+
 	token, err := s.generateToken(user)
 	if err != nil {
 		return nil, err
