@@ -242,6 +242,7 @@ func MigrateLegacyData(db *gorm.DB) {
 			ExternalURL:       "",
 			Views:             0,
 			Downloads:         0,
+			Status:            "published",
 			FocalPointName:    lj.Nam,
 			FocalPointEmail:   lj.Email,
 			FocalPointPhone:   lj.Phone,
