@@ -115,6 +115,28 @@ func (r *documentRepository) ListPublic(filters map[string]interface{}) ([]model
 	var docs []model.Document
 	query := r.db.Model(&model.Document{}).Where("V2Documents.status = ? AND V2Documents.isActive = ?", "published", true)
 
+	// Pre-resolve language terms if language filter is active to handle comma-separated values and code/name mapping
+	var langConditions []string
+	var langArgs []interface{}
+	if langsStr, ok := filters["langs"].(string); ok && langsStr != "" {
+		langs := strings.Split(langsStr, ",")
+		var dbLangs []model.Language
+		if err := r.db.Where("code IN (?) OR LOWER(name) IN (?)", langs, langs).Find(&dbLangs).Error; err == nil {
+			searchTerms := make(map[string]bool)
+			for _, lang := range langs {
+				searchTerms[strings.ToLower(lang)] = true
+			}
+			for _, l := range dbLangs {
+				searchTerms[strings.ToLower(l.Code)] = true
+				searchTerms[strings.ToLower(l.Name)] = true
+			}
+			for term := range searchTerms {
+				langConditions = append(langConditions, "LOWER(V2Documents.language) LIKE ?")
+				langArgs = append(langArgs, "%"+term+"%")
+			}
+		}
+	}
+
 	// Apply filter: Search Text
 	if q, ok := filters["q"].(string); ok && q != "" {
 		searchText := "%" + strings.ToLower(q) + "%"
@@ -141,11 +163,9 @@ func (r *documentRepository) ListPublic(filters map[string]interface{}) ([]model
 		query = query.Where("V2Documents.year <= ?", yearTo)
 	}
 
-	// Apply filter: Languages (by code via master table)
-	if langsStr, ok := filters["langs"].(string); ok && langsStr != "" {
-		langs := strings.Split(langsStr, ",")
-		query = query.Joins("JOIN V2MasterLanguages ON LOWER(V2MasterLanguages.name) = LOWER(V2Documents.language)").
-			Where("V2MasterLanguages.code IN (?)", langs)
+	// Apply filter: Languages
+	if len(langConditions) > 0 {
+		query = query.Where(strings.Join(langConditions, " OR "), langArgs...)
 	}
 
 	// Apply filter: SDGs (many-to-many relation filter)
@@ -206,9 +226,8 @@ func (r *documentRepository) ListPublic(filters map[string]interface{}) ([]model
 	if yearTo, ok := filters["yearTo"].(int); ok && yearTo > 0 {
 		countQuery = countQuery.Where("V2Documents.year <= ?", yearTo)
 	}
-	if langsStr, ok := filters["langs"].(string); ok && langsStr != "" {
-		countQuery = countQuery.Joins("JOIN V2MasterLanguages ON LOWER(V2MasterLanguages.name) = LOWER(V2Documents.language)").
-			Where("V2MasterLanguages.code IN (?)", strings.Split(langsStr, ","))
+	if len(langConditions) > 0 {
+		countQuery = countQuery.Where(strings.Join(langConditions, " OR "), langArgs...)
 	}
 	if sdgsStr, ok := filters["sdgs"].(string); ok && sdgsStr != "" {
 		countQuery = countQuery.Joins("JOIN v2_document_sdgs ON v2_document_sdgs.document_id = V2Documents.id").

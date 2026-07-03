@@ -80,6 +80,13 @@ Database migration dan seeding data referensi (seperti SDGs, Agencies, Sectors, 
 > export RUN_USER_MIGRATION=true
 > ```
 
+### 5b. Migrasi Data Legacy (Opsional)
+Jika Anda memiliki data lama dari database versi sebelumnya di dalam tabel `Tabledatas` dan ingin memindahkannya ke struktur tabel baru `V2Documents`, jalankan skrip migrasi data legacy berikut secara manual:
+```bash
+go run cmd/migrate_data/main.go
+```
+Skrip ini akan memproses mapping metadata, data master, bahasa, focal point, serta relasi many-to-many (SDGs, Sectors, LNOBs) ke struktur V2 secara otomatis.
+
 ### 6. Jalankan Aplikasi
 ```bash
 # Development mode
