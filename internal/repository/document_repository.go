@@ -113,44 +113,39 @@ func (r *documentRepository) Delete(id string) error {
 
 func (r *documentRepository) ListPublic(filters map[string]interface{}) ([]model.Document, int, error) {
 	var docs []model.Document
-	query := r.db.Model(&model.Document{}).Where("status = ? AND isActive = ?", "published", true)
+	query := r.db.Model(&model.Document{}).Where("V2Documents.status = ? AND V2Documents.isActive = ?", "published", true)
 
 	// Apply filter: Search Text
 	if q, ok := filters["q"].(string); ok && q != "" {
 		searchText := "%" + strings.ToLower(q) + "%"
-		query = query.Where("LOWER(title) LIKE ? OR LOWER(description) LIKE ? OR LOWER(abstract) LIKE ?", searchText, searchText, searchText)
+		query = query.Where("LOWER(V2Documents.title) LIKE ? OR LOWER(V2Documents.description) LIKE ? OR LOWER(V2Documents.abstract) LIKE ?", searchText, searchText, searchText)
 	}
 
 	// Apply filter: Agencies (comma separated)
 	if agenciesStr, ok := filters["agencies"].(string); ok && agenciesStr != "" {
 		agencies := strings.Split(agenciesStr, ",")
-		query = query.Where("lead_agency_code IN (?)", agencies)
+		query = query.Where("V2Documents.lead_agency_code IN (?)", agencies)
 	}
 
 	// Apply filter: Joint programmes
 	if jpStr, ok := filters["jointProgrammes"].(string); ok && jpStr != "" {
 		jps := strings.Split(jpStr, ",")
-		query = query.Where("joint_programme_code IN (?)", jps)
+		query = query.Where("V2Documents.joint_programme_code IN (?)", jps)
 	}
 
 	// Apply filter: Years
 	if yearFrom, ok := filters["yearFrom"].(int); ok && yearFrom > 0 {
-		query = query.Where("year >= ?", yearFrom)
+		query = query.Where("V2Documents.year >= ?", yearFrom)
 	}
 	if yearTo, ok := filters["yearTo"].(int); ok && yearTo > 0 {
-		query = query.Where("year <= ?", yearTo)
+		query = query.Where("V2Documents.year <= ?", yearTo)
 	}
 
-	// Apply filter: Languages
+	// Apply filter: Languages (by code via master table)
 	if langsStr, ok := filters["langs"].(string); ok && langsStr != "" {
 		langs := strings.Split(langsStr, ",")
-		var langConditions []string
-		var langArgs []interface{}
-		for _, lang := range langs {
-			langConditions = append(langConditions, "LOWER(language) LIKE ?")
-			langArgs = append(langArgs, "%"+strings.ToLower(lang)+"%")
-		}
-		query = query.Where(strings.Join(langConditions, " OR "), langArgs...)
+		query = query.Joins("JOIN V2MasterLanguages ON LOWER(V2MasterLanguages.name) = LOWER(V2Documents.language)").
+			Where("V2MasterLanguages.code IN (?)", langs)
 	}
 
 	// Apply filter: SDGs (many-to-many relation filter)
@@ -186,7 +181,7 @@ func (r *documentRepository) ListPublic(filters map[string]interface{}) ([]model
 		var partnerConditions []string
 		var partnerArgs []interface{}
 		for _, partner := range partners {
-			partnerConditions = append(partnerConditions, "LOWER(non_un_partners) LIKE ?")
+			partnerConditions = append(partnerConditions, "LOWER(V2Documents.non_un_partners) LIKE ?")
 			partnerArgs = append(partnerArgs, "%"+strings.ToLower(partner)+"%")
 		}
 		query = query.Where(strings.Join(partnerConditions, " OR "), partnerArgs...)
@@ -194,22 +189,26 @@ func (r *documentRepository) ListPublic(filters map[string]interface{}) ([]model
 
 	// Get total items count (for pagination)
 	var totalItems int64
-	countQuery := r.db.Model(&model.Document{}).Where("status = ?", "published")
+	countQuery := r.db.Model(&model.Document{}).Where("V2Documents.status = ?", "published")
 	if q, ok := filters["q"].(string); ok && q != "" {
 		searchText := "%" + strings.ToLower(q) + "%"
-		countQuery = countQuery.Where("LOWER(title) LIKE ? OR LOWER(description) LIKE ? OR LOWER(abstract) LIKE ?", searchText, searchText, searchText)
+		countQuery = countQuery.Where("LOWER(V2Documents.title) LIKE ? OR LOWER(V2Documents.description) LIKE ? OR LOWER(V2Documents.abstract) LIKE ?", searchText, searchText, searchText)
 	}
 	if agenciesStr, ok := filters["agencies"].(string); ok && agenciesStr != "" {
-		countQuery = countQuery.Where("lead_agency_code IN (?)", strings.Split(agenciesStr, ","))
+		countQuery = countQuery.Where("V2Documents.lead_agency_code IN (?)", strings.Split(agenciesStr, ","))
 	}
 	if jpStr, ok := filters["jointProgrammes"].(string); ok && jpStr != "" {
-		countQuery = countQuery.Where("joint_programme_code IN (?)", strings.Split(jpStr, ","))
+		countQuery = countQuery.Where("V2Documents.joint_programme_code IN (?)", strings.Split(jpStr, ","))
 	}
 	if yearFrom, ok := filters["yearFrom"].(int); ok && yearFrom > 0 {
-		countQuery = countQuery.Where("year >= ?", yearFrom)
+		countQuery = countQuery.Where("V2Documents.year >= ?", yearFrom)
 	}
 	if yearTo, ok := filters["yearTo"].(int); ok && yearTo > 0 {
-		countQuery = countQuery.Where("year <= ?", yearTo)
+		countQuery = countQuery.Where("V2Documents.year <= ?", yearTo)
+	}
+	if langsStr, ok := filters["langs"].(string); ok && langsStr != "" {
+		countQuery = countQuery.Joins("JOIN V2MasterLanguages ON LOWER(V2MasterLanguages.name) = LOWER(V2Documents.language)").
+			Where("V2MasterLanguages.code IN (?)", strings.Split(langsStr, ","))
 	}
 	if sdgsStr, ok := filters["sdgs"].(string); ok && sdgsStr != "" {
 		countQuery = countQuery.Joins("JOIN v2_document_sdgs ON v2_document_sdgs.document_id = V2Documents.id").
@@ -236,15 +235,15 @@ func (r *documentRepository) ListPublic(filters map[string]interface{}) ([]model
 	}
 	switch sort {
 	case "oldest":
-		query = query.Order("year asc, createdAt asc")
+		query = query.Order("V2Documents.year asc, V2Documents.createdAt asc")
 	case "popular":
-		query = query.Order("views desc, downloads desc")
+		query = query.Order("V2Documents.views desc, V2Documents.downloads desc")
 	case "relevance":
-		query = query.Order("createdAt desc")
+		query = query.Order("V2Documents.createdAt desc")
 	case "newest":
 		fallthrough
 	default:
-		query = query.Order("year desc, createdAt desc")
+		query = query.Order("V2Documents.year desc, V2Documents.createdAt desc")
 	}
 
 	// Apply Pagination

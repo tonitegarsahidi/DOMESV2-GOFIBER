@@ -60,8 +60,160 @@ func MigrateAndSeed(db *gorm.DB) {
 		zap.L().Error("Failed to migrate Reports", zap.Error(err))
 	}
 
+	// 7. Seed sample documents if empty
+	seedDocuments(db)
+
 	zap.L().Info("Database migration check completed.")
 }
+
+func seedDocuments(db *gorm.DB) {
+	var count int64
+	db.Model(&model.Document{}).Where("status = ?", "published").Count(&count)
+	if count > 0 {
+		return
+	}
+
+	zap.L().Info("Seeding default documents...")
+
+	var user model.User
+	if err := db.First(&user).Error; err != nil {
+		zap.L().Error("Failed to find user for document seeding", zap.Error(err))
+		return
+	}
+
+	docs := []model.Document{
+		{
+			Code:              "UNDP-2023-SDG",
+			Slug:              "annual-progress-report-sustainable-development-goals-indonesia-2023",
+			Title:             "Annual Progress Report: Sustainable Development Goals in Indonesia 2023",
+			Description:       "This comprehensive report outlines the milestones achieved in the past fiscal year, focusing on the impact of global initiatives on sustainable development goals across multiple governance levels...",
+			Abstract:          "This comprehensive report outlines the milestones achieved in the past fiscal year, focusing on the impact of global initiatives on sustainable development goals across multiple governance levels.",
+			Summary:           "Executive Overview: This report reviews the implementation and progress of the Sustainable Development Goals (SDGs) in Indonesia in 2023.",
+			Year:              2023,
+			DateOfPublication: "2023-10-15",
+			TotalPages:        134,
+			Language:          "English, Bahasa Indonesia",
+			FileURL:           "/uploads/documents/sample-sdg.pdf",
+			FileSize:          "5.2 MB",
+			CoverImage:        "/images/doc-cover-sdg.png",
+			Status:            "published",
+			AuthorID:          user.ID,
+			LeadAgencyCode:    "UNDP",
+			Tags:              `["SDG", "Indonesia", "Annual Report"]`,
+			Sdgs:              []model.Sdg{{Code: "GOAL 1"}, {Code: "GOAL 5"}, {Code: "GOAL 8"}, {Code: "GOAL 10"}},
+			Sectors:           []model.Sector{{Code: "economic-development"}, {Code: "poverty-social-exclusion"}},
+		},
+		{
+			Code:              "UNEP-2022-CLIMATE",
+			Slug:              "climate-action-framework-maritime-biodiversity-archipelago",
+			Title:             "Climate Action Framework: Maritime Biodiversity in the Archipelago",
+			Description:       "A strategic roadmap for protecting marine and coastal habitats in the Indonesian archipelago through sustainable fishing practices and community-led conservation efforts...",
+			Abstract:          "A strategic roadmap for protecting marine and coastal habitats in the Indonesian archipelago through sustainable fishing practices and community-led conservation efforts.",
+			Summary:           "Maritime biodiversity is crucial for food security and climate resilience. This framework outlines policies for marine protection.",
+			Year:              2022,
+			DateOfPublication: "2022-08-20",
+			TotalPages:        78,
+			Language:          "English",
+			FileURL:           "/uploads/documents/sample-climate.pdf",
+			FileSize:          "3.8 MB",
+			CoverImage:        "/images/doc-cover-ocean.png",
+			Status:            "published",
+			AuthorID:          user.ID,
+			LeadAgencyCode:    "UNEP",
+			Tags:              `["Climate Action", "Maritime", "Biodiversity"]`,
+			Sdgs:              []model.Sdg{{Code: "GOAL 13"}, {Code: "GOAL 14"}},
+			Sectors:           []model.Sector{{Code: "environment-climate-change"}, {Code: "fishery-maritime"}},
+		},
+		{
+			Code:              "UNICEF-2023-CHILDREN",
+			Slug:              "children-in-focus-socio-economic-protection-systems",
+			Title:             "Children in Focus: Socio-Economic Protection Systems",
+			Description:       "Analyzing the efficacy of social safety nets for vulnerable families across the outer islands of Indonesia, with policy recommendations for enhanced coverage and efficiency...",
+			Abstract:          "Analyzing the efficacy of social safety nets for vulnerable families across the outer islands of Indonesia, with policy recommendations for enhanced coverage and efficiency.",
+			Summary:           "This policy brief analyzes child poverty and social protection systems in remote regions of Indonesia.",
+			Year:              2023,
+			DateOfPublication: "2023-07-10",
+			TotalPages:        92,
+			Language:          "English, Bahasa Indonesia",
+			FileURL:           "/uploads/documents/sample-children.pdf",
+			FileSize:          "4.5 MB",
+			CoverImage:        "/images/doc-cover-children.png",
+			Status:            "published",
+			AuthorID:          user.ID,
+			LeadAgencyCode:    "UNICEF",
+			Tags:              `["Children", "Social Protection", "Policy"]`,
+			Sdgs:              []model.Sdg{{Code: "GOAL 4"}, {Code: "GOAL 10"}},
+			Sectors:           []model.Sector{{Code: "education-culture"}, {Code: "social-security-protection"}},
+		},
+		{
+			Code:              "UNWOMEN-2023-GENDER",
+			Slug:              "gender-equality-workplace-progress-challenges",
+			Title:             "Gender Equality in the Workplace: Progress and Challenges",
+			Description:       "A national survey on female labor force participation, wage gaps, and policy interventions needed to foster inclusive economic growth and empower women in rural and urban areas...",
+			Abstract:          "A national survey on female labor force participation, wage gaps, and policy interventions needed to foster inclusive economic growth and empower women in rural and urban areas.",
+			Summary:           "This report presents empirical findings on gender gaps in employment, wages, and leadership roles in Indonesia.",
+			Year:              2023,
+			DateOfPublication: "2023-05-12",
+			TotalPages:        45,
+			Language:          "English",
+			FileURL:           "/uploads/documents/sample-gender.pdf",
+			FileSize:          "2.1 MB",
+			CoverImage:        "/images/doc-cover-sdg.png",
+			Status:            "published",
+			AuthorID:          user.ID,
+			LeadAgencyCode:    "UN Women",
+			Tags:              `["Gender Equality", "Workplace", "Women Empowerment"]`,
+			Sdgs:              []model.Sdg{{Code: "GOAL 5"}, {Code: "GOAL 8"}},
+			Sectors:           []model.Sector{{Code: "gender-child-protection"}, {Code: "livelihood-employment"}},
+		},
+		{
+			Code:              "FAO-2023-FOOD",
+			Slug:              "sustainable-agriculture-food-security-resilience",
+			Title:             "Sustainable Agriculture and Food Security Resilience",
+			Description:       "Examining the impact of climate smart agriculture practices on crop yields and food security for smallholder farmers amidst changing weather patterns in Southeast Asia...",
+			Abstract:          "Examining the impact of climate smart agriculture practices on crop yields and food security for smallholder farmers amidst changing weather patterns in Southeast Asia.",
+			Summary:           "Food security is a critical pillar of sustainable development. This study presents best practices for climate-smart farming.",
+			Year:              2023,
+			DateOfPublication: "2023-06-18",
+			TotalPages:        64,
+			Language:          "English, Bahasa Indonesia",
+			FileURL:           "/uploads/documents/sample-food.pdf",
+			FileSize:          "3.1 MB",
+			CoverImage:        "/images/doc-cover-ocean.png",
+			Status:            "published",
+			AuthorID:          user.ID,
+			LeadAgencyCode:    "FAO",
+			Tags:              `["Agriculture", "Food Security", "Resilience"]`,
+			Sdgs:              []model.Sdg{{Code: "GOAL 2"}},
+			Sectors:           []model.Sector{{Code: "agriculture-food"}, {Code: "environment-climate-change"}},
+		},
+	}
+
+	for _, doc := range docs {
+		var matchedSdgs []model.Sdg
+		for _, s := range doc.Sdgs {
+			var dbSdg model.Sdg
+			if err := db.Where("code = ?", s.Code).First(&dbSdg).Error; err == nil {
+				matchedSdgs = append(matchedSdgs, dbSdg)
+			}
+		}
+		doc.Sdgs = matchedSdgs
+
+		var matchedSectors []model.Sector
+		for _, sec := range doc.Sectors {
+			var dbSec model.Sector
+			if err := db.Where("code = ?", sec.Code).First(&dbSec).Error; err == nil {
+				matchedSectors = append(matchedSectors, dbSec)
+			}
+		}
+		doc.Sectors = matchedSectors
+
+		if err := db.Create(&doc).Error; err != nil {
+			zap.L().Error("Failed to seed document", zap.String("code", doc.Code), zap.Error(err))
+		}
+	}
+}
+
 
 func seedAdminEmails(db *gorm.DB) {
 	emails := []model.AdminEmail{
