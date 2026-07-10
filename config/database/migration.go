@@ -61,7 +61,7 @@ func MigrateAndSeed(db *gorm.DB) {
 	}
 
 	// 7. Seed sample documents if empty
-	seedDocuments(db)
+	// seedDocuments(db)
 
 	zap.L().Info("Database migration check completed.")
 }

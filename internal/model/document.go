@@ -158,7 +158,7 @@ type DocumentListItem struct {
 	Type        string    `json:"type"`
 	PubStatus   string    `json:"pub_status"`
 	CoverImage  string    `json:"cover_image"`
-	Sdgs        []string  `json:"sdgs"`
+	Sdgs        []SdgDTO  `json:"sdgs"`
 	Tags        []string  `json:"tags"`
 	Views       int       `json:"views"`
 	Downloads   int       `json:"downloads"`

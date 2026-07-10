@@ -273,9 +273,13 @@ func (s *documentService) ListPublicDocuments(filters map[string]interface{}) (*
 
 	var items []model.DocumentListItem
 	for _, doc := range docs {
-		var sdgs []string
+		var sdgs []model.SdgDTO
 		for _, s := range doc.Sdgs {
-			sdgs = append(sdgs, s.Code)
+			sdgs = append(sdgs, model.SdgDTO{
+				Code: s.Code,
+				Name: s.Name,
+				Icon: s.Icon,
+			})
 		}
 
 		var tags []string
