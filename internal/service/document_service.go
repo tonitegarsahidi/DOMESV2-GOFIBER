@@ -276,8 +276,10 @@ func (s *documentService) ListPublicDocuments(filters map[string]interface{}) (*
 		json.Unmarshal([]byte(doc.Tags), &tags)
 
 		agencyName := ""
+		agencyCode := ""
 		if doc.LeadAgency != nil {
 			agencyName = doc.LeadAgency.Name
+			agencyCode = doc.LeadAgency.Code
 		}
 
 		createdAtVal := time.Time{}
@@ -291,6 +293,8 @@ func (s *documentService) ListPublicDocuments(filters map[string]interface{}) (*
 			Slug:        doc.Slug,
 			Description: doc.Description,
 			Agency:      agencyName,
+			AgencyCode:  agencyCode,
+			AgencyName:  agencyName,
 			Year:        doc.Year,
 			Language:    doc.Language,
 			FileSize:    doc.FileSize,
@@ -354,6 +358,8 @@ func (s *documentService) SearchPublicDocuments(q string, page int, limit int, s
 			"slug":        item.Slug,
 			"description": item.Description,
 			"agency":      item.Agency,
+			"agency_code": item.AgencyCode,
+			"agency_name": item.AgencyName,
 			"year":        item.Year,
 			"language":    item.Language,
 			"file_size":   item.FileSize,

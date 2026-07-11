@@ -165,6 +165,8 @@ type DocumentListItem struct {
 	Slug        string    `json:"slug"`
 	Description string    `json:"description"`
 	Agency      string    `json:"agency"`
+	AgencyCode  string    `json:"agency_code"`
+	AgencyName  string    `json:"agency_name"`
 	Year        int       `json:"year"`
 	Language    string    `json:"language"`
 	FileSize    string    `json:"file_size"`
