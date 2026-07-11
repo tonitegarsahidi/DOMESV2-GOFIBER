@@ -241,12 +241,6 @@ func (s *documentService) GetDocumentByID(id string) (*model.DocumentResponse, e
 		return nil, err
 	}
 
-	// Increment view count asynchronously
-	go func(d *model.Document) {
-		d.Views += 1
-		s.docRepo.Update(d)
-	}(doc)
-
 	resp := mapToDocumentResponse(doc)
 	return &resp, nil
 }
@@ -256,11 +250,6 @@ func (s *documentService) GetDocumentBySlug(slug string) (*model.DocumentRespons
 	if err != nil {
 		return nil, err
 	}
-
-	go func(d *model.Document) {
-		d.Views += 1
-		s.docRepo.Update(d)
-	}(doc)
 
 	resp := mapToDocumentResponse(doc)
 	return &resp, nil
@@ -297,7 +286,7 @@ func (s *documentService) ListPublicDocuments(filters map[string]interface{}) (*
 		}
 
 		items = append(items, model.DocumentListItem{
-			ID:          doc.ID,
+			ID:          doc.UUID,
 			Title:       doc.Title,
 			Slug:        doc.Slug,
 			Description: doc.Description,
@@ -511,7 +500,7 @@ func (s *documentService) ListSubmissions(status string, search string, page int
 		}
 
 		items = append(items, map[string]interface{}{
-			"id":                  doc.ID,
+			"id":                  doc.UUID,
 			"title":               doc.Title,
 			"short_description":   doc.Description,
 			"date_of_publication": doc.DateOfPublication,
@@ -625,8 +614,15 @@ func mapToDocumentResponse(doc *model.Document) model.DocumentResponse {
 		updatedAtVal = *doc.UpdatedAt
 	}
 
+	views := 0
+	downloads := 0
+	if doc.Stats != nil {
+		views = doc.Stats.TotalViews
+		downloads = doc.Stats.TotalDownloads
+	}
+
 	return model.DocumentResponse{
-		ID:         doc.ID,
+		ID:         doc.UUID,
 		Code:       doc.Code,
 		Slug:       doc.Slug,
 		Title:      doc.Title,
@@ -660,8 +656,8 @@ func mapToDocumentResponse(doc *model.Document) model.DocumentResponse {
 			Phone:      doc.FocalPointPhone,
 			Department: doc.FocalPointDepartment,
 		},
-		Views:           doc.Views,
-		Downloads:       doc.Downloads,
+		Views:           views,
+		Downloads:       downloads,
 		CreatedAt:       createdAtVal,
 		UpdatedAt:       updatedAtVal,
 		IsActive:        doc.IsActive,

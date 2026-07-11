@@ -251,7 +251,7 @@ func MigrateLegacyData(db *gorm.DB) {
 			AuthorID:          133,
 		}
 
-		doc.ID = lj.ID
+		doc.UUID = lj.ID
 		doc.CreatedAt = &row.CreatedAt
 		doc.UpdatedAt = &row.UpdatedAt
 		sys := "System"

@@ -1,9 +1,15 @@
 package model
 
-import "time"
+import (
+	"time"
+
+	"github.com/google/uuid"
+	"gorm.io/gorm"
+)
 
 type Document struct {
-	V2Base
+	V2BaseInt
+	UUID                  string           `json:"uuid" gorm:"uniqueIndex;size:36;column:uuid"`
 	Code                  string           `json:"code" gorm:"size:100;column:code"`
 	Slug                  string           `json:"slug" gorm:"uniqueIndex;size:255;column:slug"`
 	Title                 string           `json:"title" gorm:"size:255;not null;column:title"`
@@ -37,6 +43,7 @@ type Document struct {
 	SupportingFiles       string           `json:"supporting_files" gorm:"type:text;column:supporting_files"` // JSON list
 	AuthorID              uint             `json:"author_id" gorm:"column:author_id"`
 	Author                *User            `json:"author,omitempty" gorm:"foreignKey:AuthorID;constraint:false"`
+	Stats                 *DocumentStats   `json:"stats,omitempty" gorm:"foreignKey:DocumentID;constraint:false"`
 	Sdgs                  []Sdg            `json:"sdgs" gorm:"many2many:V2DocumentSdgs;constraint:false;"`
 	Sectors               []Sector         `json:"sectors" gorm:"many2many:V2DocumentSectors;constraint:false;"`
 	Lnobs                 []Lnob           `json:"lnob_groups" gorm:"many2many:V2DocumentLnobs;constraint:false;"`
@@ -44,6 +51,13 @@ type Document struct {
 
 func (Document) TableName() string {
 	return "V2Documents"
+}
+
+func (doc *Document) BeforeCreate(tx *gorm.DB) (err error) {
+	if doc.UUID == "" {
+		doc.UUID = uuid.New().String()
+	}
+	return doc.V2BaseInt.BeforeCreate(tx)
 }
 
 // Request payload structures

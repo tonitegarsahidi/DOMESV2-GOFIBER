@@ -51,7 +51,7 @@ func (r *documentRepository) GetByID(id string) (*model.Document, error) {
 	var doc model.Document
 	err := r.db.Preload("LeadAgency").Preload("JointProgramme").
 		Preload("Sdgs").Preload("Sectors").Preload("Lnobs").
-		Preload("Author").First(&doc, "id = ?", id).Error
+		Preload("Author").Preload("Stats").First(&doc, "uuid = ?", id).Error
 	if err != nil {
 		if err == gorm.ErrRecordNotFound {
 			return nil, errors.NewNotFoundError("Document not found", "DOCUMENT_NOT_FOUND")
@@ -66,7 +66,7 @@ func (r *documentRepository) GetBySlug(slug string) (*model.Document, error) {
 	var doc model.Document
 	err := r.db.Preload("LeadAgency").Preload("JointProgramme").
 		Preload("Sdgs").Preload("Sectors").Preload("Lnobs").
-		Preload("Author").Where("slug = ?", slug).First(&doc).Error
+		Preload("Author").Preload("Stats").Where("slug = ?", slug).First(&doc).Error
 	if err != nil {
 		if err == gorm.ErrRecordNotFound {
 			return nil, errors.NewNotFoundError("Document not found", "DOCUMENT_NOT_FOUND")
@@ -93,7 +93,7 @@ func (r *documentRepository) Update(doc *model.Document) error {
 
 func (r *documentRepository) Delete(id string) error {
 	var doc model.Document
-	if err := r.db.First(&doc, "id = ?", id).Error; err != nil {
+	if err := r.db.First(&doc, "uuid = ?", id).Error; err != nil {
 		if err == gorm.ErrRecordNotFound {
 			return errors.NewNotFoundError("Submission not found", "SUBMISSION_NOT_FOUND")
 		}

@@ -18,9 +18,10 @@ type Config struct {
 }
 
 type ServerConfig struct {
-	Port           string
-	Env            string
-	AllowedOrigins string
+	Port              string
+	Env               string
+	AllowedOrigins    string
+	StatsSyncInterval time.Duration
 }
 
 type DatabaseConfig struct {
@@ -65,11 +66,17 @@ func LoadConfig() *Config {
 	recaptchaEnabled, _ := strconv.ParseBool(getEnv("RECAPTCHA_ENABLED", "true"))
 	dbParseTime, _ := strconv.ParseBool(getEnv("DB_PARSE_TIME", "true"))
 
+	statsSyncInterval, err := time.ParseDuration(getEnv("STATS_SYNC_INTERVAL", "1h"))
+	if err != nil {
+		statsSyncInterval = 1 * time.Hour
+	}
+
 	return &Config{
 		Server: ServerConfig{
-			Port:           getEnv("PORT", "3000"),
-			Env:            getEnv("ENV", "development"),
-			AllowedOrigins: getEnv("CORS_ALLOWED_ORIGINS", ""),
+			Port:              getEnv("PORT", "3000"),
+			Env:               getEnv("ENV", "development"),
+			AllowedOrigins:    getEnv("CORS_ALLOWED_ORIGINS", ""),
+			StatsSyncInterval: statsSyncInterval,
 		},
 		DB: DatabaseConfig{
 			Host:      getEnv("DB_HOST", "localhost"),

@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"log"
 	"strings"
 
@@ -12,6 +13,7 @@ import (
 	"domesv2/config/logger"
 	"domesv2/config/redis"
 	"domesv2/internal/middleware"
+	"domesv2/internal/scheduler"
 	"domesv2/routes"
 	"go.uber.org/zap"
 )
@@ -31,6 +33,9 @@ func main() {
 
 	// Initialize Redis (optional)
 	redis.InitRedis(cfg)
+
+	// Start document stats scheduler
+	scheduler.Start(context.Background(), cfg.Server.StatsSyncInterval)
 
 	// Auto migrate models (uncomment when you have models to migrate)
 	// db := database.GetDB()

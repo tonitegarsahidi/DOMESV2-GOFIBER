@@ -296,7 +296,7 @@ func (ctrl *DocumentController) CreateSubmission(c *fiber.Ctx) error {
 	}
 
 	return response.Created(c, fiber.Map{
-		"id":         doc.ID,
+		"id":         doc.UUID,
 		"code":       doc.Code,
 		"slug":       doc.Slug,
 		"title":      doc.Title,
@@ -325,7 +325,7 @@ func (ctrl *DocumentController) SaveDraft(c *fiber.Ctx) error {
 	}
 
 	return response.Success(c, fiber.Map{
-		"id":       doc.ID,
+		"id":       doc.UUID,
 		"step":     req.Step,
 		"saved_at": doc.UpdatedAt,
 	}, "Draft saved successfully")
@@ -356,7 +356,7 @@ func (ctrl *DocumentController) PublishDocument(c *fiber.Ctx) error {
 	}
 
 	return response.Success(c, fiber.Map{
-		"id":           doc.ID,
+		"id":           doc.UUID,
 		"status":       doc.Status,
 		"published_at": doc.UpdatedAt,
 	}, "Document published successfully")
@@ -374,7 +374,7 @@ func (ctrl *DocumentController) UnpublishDocument(c *fiber.Ctx) error {
 	}
 
 	return response.Success(c, fiber.Map{
-		"id":     doc.ID,
+		"id":     doc.UUID,
 		"status": doc.Status,
 	}, "Document unpublished successfully")
 }

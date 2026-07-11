@@ -60,6 +60,11 @@ func MigrateAndSeed(db *gorm.DB) {
 		zap.L().Error("Failed to migrate DocumentActivityLogs", zap.Error(err))
 	}
 
+	// 5c. Create DocumentStats Table
+	if err := db.AutoMigrate(&model.DocumentStats{}); err != nil {
+		zap.L().Error("Failed to migrate DocumentStats", zap.Error(err))
+	}
+
 	// 6. Create Reports Table
 	if err := db.AutoMigrate(&model.Report{}); err != nil {
 		zap.L().Error("Failed to migrate Reports", zap.Error(err))

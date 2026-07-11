@@ -37,10 +37,19 @@ func TestMain(m *testing.M) {
 	config.InitConfig()
 	logger.InitLogger("development")
 	database.InitMySQL(config.AppConfig)
-	database.MigrateAndSeed(database.GetDB())
+	db := database.GetDB()
+	if db != nil {
+		db.Exec("DROP TABLE IF EXISTS V2Reports")
+		db.Exec("DROP TABLE IF EXISTS v2_document_sdgs")
+		db.Exec("DROP TABLE IF EXISTS v2_document_sectors")
+		db.Exec("DROP TABLE IF EXISTS v2_document_lnobs")
+		db.Exec("DROP TABLE IF EXISTS V2DocumentStats")
+		db.Exec("DROP TABLE IF EXISTS V2DocumentActivityLogs")
+		db.Exec("DROP TABLE IF EXISTS V2Documents")
+	}
+	database.MigrateAndSeed(db)
 
 	// Set user tonitegarsahidi@gmail.com as administrator for testing protected admin endpoints
-	db := database.GetDB()
 	if db != nil {
 		db.Model(&model.User{}).Where("email = ?", "tonitegarsahidi@gmail.com").Updates(map[string]interface{}{
 			"role":   "administrator",
