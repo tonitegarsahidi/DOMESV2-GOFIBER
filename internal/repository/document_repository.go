@@ -26,6 +26,7 @@ type DocumentRepository interface {
 	GetByAgencyAnalytics() ([]map[string]interface{}, error)
 	GetBySectorAnalytics() ([]map[string]interface{}, error)
 	GetByLanguageAnalytics() ([]map[string]interface{}, error)
+	RecordActivity(log *model.DocumentActivityLog) error
 }
 
 type documentRepository struct {
@@ -559,4 +560,12 @@ func (r *documentRepository) GetByLanguageAnalytics() ([]map[string]interface{},
 		}
 	}
 	return list, nil
+}
+
+func (r *documentRepository) RecordActivity(log *model.DocumentActivityLog) error {
+	if err := r.db.Create(log).Error; err != nil {
+		zap.L().Error("Failed to record document activity log", zap.Error(err))
+		return errors.NewInternalServerError("Failed to record activity", "DATABASE_ERROR")
+	}
+	return nil
 }

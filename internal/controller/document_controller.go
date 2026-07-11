@@ -145,6 +145,13 @@ func (ctrl *DocumentController) GetByIDOrSlug(c *fiber.Ctx) error {
 		return response.Error(c, err)
 	}
 
+	// Record view activity asynchronously
+	ip := getRealIP(c)
+	ua := c.Get("User-Agent")
+	go func(docID string, clientIP string, userAgent string) {
+		_ = ctrl.docService.RecordDocumentActivity(docID, "view", clientIP, userAgent)
+	}(result.ID, ip, ua)
+
 	return response.Success(c, result, "Document retrieved successfully")
 }
 
@@ -174,20 +181,30 @@ func (ctrl *DocumentController) Download(c *fiber.Ctx) error {
 	idParam := c.Params("id")
 	var result map[string]interface{}
 	var err error
+	var docID string
 
 	if len(idParam) == 36 && strings.Contains(idParam, "-") {
+		docID = idParam
 		result, err = ctrl.docService.GenerateDownloadLink(idParam)
 	} else {
 		docResp, getErr := ctrl.docService.GetDocumentBySlug(idParam)
 		if getErr != nil {
 			return response.Error(c, getErr)
 		}
+		docID = docResp.ID
 		result, err = ctrl.docService.GenerateDownloadLink(docResp.ID)
 	}
 
 	if err != nil {
 		return response.Error(c, err)
 	}
+
+	// Record download activity asynchronously
+	ip := getRealIP(c)
+	ua := c.Get("User-Agent")
+	go func(id string, clientIP string, userAgent string) {
+		_ = ctrl.docService.RecordDocumentActivity(id, "download", clientIP, userAgent)
+	}(docID, ip, ua)
 
 	return response.Success(c, result, "Download link generated successfully")
 }
@@ -360,4 +377,15 @@ func (ctrl *DocumentController) UnpublishDocument(c *fiber.Ctx) error {
 		"id":     doc.ID,
 		"status": doc.Status,
 	}, "Document unpublished successfully")
+}
+
+func getRealIP(c *fiber.Ctx) string {
+	if ip := c.Get("X-Forwarded-For"); ip != "" {
+		ips := strings.Split(ip, ",")
+		return strings.TrimSpace(ips[0])
+	}
+	if ip := c.Get("X-Real-IP"); ip != "" {
+		return ip
+	}
+	return c.IP()
 }

@@ -35,6 +35,7 @@ type DocumentService interface {
 	GetBySectorAnalytics() ([]map[string]interface{}, error)
 	GetByLanguageAnalytics() ([]map[string]interface{}, error)
 	ListSubmissions(status string, search string, page int, limit int) (map[string]interface{}, error)
+	RecordDocumentActivity(docID string, action string, ip string, userAgent string) error
 }
 
 type documentService struct {
@@ -666,4 +667,14 @@ func mapToDocumentResponse(doc *model.Document) model.DocumentResponse {
 		IsActive:        doc.IsActive,
 		SupportingFiles: supportingFiles,
 	}
+}
+
+func (s *documentService) RecordDocumentActivity(docID string, action string, ip string, userAgent string) error {
+	logEntry := &model.DocumentActivityLog{
+		DocumentID: docID,
+		Action:     action,
+		IPAddress:  ip,
+		UserAgent:  userAgent,
+	}
+	return s.docRepo.RecordActivity(logEntry)
 }

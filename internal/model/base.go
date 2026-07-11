@@ -25,5 +25,12 @@ func (base *V2Base) BeforeCreate(tx *gorm.DB) (err error) {
 		active := true
 		base.IsActive = &active
 	}
+	now := time.Now()
+	if base.CreatedAt == nil {
+		base.CreatedAt = &now
+	}
+	if base.UpdatedAt == nil {
+		base.UpdatedAt = &now
+	}
 	return nil
 }
