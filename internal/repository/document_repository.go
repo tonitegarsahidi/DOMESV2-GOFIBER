@@ -326,7 +326,7 @@ func (r *documentRepository) GetRelated(doc *model.Document) ([]model.Document, 
 	if len(sdgCodes) == 0 {
 		// Fallback to same agency
 		err := r.db.Where("lead_agency_code = ? AND id != ? AND status = ?", doc.LeadAgencyCode, doc.ID, "published").
-			Limit(3).Preload("Sdgs").Find(&relatedDocs).Error
+			Limit(4).Preload("Sdgs").Find(&relatedDocs).Error
 		return relatedDocs, err
 	}
 
@@ -335,7 +335,7 @@ func (r *documentRepository) GetRelated(doc *model.Document) ([]model.Document, 
 		Joins("JOIN V2MasterSdgs ON V2MasterSdgs.id = v2_document_sdgs.sdg_id").
 		Where("V2MasterSdgs.code IN (?) AND V2Documents.id != ? AND V2Documents.status = ?", sdgCodes, doc.ID, "published").
 		Group("V2Documents.id").
-		Limit(3).
+		Limit(4).
 		Preload("Sdgs").
 		Find(&relatedDocs).Error
 	if err != nil {

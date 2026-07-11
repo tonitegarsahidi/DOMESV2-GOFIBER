@@ -13,6 +13,7 @@ Dokumen ini mencatat riwayat perubahan, pembaruan fitur, perbaikan bug, dan migr
 ### Changed
 - **Response Format Standardization**: Merapikan response HTTP error agar mengembalikan format standard yang seragam (`{ "success": false, "message": "..." }`) saat request gagal, menghindari bocornya stack trace internal ke pengguna umum.
 - **Seeder & Migration Safety**: Menambahkan parameter keamanan `RUN_USER_MIGRATION` agar migrasi tabel pengguna (`Users`) dilewati demi mencegah terhapusnya akun operasional secara tidak sengaja saat menjalankan deployment.
+- **Related Documents Query Limit**: Mengubah limit pencarian dokumen terkait (*related documents*) pada level database/repository GORM dari 3 menjadi 4 untuk memfasilitasi kebutuhan UI frontend.
 
 ### Fixed
 - **Testing Database Conflict**: Memperbaiki issue di mana eksekusi unit test (`go test ./...`) secara tidak sengaja menghapus tabel database utama. Migrasi test kini diisolasi sepenuhnya.
