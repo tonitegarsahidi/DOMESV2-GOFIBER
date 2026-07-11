@@ -10,12 +10,12 @@ import (
 	"gorm.io/gorm"
 )
 
-func Start(ctx context.Context, interval time.Duration) {
+func Start(ctx context.Context, interval time.Duration, retention time.Duration) {
 	ticker := time.NewTicker(interval)
 	go func() {
 		// Run once immediately on start
 		zap.L().Info("Running initial document stats synchronization...")
-		if err := SyncDocumentStats(); err != nil {
+		if err := SyncDocumentStats(retention); err != nil {
 			zap.L().Error("Failed to sync document stats", zap.Error(err))
 		}
 
@@ -23,7 +23,7 @@ func Start(ctx context.Context, interval time.Duration) {
 			select {
 			case <-ticker.C:
 				zap.L().Info("Running scheduled document stats synchronization...")
-				if err := SyncDocumentStats(); err != nil {
+				if err := SyncDocumentStats(retention); err != nil {
 					zap.L().Error("Failed to sync document stats", zap.Error(err))
 				}
 			case <-ctx.Done():
@@ -35,7 +35,7 @@ func Start(ctx context.Context, interval time.Duration) {
 	}()
 }
 
-func SyncDocumentStats() error {
+func SyncDocumentStats(retention time.Duration) error {
 	db := database.GetDB()
 	if db == nil {
 		return gorm.ErrInvalidDB
@@ -67,67 +67,89 @@ func SyncDocumentStats() error {
 		return err
 	}
 
-	if len(aggregates) == 0 {
-		zap.L().Info("No new document activities to sync.")
-		return nil
-	}
-
 	// 3. Process aggregates inside a database transaction to ensure consistency
-	return db.Transaction(func(tx *gorm.DB) error {
-		for _, agg := range aggregates {
-			// Find the document to retrieve its internal integer ID
-			var doc model.Document
-			if err := tx.Select("id").Where("uuid = ?", agg.DocumentID).First(&doc).Error; err != nil {
-				if err == gorm.ErrRecordNotFound {
-					// Document was deleted or doesn't exist, skip this log aggregate
-					continue
+	if len(aggregates) > 0 {
+		err = db.Transaction(func(tx *gorm.DB) error {
+			for _, agg := range aggregates {
+				// Find the document to retrieve its internal integer ID
+				var doc model.Document
+				if err := tx.Select("id").Where("uuid = ?", agg.DocumentID).First(&doc).Error; err != nil {
+					if err == gorm.ErrRecordNotFound {
+						// Document was deleted or doesn't exist, skip this log aggregate
+						continue
+					}
+					return err
 				}
-				return err
-			}
 
-			// Find or create stats row for this document
-			var stats model.DocumentStats
-			err := tx.Where("document_id = ?", doc.ID).First(&stats).Error
-			if err != nil {
-				if err == gorm.ErrRecordNotFound {
-					// Create new stats record
-					stats = model.DocumentStats{
-						DocumentID:         doc.ID,
-						TotalViews:         0,
-						TotalDownloads:     0,
-						LastProcessedLogID: agg.MaxLogID,
+				// Find or create stats row for this document
+				var stats model.DocumentStats
+				err := tx.Where("document_id = ?", doc.ID).First(&stats).Error
+				if err != nil {
+					if err == gorm.ErrRecordNotFound {
+						// Create new stats record
+						stats = model.DocumentStats{
+							DocumentID:         doc.ID,
+							TotalViews:         0,
+							TotalDownloads:     0,
+							LastProcessedLogID: agg.MaxLogID,
+						}
+						if agg.Action == "view" {
+							stats.TotalViews = agg.Count
+						} else if agg.Action == "download" {
+							stats.TotalDownloads = agg.Count
+						}
+						if err := tx.Create(&stats).Error; err != nil {
+							return err
+						}
+						continue
 					}
-					if agg.Action == "view" {
-						stats.TotalViews = agg.Count
-					} else if agg.Action == "download" {
-						stats.TotalDownloads = agg.Count
-					}
-					if err := tx.Create(&stats).Error; err != nil {
-						return err
-					}
-					continue
+					return err
 				}
-				return err
+
+				// Update existing stats record
+				if agg.Action == "view" {
+					stats.TotalViews += agg.Count
+				} else if agg.Action == "download" {
+					stats.TotalDownloads += agg.Count
+				}
+
+				// Update checkpoint to the maximum log ID processed for this document's batch
+				if agg.MaxLogID > stats.LastProcessedLogID {
+					stats.LastProcessedLogID = agg.MaxLogID
+				}
+
+				if err := tx.Save(&stats).Error; err != nil {
+					return err
+				}
 			}
 
-			// Update existing stats record
-			if agg.Action == "view" {
-				stats.TotalViews += agg.Count
-			} else if agg.Action == "download" {
-				stats.TotalDownloads += agg.Count
-			}
-
-			// Update checkpoint to the maximum log ID processed for this document's batch
-			if agg.MaxLogID > stats.LastProcessedLogID {
-				stats.LastProcessedLogID = agg.MaxLogID
-			}
-
-			if err := tx.Save(&stats).Error; err != nil {
-				return err
-			}
+			zap.L().Info("Successfully synchronized document stats", zap.Int("items_processed", len(aggregates)))
+			return nil
+		})
+		if err != nil {
+			return err
 		}
 
-		zap.L().Info("Successfully synchronized document stats", zap.Int("items_processed", len(aggregates)))
-		return nil
-	})
+		// Update lastProcessedLogID to the new maximum ID processed
+		for _, agg := range aggregates {
+			if agg.MaxLogID > lastProcessedLogID {
+				lastProcessedLogID = agg.MaxLogID
+			}
+		}
+	} else {
+		zap.L().Info("No new document activities to sync.")
+	}
+
+	// 4. Run cleanup (pruning) for old logs that have already been aggregated (Safety Guard check)
+	if lastProcessedLogID > 0 {
+		cutoff := time.Now().Add(-retention)
+		err = db.Where("createdAt < ? AND id <= ?", cutoff, lastProcessedLogID).Delete(&model.DocumentActivityLog{}).Error
+		if err != nil {
+			zap.L().Error("Failed to prune old document activity logs", zap.Error(err))
+		} else {
+			zap.L().Info("Pruned old document activity logs", zap.Time("cutoff", cutoff))
+		}
+	}
+
+	return nil
 }

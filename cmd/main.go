@@ -35,7 +35,7 @@ func main() {
 	redis.InitRedis(cfg)
 
 	// Start document stats scheduler
-	scheduler.Start(context.Background(), cfg.Server.StatsSyncInterval)
+	scheduler.Start(context.Background(), cfg.Server.StatsSyncInterval, cfg.Server.LogRetentionDuration)
 
 	// Auto migrate models (uncomment when you have models to migrate)
 	// db := database.GetDB()

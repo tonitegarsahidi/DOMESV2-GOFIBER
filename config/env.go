@@ -18,10 +18,11 @@ type Config struct {
 }
 
 type ServerConfig struct {
-	Port              string
-	Env               string
-	AllowedOrigins    string
-	StatsSyncInterval time.Duration
+	Port                 string
+	Env                  string
+	AllowedOrigins       string
+	StatsSyncInterval    time.Duration
+	LogRetentionDuration time.Duration
 }
 
 type DatabaseConfig struct {
@@ -71,12 +72,18 @@ func LoadConfig() *Config {
 		statsSyncInterval = 1 * time.Hour
 	}
 
+	logRetentionDuration, err := time.ParseDuration(getEnv("LOG_RETENTION_DURATION", "168h"))
+	if err != nil {
+		logRetentionDuration = 168 * time.Hour
+	}
+
 	return &Config{
 		Server: ServerConfig{
-			Port:              getEnv("PORT", "3000"),
-			Env:               getEnv("ENV", "development"),
-			AllowedOrigins:    getEnv("CORS_ALLOWED_ORIGINS", ""),
-			StatsSyncInterval: statsSyncInterval,
+			Port:                 getEnv("PORT", "3000"),
+			Env:                  getEnv("ENV", "development"),
+			AllowedOrigins:       getEnv("CORS_ALLOWED_ORIGINS", ""),
+			StatsSyncInterval:    statsSyncInterval,
+			LogRetentionDuration: logRetentionDuration,
 		},
 		DB: DatabaseConfig{
 			Host:      getEnv("DB_HOST", "localhost"),

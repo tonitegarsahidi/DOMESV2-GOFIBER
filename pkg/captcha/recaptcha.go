@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"net/http"
 	"net/url"
+	"strings"
 	"time"
 
 	"domesv2/config"
@@ -21,7 +22,8 @@ type RecaptchaResponse struct {
 
 func VerifyCaptcha(response string) error {
 	cfg := config.AppConfig
-	if !cfg.Captcha.Enabled || cfg.Server.Env == "local" {
+	env := strings.ToLower(cfg.Server.Env)
+	if !cfg.Captcha.Enabled || env == "local" || env == "development" || env == "dev" {
 		return nil
 	}
 
