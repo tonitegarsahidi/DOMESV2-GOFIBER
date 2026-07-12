@@ -4,6 +4,13 @@ Dokumen ini mencatat riwayat perubahan, pembaruan fitur, perbaikan bug, dan migr
 
 ---
 
+## [1.0.1] - 2026-07-12
+
+### Changed
+- **Database Connection Retry with Backoff**: Mengganti koneksi database satu kali (*fire-and-forget*) menjadi mekanisme retry otomatis dengan exponential backoff (5 percobaan: 1s → 2s → 4s → 8s → 16s). Server kini menunggu database siap sebelum menerima traffic, alih-alih berjalan dengan `DB = nil` yang menyebabkan nil pointer panic pada setiap request. Jika database tetap tidak tersedia setelah semua retry, server akan exit dengan pesan error yang jelas. Logging juga dimigrasikan dari `log.Printf` ke Zap Logger sesuai code style guidelines.
+
+---
+
 ## [1.0.0] - 2026-07-11
 
 ### Added
