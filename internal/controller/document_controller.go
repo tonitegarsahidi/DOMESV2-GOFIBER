@@ -305,6 +305,30 @@ func (ctrl *DocumentController) CreateSubmission(c *fiber.Ctx) error {
 	}, "Submission created successfully")
 }
 
+func (ctrl *DocumentController) UpdateSubmission(c *fiber.Ctx) error {
+	userID := c.Locals("user_id").(uint)
+	idParam := c.Params("id")
+
+	var req model.SubmissionRequest
+	if err := c.BodyParser(&req); err != nil {
+		return response.BadRequest(c, "Invalid request body", "INVALID_REQUEST_BODY")
+	}
+
+	doc, err := ctrl.docService.UpdateSubmission(userID, idParam, &req)
+	if err != nil {
+		return response.Error(c, err)
+	}
+
+	return response.Success(c, fiber.Map{
+		"id":         doc.UUID,
+		"code":       doc.Code,
+		"slug":       doc.Slug,
+		"title":      doc.Title,
+		"status":     doc.Status,
+		"updated_at": doc.UpdatedAt,
+	}, "Submission updated successfully")
+}
+
 func (ctrl *DocumentController) SaveDraft(c *fiber.Ctx) error {
 	userID := c.Locals("user_id").(uint)
 

@@ -64,11 +64,14 @@ Semua tabel database telah ditingkatkan ke struktur V2 dengan spesifikasi sebaga
 * **`POST /api/v2/auth/register`**: Registrasi akun kontributor baru.
 * **`POST /api/v2/auth/forgot-password`**: Permintaan reset password.
 
-### Rute Admin & Kontributor (Protected Routes - `/api/v2/cms/*`)
+### Rute Admin & Kontributor (Protected Routes - `/api/v2/cms/*` dan `/api/v2/submissions/*`)
 *Diperlukan Header `Authorization: Bearer <JWT_TOKEN>`*
 * **`GET /api/v2/cms/dashboard-stats`**: Statistik ringkasan pengajuan dokumen.
-* **`GET /api/v2/cms/submissions`**: Daftar antrean pengajuan dokumen.
-* **`POST /api/v2/cms/submissions`**: Mengajukan dokumen baru (multi-step data).
-* **`PUT /api/v2/cms/submissions/:id/approve`**: Persetujuan dokumen oleh admin.
-* **`POST /api/v2/cms/upload`**: Upload file PDF dokumen (disimpan di folder `routes/uploads/` dengan nama berkas berbasis UUID).
+* **`GET /api/v2/submissions`**: Daftar antrean pengajuan dokumen.
+* **`POST /api/v2/submissions`**: Mengajukan dokumen baru (multi-step data).
+* **`PUT /api/v2/submissions/:id`**: Memperbarui dokumen yang diajukan.
+* **`POST /api/v2/submissions/:id/draft`**: Menyimpan draft dokumen per step.
+* **`PUT /api/v2/submissions/:id/publish`**: Mempublikasikan dokumen.
+* **`PUT /api/v2/submissions/:id/unpublish`**: Membatalkan publikasi dokumen.
+* **`POST /api/v2/upload`**: Upload file PDF dokumen (disimpan di folder `routes/uploads/` dengan nama berkas berbasis UUID).
 * **`GET/POST/PUT/DELETE /api/v2/cms/master/*`**: CRUD pengelolaan data master.

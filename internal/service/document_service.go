@@ -17,6 +17,7 @@ import (
 
 type DocumentService interface {
 	CreateSubmission(userID uint, req *model.SubmissionRequest) (*model.Document, error)
+	UpdateSubmission(userID uint, docID string, req *model.SubmissionRequest) (*model.Document, error)
 	SaveDraft(userID uint, submissionID string, step int, data interface{}) (*model.Document, error)
 	GetDocumentByID(id string) (*model.DocumentResponse, error)
 	GetDocumentBySlug(slug string) (*model.DocumentResponse, error)
@@ -51,11 +52,12 @@ func NewDocumentService(docRepo repository.DocumentRepository, userRepo reposito
 }
 
 func (s *documentService) CreateSubmission(userID uint, req *model.SubmissionRequest) (*model.Document, error) {
-	if req.Title == "" {
-		return nil, errors.NewValidationError("Title is required", "VALIDATION_FAILED")
+	title := req.Title
+	if title == "" {
+		title = "Draft Submission"
 	}
 
-	slug := slugify(req.Title)
+	slug := slugify(title)
 	// Check unique slug, append timestamp if conflict
 	existing, _ := s.docRepo.GetBySlug(slug)
 	if existing != nil {
@@ -81,7 +83,6 @@ func (s *documentService) CreateSubmission(userID uint, req *model.SubmissionReq
 	supportingBytes, _ := json.Marshal(req.SupportingFiles)
 
 	// Fetch related entities (Sdgs, Sectors, Lnobs)
-	// Let's create database-loaded entities
 	var sdgs []model.Sdg
 	for _, code := range req.Sdgs {
 		sdgs = append(sdgs, model.Sdg{Code: code})
@@ -102,10 +103,15 @@ func (s *documentService) CreateSubmission(userID uint, req *model.SubmissionReq
 	}
 	code := fmt.Sprintf("%s-%d-%s", prefix, year, strings.ToUpper(generateRandomHex(3)))
 
+	status := "draft"
+	if req.PublicationStatus != "" {
+		status = req.PublicationStatus
+	}
+
 	doc := &model.Document{
 		Code:                 code,
 		Slug:                 slug,
-		Title:                req.Title,
+		Title:                title,
 		Description:          req.ShortDescription,
 		Abstract:             req.Abstract,
 		Summary:              req.DetailedSummary,
@@ -117,7 +123,7 @@ func (s *documentService) CreateSubmission(userID uint, req *model.SubmissionReq
 		FileSize:             req.FileSize,
 		CoverImage:           req.CoverImageURL,
 		ExternalURL:          req.ExternalURL,
-		Status:               "pending_review", // Status becomes pending_review after step 4 final submit
+		Status:               status,
 		FocalPointName:       req.FocalPoint.Name,
 		FocalPointEmail:      req.FocalPoint.Email,
 		FocalPointPhone:      req.FocalPoint.Phone,
@@ -140,6 +146,111 @@ func (s *documentService) CreateSubmission(userID uint, req *model.SubmissionReq
 	}
 
 	if err := s.docRepo.Create(doc); err != nil {
+		return nil, err
+	}
+
+	return doc, nil
+}
+
+func (s *documentService) UpdateSubmission(userID uint, docID string, req *model.SubmissionRequest) (*model.Document, error) {
+	doc, err := s.docRepo.GetByID(docID)
+	if err != nil {
+		return nil, errors.NewNotFoundError("Submission not found", "SUBMISSION_NOT_FOUND")
+	}
+
+	// Verify ownership (or admin status)
+	user, err := s.userRepo.FindByID(userID)
+	isAdmin := false
+	if err == nil && user != nil && user.Role != nil && *user.Role == "administrator" {
+		isAdmin = true
+	}
+
+	if doc.AuthorID != userID && !isAdmin {
+		return nil, errors.NewUnauthorizedError("You do not have permission to update this submission", "UNAUTHORIZED")
+	}
+
+	// Update slug if title changed and is not empty
+	if req.Title != "" && doc.Title != req.Title {
+		slug := slugify(req.Title)
+		existing, _ := s.docRepo.GetBySlug(slug)
+		if existing != nil {
+			slug = fmt.Sprintf("%s-%d", slug, time.Now().Unix())
+		}
+		doc.Slug = slug
+		doc.Title = req.Title
+	}
+
+	// Derive year from DateOfPublication
+	year := doc.Year
+	if req.DateOfPublication != "" {
+		parts := strings.Split(req.DateOfPublication, "-")
+		if len(parts) > 0 {
+			if y, err := strconv.Atoi(parts[0]); err == nil {
+				year = y
+			}
+		}
+	}
+
+	// Serialize lists to JSON string
+	tagsBytes, _ := json.Marshal(req.Tags)
+	thematicBytes, _ := json.Marshal(req.ThematicAreas)
+	otherAgenciesBytes, _ := json.Marshal(req.OtherAgencies)
+	partnersBytes, _ := json.Marshal(req.NonUnPartners)
+	supportingBytes, _ := json.Marshal(req.SupportingFiles)
+
+	// Fetch related entities (Sdgs, Sectors, Lnobs)
+	var sdgs []model.Sdg
+	for _, code := range req.Sdgs {
+		sdgs = append(sdgs, model.Sdg{Code: code})
+	}
+	var sectors []model.Sector
+	for _, code := range req.Sectors {
+		sectors = append(sectors, model.Sector{Code: code})
+	}
+	var lnobs []model.Lnob
+	for _, code := range req.LnobGroups {
+		lnobs = append(lnobs, model.Lnob{Code: code})
+	}
+
+	doc.Description = req.ShortDescription
+	doc.Abstract = req.Abstract
+	doc.Summary = req.DetailedSummary
+	doc.Year = year
+	doc.DateOfPublication = req.DateOfPublication
+	doc.TotalPages = req.TotalPages
+	doc.Language = req.Language
+	doc.FileURL = req.FileURL
+	doc.FileSize = req.FileSize
+	doc.CoverImage = req.CoverImageURL
+	doc.ExternalURL = req.ExternalURL
+	doc.FocalPointName = req.FocalPoint.Name
+	doc.FocalPointEmail = req.FocalPoint.Email
+	doc.FocalPointPhone = req.FocalPoint.Phone
+	doc.FocalPointDepartment = req.FocalPoint.Department
+	doc.LeadAgencyCode = req.Agency
+	doc.JointProgrammeCode = req.JointProgramme
+	doc.GeographicScope = req.GeographicScope
+	doc.ThematicAreas = string(thematicBytes)
+	doc.Tags = string(tagsBytes)
+	doc.OtherAgencies = string(otherAgenciesBytes)
+	doc.NonUnPartners = string(partnersBytes)
+	doc.SupportingFiles = string(supportingBytes)
+	doc.Sdgs = sdgs
+	doc.Sectors = sectors
+	doc.Lnobs = lnobs
+
+	if req.IsActive != nil {
+		doc.IsActive = req.IsActive
+	}
+
+	// Set status to pending_review if not draft
+	if req.PublicationStatus != "" && strings.ToLower(req.PublicationStatus) == "draft" {
+		doc.Status = "draft"
+	} else {
+		doc.Status = "pending_review"
+	}
+
+	if err := s.docRepo.Update(doc); err != nil {
 		return nil, err
 	}
 

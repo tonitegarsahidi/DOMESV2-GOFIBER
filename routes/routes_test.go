@@ -138,18 +138,18 @@ func TestC_UserProfileAndSettings(t *testing.T) {
 		t.Skip("Token is empty, skipping protected profile tests")
 	}
 
-	// GET /api/v2/user/me
-	req := httptest.NewRequest("GET", "/api/v2/user/me", nil)
+	// GET /api/v2/cms/user/me
+	req := httptest.NewRequest("GET", "/api/v2/cms/user/me", nil)
 	req.Header.Set("Authorization", "Bearer "+token)
 	resp, err := app.Test(req)
 	if err != nil {
-		t.Fatalf("Failed to test GET /api/v2/user/me: %v", err)
+		t.Fatalf("Failed to test GET /api/v2/cms/user/me: %v", err)
 	}
 	if resp.StatusCode != http.StatusOK {
 		t.Errorf("Expected 200, got %d", resp.StatusCode)
 	}
 
-	// PUT /api/v2/user/profile
+	// PUT /api/v2/cms/user/profile
 	profilePayload := model.UpdateProfileRequest{
 		FirstName:    "Toni",
 		LastName:     "Tegar",
@@ -158,29 +158,29 @@ func TestC_UserProfileAndSettings(t *testing.T) {
 		PhoneNumber:  "+628123456789",
 	}
 	body, _ := json.Marshal(profilePayload)
-	req = httptest.NewRequest("PUT", "/api/v2/user/profile", bytes.NewBuffer(body))
+	req = httptest.NewRequest("PUT", "/api/v2/cms/user/profile", bytes.NewBuffer(body))
 	req.Header.Set("Authorization", "Bearer "+token)
 	req.Header.Set("Content-Type", "application/json")
 	resp, err = app.Test(req)
 	if err != nil {
-		t.Fatalf("Failed to test PUT /api/v2/user/profile: %v", err)
+		t.Fatalf("Failed to test PUT /api/v2/cms/user/profile: %v", err)
 	}
 	if resp.StatusCode != http.StatusOK {
 		t.Errorf("Expected 200, got %d", resp.StatusCode)
 	}
 
-	// GET /api/v2/user/notifications
-	req = httptest.NewRequest("GET", "/api/v2/user/notifications", nil)
+	// GET /api/v2/cms/user/notifications
+	req = httptest.NewRequest("GET", "/api/v2/cms/user/notifications", nil)
 	req.Header.Set("Authorization", "Bearer "+token)
 	resp, err = app.Test(req)
 	if err != nil {
-		t.Fatalf("Failed to test GET /api/v2/user/notifications: %v", err)
+		t.Fatalf("Failed to test GET /api/v2/cms/user/notifications: %v", err)
 	}
 	if resp.StatusCode != http.StatusOK {
 		t.Errorf("Expected 200, got %d", resp.StatusCode)
 	}
 
-	// PUT /api/v2/user/notifications
+	// PUT /api/v2/cms/user/notifications
 	truVal := true
 	falVal := false
 	notifPayload := model.UpdateNotificationRequest{
@@ -190,7 +190,7 @@ func TestC_UserProfileAndSettings(t *testing.T) {
 		EmailNotifications: &truVal,
 	}
 	body, _ = json.Marshal(notifPayload)
-	req = httptest.NewRequest("PUT", "/api/v2/user/notifications", bytes.NewBuffer(body))
+	req = httptest.NewRequest("PUT", "/api/v2/cms/user/notifications", bytes.NewBuffer(body))
 	req.Header.Set("Authorization", "Bearer "+token)
 	req.Header.Set("Content-Type", "application/json")
 	resp, err = app.Test(req)
@@ -207,35 +207,35 @@ func TestD_AdminEmailsWhitelist(t *testing.T) {
 		t.Skip("Token is empty, skipping whitelist tests")
 	}
 
-	// POST /api/v2/admin/emails
+	// POST /api/v2/cms/admin/emails
 	emailPayload := model.AddAdminEmailRequest{
 		Email: "test-admin@un.org",
 	}
 	body, _ := json.Marshal(emailPayload)
-	req := httptest.NewRequest("POST", "/api/v2/admin/emails", bytes.NewBuffer(body))
+	req := httptest.NewRequest("POST", "/api/v2/cms/admin/emails", bytes.NewBuffer(body))
 	req.Header.Set("Authorization", "Bearer "+token)
 	req.Header.Set("Content-Type", "application/json")
 	resp, err := app.Test(req)
 	if err != nil {
-		t.Fatalf("Failed to test POST /api/v2/admin/emails: %v", err)
+		t.Fatalf("Failed to test POST /api/v2/cms/admin/emails: %v", err)
 	}
 	if resp.StatusCode != http.StatusCreated && resp.StatusCode != http.StatusConflict {
 		t.Errorf("Expected 201 or 409, got %d", resp.StatusCode)
 	}
 
-	// GET /api/v2/admin/emails
-	req = httptest.NewRequest("GET", "/api/v2/admin/emails", nil)
+	// GET /api/v2/cms/admin/emails
+	req = httptest.NewRequest("GET", "/api/v2/cms/admin/emails", nil)
 	req.Header.Set("Authorization", "Bearer "+token)
 	resp, err = app.Test(req)
 	if err != nil {
-		t.Fatalf("Failed to test GET /api/v2/admin/emails: %v", err)
+		t.Fatalf("Failed to test GET /api/v2/cms/admin/emails: %v", err)
 	}
 	if resp.StatusCode != http.StatusOK {
 		t.Errorf("Expected 200, got %d", resp.StatusCode)
 	}
 
-	// DELETE /api/v2/admin/emails/test-admin@un.org
-	req = httptest.NewRequest("DELETE", "/api/v2/admin/emails/test-admin@un.org", nil)
+	// DELETE /api/v2/cms/admin/emails/test-admin@un.org
+	req = httptest.NewRequest("DELETE", "/api/v2/cms/admin/emails/test-admin@un.org", nil)
 	req.Header.Set("Authorization", "Bearer "+token)
 	resp, err = app.Test(req)
 	if err != nil {
@@ -327,7 +327,7 @@ func TestH_SubmissionsWizardAndPublishing(t *testing.T) {
 		t.Skip("Token is empty, skipping submissions tests")
 	}
 
-	// 1. POST /api/v2/submissions/:id/draft (Create first draft step 2)
+	// 1. POST /api/v2/cms/submissions/:id/draft (Create first draft step 2)
 	draftPayload := model.DraftRequest{
 		Step: 2,
 		Data: map[string]interface{}{
@@ -345,7 +345,7 @@ func TestH_SubmissionsWizardAndPublishing(t *testing.T) {
 		},
 	}
 	body, _ := json.Marshal(draftPayload)
-	req := httptest.NewRequest("POST", "/api/v2/submissions/0/draft", bytes.NewBuffer(body))
+	req := httptest.NewRequest("POST", "/api/v2/cms/submissions/0/draft", bytes.NewBuffer(body))
 	req.Header.Set("Authorization", "Bearer "+token)
 	req.Header.Set("Content-Type", "application/json")
 	resp, err := app.Test(req)
@@ -396,7 +396,7 @@ func TestH_SubmissionsWizardAndPublishing(t *testing.T) {
 		GeographicScope: "National",
 	}
 	body, _ = json.Marshal(submitPayload)
-	req = httptest.NewRequest("POST", "/api/v2/submissions", bytes.NewBuffer(body))
+	req = httptest.NewRequest("POST", "/api/v2/cms/submissions", bytes.NewBuffer(body))
 	req.Header.Set("Authorization", "Bearer "+token)
 	req.Header.Set("Content-Type", "application/json")
 	resp, err = app.Test(req)
@@ -413,8 +413,8 @@ func TestH_SubmissionsWizardAndPublishing(t *testing.T) {
 	submitData := submitRes["data"].(map[string]interface{})
 	testDocID = submitData["id"].(string)
 
-	// 3. PUT /api/v2/submissions/:id/publish
-	req = httptest.NewRequest("PUT", fmt.Sprintf("/api/v2/submissions/%s/publish", testDocID), nil)
+	// 3. PUT /api/v2/cms/submissions/:id/publish
+	req = httptest.NewRequest("PUT", fmt.Sprintf("/api/v2/cms/submissions/%s/publish", testDocID), nil)
 	req.Header.Set("Authorization", "Bearer "+token)
 	resp, err = app.Test(req)
 	if err != nil {
@@ -430,8 +430,8 @@ func TestH_SubmissionsWizardAndPublishing(t *testing.T) {
 	db.First(&doc, "id = ?", testDocID)
 	testDocSlug = doc.Slug
 
-	// 4. GET /api/v2/submissions (List submissions CMS)
-	req = httptest.NewRequest("GET", "/api/v2/submissions?status=all", nil)
+	// 4. GET /api/v2/cms/submissions (List submissions CMS)
+	req = httptest.NewRequest("GET", "/api/v2/cms/submissions?status=all", nil)
 	req.Header.Set("Authorization", "Bearer "+token)
 	resp, err = app.Test(req)
 	if err != nil {
@@ -441,8 +441,8 @@ func TestH_SubmissionsWizardAndPublishing(t *testing.T) {
 		t.Errorf("Expected 200, got %d", resp.StatusCode)
 	}
 
-	// 5. PUT /api/v2/submissions/:id/unpublish
-	req = httptest.NewRequest("PUT", fmt.Sprintf("/api/v2/submissions/%s/unpublish", testDocID), nil)
+	// 5. PUT /api/v2/cms/submissions/:id/unpublish
+	req = httptest.NewRequest("PUT", fmt.Sprintf("/api/v2/cms/submissions/%s/unpublish", testDocID), nil)
 	req.Header.Set("Authorization", "Bearer "+token)
 	resp, err = app.Test(req)
 	if err != nil {
@@ -453,7 +453,7 @@ func TestH_SubmissionsWizardAndPublishing(t *testing.T) {
 	}
 
 	// Publish again so public documents tests can query it
-	req = httptest.NewRequest("PUT", fmt.Sprintf("/api/v2/submissions/%s/publish", testDocID), nil)
+	req = httptest.NewRequest("PUT", fmt.Sprintf("/api/v2/cms/submissions/%s/publish", testDocID), nil)
 	req.Header.Set("Authorization", "Bearer "+token)
 	_, _ = app.Test(req)
 }
@@ -550,8 +550,8 @@ func TestJ_ReportsHandling(t *testing.T) {
 		t.Skip("Token is empty, skipping CMS reports check")
 	}
 
-	// 2. GET /api/v2/reports (CMS list reports)
-	req = httptest.NewRequest("GET", "/api/v2/reports?status=all", nil)
+	// 2. GET /api/v2/cms/reports (CMS list reports)
+	req = httptest.NewRequest("GET", "/api/v2/cms/reports?status=all", nil)
 	req.Header.Set("Authorization", "Bearer "+token)
 	resp, err = app.Test(req)
 	if err != nil {
@@ -561,12 +561,12 @@ func TestJ_ReportsHandling(t *testing.T) {
 		t.Errorf("Expected 200, got %d", resp.StatusCode)
 	}
 
-	// 3. PUT /api/v2/reports/:id/status (CMS update status)
+	// 3. PUT /api/v2/cms/reports/:id/status (CMS update status)
 	statusPayload := model.UpdateReportStatusRequest{
 		Status: "in_progress",
 	}
 	body, _ = json.Marshal(statusPayload)
-	req = httptest.NewRequest("PUT", fmt.Sprintf("/api/v2/reports/%s/status", testReportID), bytes.NewBuffer(body))
+	req = httptest.NewRequest("PUT", fmt.Sprintf("/api/v2/cms/reports/%s/status", testReportID), bytes.NewBuffer(body))
 	req.Header.Set("Authorization", "Bearer "+token)
 	req.Header.Set("Content-Type", "application/json")
 	resp, err = app.Test(req)
@@ -583,12 +583,12 @@ func TestK_UploadsActions(t *testing.T) {
 		t.Skip("Token is empty, skipping uploads actions")
 	}
 
-	// 1. POST /api/v2/upload/url-validate
+	// 1. POST /api/v2/cms/upload/url-validate
 	urlPayload := map[string]string{
 		"url": "https://www.google.com",
 	}
 	body, _ := json.Marshal(urlPayload)
-	req := httptest.NewRequest("POST", "/api/v2/upload/url-validate", bytes.NewBuffer(body))
+	req := httptest.NewRequest("POST", "/api/v2/cms/upload/url-validate", bytes.NewBuffer(body))
 	req.Header.Set("Authorization", "Bearer "+token)
 	req.Header.Set("Content-Type", "application/json")
 	resp, err := app.Test(req)
@@ -599,7 +599,7 @@ func TestK_UploadsActions(t *testing.T) {
 		t.Errorf("Expected 200, got %d", resp.StatusCode)
 	}
 
-	// 2. POST /api/v2/upload (Multipart upload file)
+	// 2. POST /api/v2/cms/upload (Multipart upload file)
 	var b bytes.Buffer
 	w := multipart.NewWriter(&b)
 	h := make(textproto.MIMEHeader)
@@ -610,7 +610,7 @@ func TestK_UploadsActions(t *testing.T) {
 	_ = w.WriteField("type", "document")
 	w.Close()
 
-	req = httptest.NewRequest("POST", "/api/v2/upload", &b)
+	req = httptest.NewRequest("POST", "/api/v2/cms/upload", &b)
 	req.Header.Set("Authorization", "Bearer "+token)
 	req.Header.Set("Content-Type", w.FormDataContentType())
 	resp, err = app.Test(req)
@@ -628,18 +628,18 @@ func TestL_CmsUsersManagement(t *testing.T) {
 		t.Skip("Token is empty, skipping CMS Users Management")
 	}
 
-	// 1. GET /api/v2/users
-	req := httptest.NewRequest("GET", "/api/v2/users", nil)
+	// 1. GET /api/v2/cms/users
+	req := httptest.NewRequest("GET", "/api/v2/cms/users", nil)
 	req.Header.Set("Authorization", "Bearer "+token)
 	resp, err := app.Test(req)
 	if err != nil {
-		t.Fatalf("Failed CMS GET /api/v2/users: %v", err)
+		t.Fatalf("Failed CMS GET /api/v2/cms/users: %v", err)
 	}
 	if resp.StatusCode != http.StatusOK {
 		t.Errorf("Expected 200, got %d", resp.StatusCode)
 	}
 
-	// 2. POST /api/v2/users (Create user)
+	// 2. POST /api/v2/cms/users (Create user)
 	userPayload := model.CreateUserRequest{
 		FirstName:       "Budi",
 		LastName:        "Santoso",
@@ -653,7 +653,7 @@ func TestL_CmsUsersManagement(t *testing.T) {
 		Status:          "active",
 	}
 	body, _ := json.Marshal(userPayload)
-	req = httptest.NewRequest("POST", "/api/v2/users", bytes.NewBuffer(body))
+	req = httptest.NewRequest("POST", "/api/v2/cms/users", bytes.NewBuffer(body))
 	req.Header.Set("Authorization", "Bearer "+token)
 	req.Header.Set("Content-Type", "application/json")
 	resp, err = app.Test(req)
@@ -670,12 +670,12 @@ func TestL_CmsUsersManagement(t *testing.T) {
 		userData := userRes["data"].(map[string]interface{})
 		testUserID = uint(userData["id"].(float64))
 
-		// 3. PUT /api/v2/users/{id} (Update user)
+		// 3. PUT /api/v2/cms/users/{id} (Update user)
 		updatePayload := model.UpdateUserRequest{
 			Position: func() *string { s := "Senior Health Officer"; return &s }(),
 		}
 		body, _ = json.Marshal(updatePayload)
-		req = httptest.NewRequest("PUT", fmt.Sprintf("/api/v2/users/%d", testUserID), bytes.NewBuffer(body))
+		req = httptest.NewRequest("PUT", fmt.Sprintf("/api/v2/cms/users/%d", testUserID), bytes.NewBuffer(body))
 		req.Header.Set("Authorization", "Bearer "+token)
 		req.Header.Set("Content-Type", "application/json")
 		resp, err = app.Test(req)
@@ -686,8 +686,8 @@ func TestL_CmsUsersManagement(t *testing.T) {
 			t.Errorf("Expected 200, got %d", resp.StatusCode)
 		}
 
-		// 4. DELETE /api/v2/users/{id} (Delete user)
-		req = httptest.NewRequest("DELETE", fmt.Sprintf("/api/v2/users/%d", testUserID), nil)
+		// 4. DELETE /api/v2/cms/users/{id} (Delete user)
+		req = httptest.NewRequest("DELETE", fmt.Sprintf("/api/v2/cms/users/%d", testUserID), nil)
 		req.Header.Set("Authorization", "Bearer "+token)
 		resp, err = app.Test(req)
 		if err != nil {
@@ -706,8 +706,8 @@ func TestM_CmsAnalyticsSummary(t *testing.T) {
 
 	analytics := []string{"summary", "top-downloads", "top-views"}
 	for _, endpoint := range analytics {
-		t.Run("GET /api/v2/analytics/"+endpoint, func(t *testing.T) {
-			req := httptest.NewRequest("GET", "/api/v2/analytics/"+endpoint, nil)
+		t.Run("GET /api/v2/cms/analytics/"+endpoint, func(t *testing.T) {
+			req := httptest.NewRequest("GET", "/api/v2/cms/analytics/"+endpoint, nil)
 			req.Header.Set("Authorization", "Bearer "+token)
 			resp, err := app.Test(req)
 			if err != nil {
@@ -787,8 +787,8 @@ func TestZ_CleanupSubmissions(t *testing.T) {
 		t.Skip("Skipping cleanup")
 	}
 
-	// DELETE /api/v2/submissions/{id}
-	req := httptest.NewRequest("DELETE", fmt.Sprintf("/api/v2/submissions/%s", testDocID), nil)
+	// DELETE /api/v2/cms/submissions/{id}
+	req := httptest.NewRequest("DELETE", fmt.Sprintf("/api/v2/cms/submissions/%s", testDocID), nil)
 	req.Header.Set("Authorization", "Bearer "+token)
 	resp, err := app.Test(req)
 	if err != nil {

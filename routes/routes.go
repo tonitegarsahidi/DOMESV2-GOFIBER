@@ -12,6 +12,7 @@ import (
 func SetupRoutes(app *fiber.App) {
 	// Static files serving for uploaded assets
 	app.Static("/uploads", "./uploads")
+	app.Static("/public/upload", "./public/upload")
 
 	// Repositories
 	userRepo := repository.NewUserRepository()
@@ -29,12 +30,13 @@ func SetupRoutes(app *fiber.App) {
 	docService := service.NewDocumentService(docRepo, userRepo)
 	reportService := service.NewReportService(reportRepo)
 	cmsService := service.NewCmsService(cmsRepo, userRepo)
+	uploadService := service.NewFileUploadService()
 
 	// Controllers
 	authController := controller.NewAuthController(authService)
 	healthController := controller.NewHealthController(healthService)
 	masterController := controller.NewMasterController(masterService)
-	uploadController := controller.NewUploadController()
+	uploadController := controller.NewUploadController(uploadService)
 	docController := controller.NewDocumentController(docService)
 	reportController := controller.NewReportController(reportService)
 	cmsController := controller.NewCmsController(cmsService, authService)
@@ -100,61 +102,65 @@ func SetupRoutes(app *fiber.App) {
 		protected := api.Group("/")
 		protected.Use(middleware.JWTMiddleware())
 		{
-			// User Profiles & Settings
-			user := protected.Group("/user")
+			cms := protected.Group("/cms")
 			{
-				user.Get("/me", authController.Me)
-				user.Put("/profile", authController.UpdateProfile)
-				user.Put("/password", authController.ChangePassword)
-				user.Get("/notifications", authController.GetNotificationPreferences)
-				user.Put("/notifications", authController.UpdateNotificationPreferences)
+				// User Profiles & Settings
+				user := cms.Group("/user")
+				{
+					user.Get("/me", authController.Me)
+					user.Put("/profile", authController.UpdateProfile)
+					user.Put("/password", authController.ChangePassword)
+					user.Get("/notifications", authController.GetNotificationPreferences)
+					user.Put("/notifications", authController.UpdateNotificationPreferences)
+				}
+
+				// Admin whitelist settings
+				admin := cms.Group("/admin")
+				{
+					admin.Get("/emails", authController.GetAdminEmails)
+					admin.Post("/emails", authController.AddAdminEmail)
+					admin.Delete("/emails/:email", authController.DeleteAdminEmail)
+				}
+
+				// CMS Dashboard
+				cms.Get("/dashboard", cmsController.GetDashboardStats)
+				cms.Get("/activity", cmsController.GetRecentActivity)
+
+				// CMS Master Management
+				cms.Get("/master/:type", cmsController.ListMasters)
+				cms.Post("/master/:type", cmsController.CreateMaster)
+				cms.Put("/master/:type/:code", cmsController.UpdateMaster)
+				cms.Delete("/master/:type/:code", cmsController.DeleteMaster)
+
+				// CMS Submissions Wizard & Mgmt
+				cms.Get("/submissions", docController.ListSubmissions)
+				cms.Post("/submissions", docController.CreateSubmission)
+				cms.Put("/submissions/:id", docController.UpdateSubmission)
+				cms.Post("/submissions/:id/draft", docController.SaveDraft)
+				cms.Delete("/submissions/:id", docController.DeleteSubmission)
+				cms.Put("/submissions/:id/publish", docController.PublishDocument)
+				cms.Put("/submissions/:id/unpublish", docController.UnpublishDocument)
+
+				// CMS Users Management (Admin only verified in Controller)
+				cms.Get("/users", cmsController.ListUsers)
+				cms.Post("/users", cmsController.CreateUser)
+				cms.Put("/users/:id", cmsController.UpdateUser)
+				cms.Delete("/users/:id", cmsController.DeleteUser)
+
+				// CMS Reports Management
+				cms.Get("/reports", reportController.ListReports)
+				cms.Put("/reports/:id/status", reportController.UpdateStatus)
+
+				// CMS Analytics
+				cms.Get("/analytics/summary", cmsController.GetAnalyticsSummary)
+				cms.Get("/analytics/top-downloads", cmsController.GetTopDownloads)
+				cms.Get("/analytics/top-views", cmsController.GetTopViews)
+
+				// File Upload Protected Actions
+				cms.Post("/upload", uploadController.UploadFile)
+				cms.Post("/upload/url-validate", uploadController.ValidateURL)
+				cms.Post("/upload/avatar", uploadController.UploadAvatar)
 			}
-
-			// Admin whitelist settings
-			admin := protected.Group("/admin")
-			{
-				admin.Get("/emails", authController.GetAdminEmails)
-				admin.Post("/emails", authController.AddAdminEmail)
-				admin.Delete("/emails/:email", authController.DeleteAdminEmail)
-			}
-
-			// CMS Dashboard
-			protected.Get("/cms/dashboard", cmsController.GetDashboardStats)
-			protected.Get("/cms/activity", cmsController.GetRecentActivity)
-
-			// CMS Master Management
-			protected.Get("/cms/master/:type", cmsController.ListMasters)
-			protected.Post("/cms/master/:type", cmsController.CreateMaster)
-			protected.Put("/cms/master/:type/:code", cmsController.UpdateMaster)
-			protected.Delete("/cms/master/:type/:code", cmsController.DeleteMaster)
-
-			// CMS Submissions Wizard & Mgmt
-			protected.Get("/submissions", docController.ListSubmissions)
-			protected.Post("/submissions", docController.CreateSubmission)
-			protected.Post("/submissions/:id/draft", docController.SaveDraft)
-			protected.Delete("/submissions/:id", docController.DeleteSubmission)
-			protected.Put("/submissions/:id/publish", docController.PublishDocument)
-			protected.Put("/submissions/:id/unpublish", docController.UnpublishDocument)
-
-			// CMS Users Management (Admin only verified in Controller)
-			protected.Get("/users", cmsController.ListUsers)
-			protected.Post("/users", cmsController.CreateUser)
-			protected.Put("/users/:id", cmsController.UpdateUser)
-			protected.Delete("/users/:id", cmsController.DeleteUser)
-
-			// CMS Reports Management
-			protected.Get("/reports", reportController.ListReports)
-			protected.Put("/reports/:id/status", reportController.UpdateStatus)
-
-			// CMS Analytics
-			protected.Get("/analytics/summary", cmsController.GetAnalyticsSummary)
-			protected.Get("/analytics/top-downloads", cmsController.GetTopDownloads)
-			protected.Get("/analytics/top-views", cmsController.GetTopViews)
-
-			// File Upload Protected Actions
-			protected.Post("/upload", uploadController.UploadFile)
-			protected.Post("/upload/url-validate", uploadController.ValidateURL)
-			protected.Post("/upload/avatar", uploadController.UploadAvatar)
 		}
 	}
 }

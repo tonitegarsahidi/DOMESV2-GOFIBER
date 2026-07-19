@@ -4,7 +4,21 @@ Dokumen ini mencatat riwayat perubahan, pembaruan fitur, perbaikan bug, dan migr
 
 ---
 
+## [1.0.2] - 2026-07-12
+
+### Added
+- **Intermediate File Upload Service**: Memperbarui backend untuk mendelegasikan upload file ke `FileUploadService` perantara, yang mengontrol tipe file (`main`, `cover`, `additional`), melakukan evaluasi metadata/ukuran file, dan menformat file sebagai `TYPE-uuid.extension` ke folder `./public/upload`.
+- **Create Submission Draft Flow**: Mengubah `CreateSubmission` pada `DocumentService` agar mengizinkan pembuatan dokumen tanpa judul (defaulting ke `"Draft Submission"`) dan menetapkan status default dokumen menjadi `"draft"` (sebelumnya langsung `"pending_review"`), memfasilitasi pembuatan draft instan sejak Step 1.
+
+### Changed
+- **Title Validation Relaxation in Updates**: Menghilangkan validasi wajib judul (`Title`) pada `UpdateSubmission` saat judul dikosongkan (sistem akan mempertahankan judul draft yang ada), sehingga user bebas bolak-balik mengubah data antarlangkah wizard tanpa memicu error validasi judul.
+
+---
+
 ## [1.0.1] - 2026-07-12
+
+### Added
+- **Update Submission Endpoint (PUT)**: Menambahkan endpoint `PUT /api/v2/submissions/:id` pada layer route, controller, dan service. Endpoint ini memproses data `SubmissionRequest` lengkap, memverifikasi kepemilikan dokumen (AuthorID == userID atau role administrator), memperbarui metadata dasar, menyelaraskan many-to-many associations (SDGs, Sectors, LNOBs) menggunakan GORM association replacement, dan memperbarui slug secara dinamis jika judul dokumen diubah.
 
 ### Changed
 - **Database Connection Retry with Backoff**: Mengganti koneksi database satu kali (*fire-and-forget*) menjadi mekanisme retry otomatis dengan exponential backoff (5 percobaan: 1s → 2s → 4s → 8s → 16s). Server kini menunggu database siap sebelum menerima traffic, alih-alih berjalan dengan `DB = nil` yang menyebabkan nil pointer panic pada setiap request. Jika database tetap tidak tersedia setelah semua retry, server akan exit dengan pesan error yang jelas. Logging juga dimigrasikan dari `log.Printf` ke Zap Logger sesuai code style guidelines.

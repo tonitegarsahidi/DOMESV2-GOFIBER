@@ -6,6 +6,7 @@ import (
 
 	"domesv2/internal/model"
 	"go.uber.org/zap"
+	"golang.org/x/crypto/bcrypt"
 	"gorm.io/gorm"
 )
 
@@ -17,20 +18,11 @@ func MigrateAndSeed(db *gorm.DB) {
 
 	zap.L().Info("Running database migration check...")
 
-	// 1. Update Users Table columns manually if they don't exist (Only if explicitly requested)
-	if os.Getenv("RUN_USER_MIGRATION") == "true" {
-		zap.L().Info("Running explicit Users table migration...")
-		if !db.Migrator().HasColumn(&model.User{}, "role") {
-			zap.L().Info("Adding 'role' column to Users table")
-			db.Migrator().AddColumn(&model.User{}, "role")
-		}
-		if !db.Migrator().HasColumn(&model.User{}, "status") {
-			zap.L().Info("Adding 'status' column to Users table")
-			db.Migrator().AddColumn(&model.User{}, "status")
-		}
-		if !db.Migrator().HasColumn(&model.User{}, "avatar_url") {
-			zap.L().Info("Adding 'avatar_url' column to Users table")
-			db.Migrator().AddColumn(&model.User{}, "avatar_url")
+	// 1. Update Users Table columns manually if they don't exist (Only if explicitly requested, or if the table is missing)
+	if os.Getenv("RUN_USER_MIGRATION") == "true" || !db.Migrator().HasTable(&model.User{}) {
+		zap.L().Info("Running Users table migration...")
+		if err := db.AutoMigrate(&model.User{}); err != nil {
+			zap.L().Error("Failed to migrate Users table", zap.Error(err))
 		}
 	} else {
 		zap.L().Info("Skipping Users table migration (RUN_USER_MIGRATION is not true)")
@@ -70,160 +62,73 @@ func MigrateAndSeed(db *gorm.DB) {
 		zap.L().Error("Failed to migrate Reports", zap.Error(err))
 	}
 
-	// 7. Seed sample documents if empty
-	// seedDocuments(db)
+	// 7. Seed default user if empty
+	seedDefaultUser(db)
 
 	zap.L().Info("Database migration check completed.")
 }
 
-func seedDocuments(db *gorm.DB) {
+func seedDefaultUser(db *gorm.DB) {
 	var count int64
-	db.Model(&model.Document{}).Where("status = ?", "published").Count(&count)
+	db.Model(&model.User{}).Count(&count)
 	if count > 0 {
 		return
 	}
 
-	zap.L().Info("Seeding default documents...")
-
-	var user model.User
-	if err := db.First(&user).Error; err != nil {
-		zap.L().Error("Failed to find user for document seeding", zap.Error(err))
+	zap.L().Info("Seeding default administrator user...")
+	hashedPassword, err := bcrypt.GenerateFromPassword([]byte("tonitegar"), bcrypt.DefaultCost)
+	if err != nil {
+		zap.L().Error("Failed to hash default user password", zap.Error(err))
 		return
 	}
 
-	docs := []model.Document{
-		{
-			Code:              "UNDP-2023-SDG",
-			Slug:              "annual-progress-report-sustainable-development-goals-indonesia-2023",
-			Title:             "Annual Progress Report: Sustainable Development Goals in Indonesia 2023",
-			Description:       "This comprehensive report outlines the milestones achieved in the past fiscal year, focusing on the impact of global initiatives on sustainable development goals across multiple governance levels...",
-			Abstract:          "This comprehensive report outlines the milestones achieved in the past fiscal year, focusing on the impact of global initiatives on sustainable development goals across multiple governance levels.",
-			Summary:           "Executive Overview: This report reviews the implementation and progress of the Sustainable Development Goals (SDGs) in Indonesia in 2023.",
-			Year:              2023,
-			DateOfPublication: "2023-10-15",
-			TotalPages:        134,
-			Language:          "English, Bahasa Indonesia",
-			FileURL:           "/uploads/documents/sample-sdg.pdf",
-			FileSize:          "5.2 MB",
-			CoverImage:        "/images/doc-cover-sdg.png",
-			Status:            "published",
-			AuthorID:          user.ID,
-			LeadAgencyCode:    "UNDP",
-			Tags:              `["SDG", "Indonesia", "Annual Report"]`,
-			Sdgs:              []model.Sdg{{Code: "GOAL 1"}, {Code: "GOAL 5"}, {Code: "GOAL 8"}, {Code: "GOAL 10"}},
-			Sectors:           []model.Sector{{Code: "economic-development"}, {Code: "poverty-social-exclusion"}},
-		},
-		{
-			Code:              "UNEP-2022-CLIMATE",
-			Slug:              "climate-action-framework-maritime-biodiversity-archipelago",
-			Title:             "Climate Action Framework: Maritime Biodiversity in the Archipelago",
-			Description:       "A strategic roadmap for protecting marine and coastal habitats in the Indonesian archipelago through sustainable fishing practices and community-led conservation efforts...",
-			Abstract:          "A strategic roadmap for protecting marine and coastal habitats in the Indonesian archipelago through sustainable fishing practices and community-led conservation efforts.",
-			Summary:           "Maritime biodiversity is crucial for food security and climate resilience. This framework outlines policies for marine protection.",
-			Year:              2022,
-			DateOfPublication: "2022-08-20",
-			TotalPages:        78,
-			Language:          "English",
-			FileURL:           "/uploads/documents/sample-climate.pdf",
-			FileSize:          "3.8 MB",
-			CoverImage:        "/images/doc-cover-ocean.png",
-			Status:            "published",
-			AuthorID:          user.ID,
-			LeadAgencyCode:    "UNEP",
-			Tags:              `["Climate Action", "Maritime", "Biodiversity"]`,
-			Sdgs:              []model.Sdg{{Code: "GOAL 13"}, {Code: "GOAL 14"}},
-			Sectors:           []model.Sector{{Code: "environment-climate-change"}, {Code: "fishery-maritime"}},
-		},
-		{
-			Code:              "UNICEF-2023-CHILDREN",
-			Slug:              "children-in-focus-socio-economic-protection-systems",
-			Title:             "Children in Focus: Socio-Economic Protection Systems",
-			Description:       "Analyzing the efficacy of social safety nets for vulnerable families across the outer islands of Indonesia, with policy recommendations for enhanced coverage and efficiency...",
-			Abstract:          "Analyzing the efficacy of social safety nets for vulnerable families across the outer islands of Indonesia, with policy recommendations for enhanced coverage and efficiency.",
-			Summary:           "This policy brief analyzes child poverty and social protection systems in remote regions of Indonesia.",
-			Year:              2023,
-			DateOfPublication: "2023-07-10",
-			TotalPages:        92,
-			Language:          "English, Bahasa Indonesia",
-			FileURL:           "/uploads/documents/sample-children.pdf",
-			FileSize:          "4.5 MB",
-			CoverImage:        "/images/doc-cover-children.png",
-			Status:            "published",
-			AuthorID:          user.ID,
-			LeadAgencyCode:    "UNICEF",
-			Tags:              `["Children", "Social Protection", "Policy"]`,
-			Sdgs:              []model.Sdg{{Code: "GOAL 4"}, {Code: "GOAL 10"}},
-			Sectors:           []model.Sector{{Code: "education-culture"}, {Code: "social-security-protection"}},
-		},
-		{
-			Code:              "UNWOMEN-2023-GENDER",
-			Slug:              "gender-equality-workplace-progress-challenges",
-			Title:             "Gender Equality in the Workplace: Progress and Challenges",
-			Description:       "A national survey on female labor force participation, wage gaps, and policy interventions needed to foster inclusive economic growth and empower women in rural and urban areas...",
-			Abstract:          "A national survey on female labor force participation, wage gaps, and policy interventions needed to foster inclusive economic growth and empower women in rural and urban areas.",
-			Summary:           "This report presents empirical findings on gender gaps in employment, wages, and leadership roles in Indonesia.",
-			Year:              2023,
-			DateOfPublication: "2023-05-12",
-			TotalPages:        45,
-			Language:          "English",
-			FileURL:           "/uploads/documents/sample-gender.pdf",
-			FileSize:          "2.1 MB",
-			CoverImage:        "/images/doc-cover-sdg.png",
-			Status:            "published",
-			AuthorID:          user.ID,
-			LeadAgencyCode:    "UN Women",
-			Tags:              `["Gender Equality", "Workplace", "Women Empowerment"]`,
-			Sdgs:              []model.Sdg{{Code: "GOAL 5"}, {Code: "GOAL 8"}},
-			Sectors:           []model.Sector{{Code: "gender-child-protection"}, {Code: "livelihood-employment"}},
-		},
-		{
-			Code:              "FAO-2023-FOOD",
-			Slug:              "sustainable-agriculture-food-security-resilience",
-			Title:             "Sustainable Agriculture and Food Security Resilience",
-			Description:       "Examining the impact of climate smart agriculture practices on crop yields and food security for smallholder farmers amidst changing weather patterns in Southeast Asia...",
-			Abstract:          "Examining the impact of climate smart agriculture practices on crop yields and food security for smallholder farmers amidst changing weather patterns in Southeast Asia.",
-			Summary:           "Food security is a critical pillar of sustainable development. This study presents best practices for climate-smart farming.",
-			Year:              2023,
-			DateOfPublication: "2023-06-18",
-			TotalPages:        64,
-			Language:          "English, Bahasa Indonesia",
-			FileURL:           "/uploads/documents/sample-food.pdf",
-			FileSize:          "3.1 MB",
-			CoverImage:        "/images/doc-cover-ocean.png",
-			Status:            "published",
-			AuthorID:          user.ID,
-			LeadAgencyCode:    "FAO",
-			Tags:              `["Agriculture", "Food Security", "Resilience"]`,
-			Sdgs:              []model.Sdg{{Code: "GOAL 2"}},
-			Sectors:           []model.Sector{{Code: "agriculture-food"}, {Code: "environment-climate-change"}},
-		},
+	username := "tonitegarsahidi"
+	name := "Toni Tegar Sahidi"
+	firstName := "Toni"
+	lastName := "Tegar Sahidi"
+	userType := "admin"
+	role := "administrator"
+	status := "active"
+	position := "Developer"
+	organization := "UN"
+	phoneNumber := "+6281234567890"
+	avatarURL := ""
+	isActive := true
+
+	user := model.User{
+		Username:     &username,
+		Name:         &name,
+		FirstName:    &firstName,
+		LastName:     &lastName,
+		Password:     string(hashedPassword),
+		Type:         &userType,
+		Role:         &role,
+		Status:       &status,
+		Position:     &position,
+		Organization: &organization,
+		PhoneNumber:  &phoneNumber,
+		Email:        "tonitegarsahidi@gmail.com",
+		AvatarURL:    &avatarURL,
+		IsActive:     &isActive,
+		CreatedAt:    time.Now(),
+		UpdatedAt:    time.Now(),
 	}
 
-	for _, doc := range docs {
-		var matchedSdgs []model.Sdg
-		for _, s := range doc.Sdgs {
-			var dbSdg model.Sdg
-			if err := db.Where("code = ?", s.Code).First(&dbSdg).Error; err == nil {
-				matchedSdgs = append(matchedSdgs, dbSdg)
-			}
-		}
-		doc.Sdgs = matchedSdgs
-
-		var matchedSectors []model.Sector
-		for _, sec := range doc.Sectors {
-			var dbSec model.Sector
-			if err := db.Where("code = ?", sec.Code).First(&dbSec).Error; err == nil {
-				matchedSectors = append(matchedSectors, dbSec)
-			}
-		}
-		doc.Sectors = matchedSectors
-
-		if err := db.Create(&doc).Error; err != nil {
-			zap.L().Error("Failed to seed document", zap.String("code", doc.Code), zap.Error(err))
-		}
+	if err := db.Create(&user).Error; err != nil {
+		zap.L().Error("Failed to seed default user", zap.Error(err))
+		return
 	}
+
+	// Also seed notification preference
+	pref := model.NotificationPreference{
+		UserID:             user.ID,
+		DocumentApprovals:  true,
+		BrokenLinkReports:  true,
+		SystemUpdates:      true,
+		EmailNotifications: true,
+	}
+	db.Create(&pref)
 }
-
 
 func seedAdminEmails(db *gorm.DB) {
 	emails := []model.AdminEmail{
@@ -285,23 +190,23 @@ func migrateAndSeedMasters(db *gorm.DB) {
 		if count == 0 {
 			zap.L().Info("Seeding SDGs...")
 			sdgs := []model.Sdg{
-				{Code: "GOAL 1", Name: "No Poverty", Icon: "/images/SDG-logos/SDG-1.png", Color: "#E5243B"},
-				{Code: "GOAL 2", Name: "Zero Hunger", Icon: "/images/SDG-logos/SDG-2.png", Color: "#DDA63A"},
-				{Code: "GOAL 3", Name: "Good Health and Well-being", Icon: "/images/SDG-logos/SDG-3.png", Color: "#4C9F38"},
-				{Code: "GOAL 4", Name: "Quality Education", Icon: "/images/SDG-logos/SDG-4.png", Color: "#C5192D"},
-				{Code: "GOAL 5", Name: "Gender Equality", Icon: "/images/SDG-logos/SDG-5.png", Color: "#FF3A21"},
-				{Code: "GOAL 6", Name: "Clean Water and Sanitation", Icon: "/images/SDG-logos/SDG-6.png", Color: "#26BDE2"},
-				{Code: "GOAL 7", Name: "Affordable and Clean Energy", Icon: "/images/SDG-logos/SDG-7.png", Color: "#FCC30B"},
-				{Code: "GOAL 8", Name: "Decent Work and Economic Growth", Icon: "/images/SDG-logos/SDG-8.png", Color: "#A21942"},
-				{Code: "GOAL 9", Name: "Industry, Innovation and Infrastructure", Icon: "/images/SDG-logos/SDG-9.png", Color: "#FD6925"},
-				{Code: "GOAL 10", Name: "Reduced Inequalities", Icon: "/images/SDG-logos/SDG-10.png", Color: "#DD1367"},
-				{Code: "GOAL 11", Name: "Sustainable Cities and Communities", Icon: "/images/SDG-logos/SDG-11.png", Color: "#FD9D24"},
-				{Code: "GOAL 12", Name: "Responsible Consumption and Production", Icon: "/images/SDG-logos/SDG-12.png", Color: "#BF8B2E"},
-				{Code: "GOAL 13", Name: "Climate Action", Icon: "/images/SDG-logos/SDG-13.png", Color: "#3F7E44"},
-				{Code: "GOAL 14", Name: "Life Below Water", Icon: "/images/SDG-logos/SDG-14.png", Color: "#0A97D9"},
-				{Code: "GOAL 15", Name: "Life on Land", Icon: "/images/SDG-logos/SDG-15.png", Color: "#56C02B"},
-				{Code: "GOAL 16", Name: "Peace, Justice and Strong Institutions", Icon: "/images/SDG-logos/SDG-16.png", Color: "#00689D"},
-				{Code: "GOAL 17", Name: "Partnerships for the Goals", Icon: "/images/SDG-logos/SDG-17.png", Color: "#19486A"},
+				{Code: "GOAL 1", Name: "No Poverty", Icon: "/images/SDG-logos/SDG-1_no-poverty.png", Color: "#E5243B"},
+				{Code: "GOAL 2", Name: "Zero Hunger", Icon: "/images/SDG-logos/SDG-2_zero-hunger.png", Color: "#DDA63A"},
+				{Code: "GOAL 3", Name: "Good Health and Well-being", Icon: "/images/SDG-logos/SDG-3_good-health-and-well-being.png", Color: "#4C9F38"},
+				{Code: "GOAL 4", Name: "Quality Education", Icon: "/images/SDG-logos/SDG-4_quality-education.png", Color: "#C5192D"},
+				{Code: "GOAL 5", Name: "Gender Equality", Icon: "/images/SDG-logos/SDG-5_gender-equality.png", Color: "#FF3A21"},
+				{Code: "GOAL 6", Name: "Clean Water and Sanitation", Icon: "/images/SDG-logos/SDG-6_clean-water-and-sanitation.png", Color: "#26BDE2"},
+				{Code: "GOAL 7", Name: "Affordable and Clean Energy", Icon: "/images/SDG-logos/SDG-7_affordable-and-clean-energy.png", Color: "#FCC30B"},
+				{Code: "GOAL 8", Name: "Decent Work and Economic Growth", Icon: "/images/SDG-logos/SDG-8_decent-work-and-economic-growth.png", Color: "#A21942"},
+				{Code: "GOAL 9", Name: "Industry, Innovation and Infrastructure", Icon: "/images/SDG-logos/SDG-9_industry-innovation-and-infrastructure.png", Color: "#FD6925"},
+				{Code: "GOAL 10", Name: "Reduced Inequalities", Icon: "/images/SDG-logos/SDG-10_reduced-inequalities.png", Color: "#DD1367"},
+				{Code: "GOAL 11", Name: "Sustainable Cities and Communities", Icon: "/images/SDG-logos/SDG-11_sustainable-cities-and-communities.png", Color: "#FD9D24"},
+				{Code: "GOAL 12", Name: "Responsible Consumption and Production", Icon: "/images/SDG-logos/SDG-12_responsible-consumption-and-production.png", Color: "#BF8B2E"},
+				{Code: "GOAL 13", Name: "Climate Action", Icon: "/images/SDG-logos/SDG-13_climate-action.png", Color: "#3F7E44"},
+				{Code: "GOAL 14", Name: "Life Below Water", Icon: "/images/SDG-logos/SDG-14_life-below-water.png", Color: "#0A97D9"},
+				{Code: "GOAL 15", Name: "Life on Land", Icon: "/images/SDG-logos/SDG-15_life-on-land.png", Color: "#56C02B"},
+				{Code: "GOAL 16", Name: "Peace, Justice and Strong Institutions", Icon: "/images/SDG-logos/SDG-16_peace-justice-and-strong-institutions.png", Color: "#00689D"},
+				{Code: "GOAL 17", Name: "Partnerships for the Goals", Icon: "/images/SDG-logos/SDG-17_partnership-for-the-goals.png", Color: "#19486A"},
 			}
 			db.Create(&sdgs)
 		}

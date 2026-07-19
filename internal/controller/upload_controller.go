@@ -3,24 +3,22 @@ package controller
 import (
 	"fmt"
 	"net/http"
-	"os"
 	"path/filepath"
-	"strings"
 	"time"
 
 	"github.com/gofiber/fiber/v2"
-	"github.com/google/uuid"
+	"domesv2/internal/service"
 	"domesv2/pkg/response"
 )
 
-type UploadController struct{}
+type UploadController struct {
+	uploadService service.FileUploadService
+}
 
-func NewUploadController() *UploadController {
-	// Ensure uploads directory exists
-	if err := os.MkdirAll("./uploads", 0755); err != nil {
-		fmt.Printf("Warning: Failed to create uploads directory: %v\n", err)
+func NewUploadController(uploadService service.FileUploadService) *UploadController {
+	return &UploadController{
+		uploadService: uploadService,
 	}
-	return &UploadController{}
 }
 
 func (ctrl *UploadController) UploadFile(c *fiber.Ctx) error {
@@ -30,25 +28,15 @@ func (ctrl *UploadController) UploadFile(c *fiber.Ctx) error {
 		return response.BadRequest(c, "No file uploaded", "INVALID_REQUEST_BODY")
 	}
 
-	// Limit to 50MB
-	const maxFileSize = 50 * 1024 * 1024 // 50MB
-	if file.Size > maxFileSize {
-		return c.Status(fiber.StatusRequestEntityTooLarge).JSON(fiber.Map{
-			"success": false,
-			"message": "File size exceeds the maximum limit of 50MB",
-			"error":   "FILE_TOO_LARGE",
-			"details": "File size exceeds the maximum limit of 50MB: FILE_TOO_LARGE",
-		})
+	// We pass type parameter (main, cover, additional)
+	fileType := c.Query("type")
+	if fileType == "" {
+		fileType = c.FormValue("type")
 	}
 
-	// Generate UUID filename
-	ext := filepath.Ext(file.Filename)
-	newFilename := uuid.New().String() + ext
-	targetPath := filepath.Join("./uploads", newFilename)
-
-	// Save file
-	if err := c.SaveFile(file, targetPath); err != nil {
-		return response.InternalServerError(c, "Failed to save file", "INTERNAL_ERROR")
+	url, err := ctrl.uploadService.UploadFile(file, fileType)
+	if err != nil {
+		return response.BadRequest(c, err.Error(), "VALIDATION_FAILED")
 	}
 
 	// Format size
@@ -59,8 +47,8 @@ func (ctrl *UploadController) UploadFile(c *fiber.Ctx) error {
 		"success": true,
 		"message": "File uploaded successfully",
 		"data": fiber.Map{
-			"url":           "/uploads/" + newFilename,
-			"filename":      newFilename,
+			"url":           url,
+			"filename":      filepath.Base(url),
 			"original_name": file.Filename,
 			"file_size":     fileSizeStr,
 			"mime_type":     file.Header.Get("Content-Type"),
@@ -74,42 +62,16 @@ func (ctrl *UploadController) UploadAvatar(c *fiber.Ctx) error {
 		return response.BadRequest(c, "No avatar file uploaded", "INVALID_REQUEST_BODY")
 	}
 
-	// Limit to 2MB
-	const maxAvatarSize = 2 * 1024 * 1024 // 2MB
-	if file.Size > maxAvatarSize {
-		return response.BadRequest(c, "Avatar size exceeds the maximum limit of 2MB", "VALIDATION_FAILED")
-	}
-
-	// Validate format (jpg, png, webp)
-	ext := strings.ToLower(filepath.Ext(file.Filename))
-	if ext != ".jpg" && ext != ".jpeg" && ext != ".png" && ext != ".webp" {
-		return response.BadRequest(c, "Invalid file format. Only JPG, PNG, and WEBP are allowed", "VALIDATION_FAILED")
-	}
-
-	// Generate UUID filename
-	newFilename := uuid.New().String() + ext
-	targetPath := filepath.Join("./uploads", newFilename)
-
-	// Save file
-	if err := c.SaveFile(file, targetPath); err != nil {
-		return response.InternalServerError(c, "Failed to save avatar", "INTERNAL_ERROR")
-	}
-
-	// Update user's avatar_url in database if authenticated user
-	// Note: We'll retrieve user_id from token context if present
-	if userIDVal := c.Locals("user_id"); userIDVal != nil {
-		// Update user profile avatar URL
-		// For simplicity, we can do this in the controller or ignore if it's just a general upload endpoint.
-		// The contract says:
-		// POST /api/upload/avatar -> Response contains avatar_url.
-		// So we just return the URL, and front-end can pass it to profile update, or we can handle it here.
+	url, err := ctrl.uploadService.UploadFile(file, "cover")
+	if err != nil {
+		return response.BadRequest(c, err.Error(), "VALIDATION_FAILED")
 	}
 
 	return c.Status(fiber.StatusCreated).JSON(fiber.Map{
 		"success": true,
 		"message": "Avatar uploaded successfully",
 		"data": fiber.Map{
-			"avatar_url": "/uploads/" + newFilename,
+			"avatar_url": url,
 		},
 	})
 }
