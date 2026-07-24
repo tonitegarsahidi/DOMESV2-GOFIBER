@@ -2,6 +2,7 @@ package repository
 
 import (
 	"strings"
+	"time"
 
 	"domesv2/config/database"
 	"domesv2/internal/model"
@@ -348,11 +349,13 @@ func (r *documentRepository) GetRelated(doc *model.Document) ([]model.Document, 
 func (r *documentRepository) GetGlobalStats() (map[string]interface{}, error) {
 	var totalDocs int64
 	var totalAgencies int64
-	var totalPartners int64 = 35
-	var totalSdgGoals int64 = 17
+	var totalPartners int64
+	var totalSdgGoals int64
 
 	r.db.Model(&model.Document{}).Where("status = ?", "published").Count(&totalDocs)
 	r.db.Model(&model.Agency{}).Count(&totalAgencies)
+	r.db.Model(&model.NonUnPartner{}).Count(&totalPartners)
+	r.db.Model(&model.Sdg{}).Count(&totalSdgGoals)
 
 	return map[string]interface{}{
 		"total_documents": int(totalDocs),
@@ -365,9 +368,7 @@ func (r *documentRepository) GetGlobalStats() (map[string]interface{}, error) {
 func (r *documentRepository) GetOverviewAnalytics() (map[string]interface{}, error) {
 	var totalDocs int64
 	var activeAgencies int64
-	var monthlyDownloads int64 = 84200
-	var totalViews int64 = 456000
-	var totalDownloads int64 = 189000
+	var monthlyDownloads int64
 
 	r.db.Model(&model.Document{}).Where("status = ?", "published").Count(&totalDocs)
 	r.db.Model(&model.Agency{}).Count(&activeAgencies)
@@ -376,20 +377,19 @@ func (r *documentRepository) GetOverviewAnalytics() (map[string]interface{}, err
 		Views     int64
 		Downloads int64
 	}
-	r.db.Model(&model.Document{}).Select("SUM(views) as views, SUM(downloads) as downloads").Scan(&stats)
-	if stats.Views > 0 {
-		totalViews = stats.Views
-	}
-	if stats.Downloads > 0 {
-		totalDownloads = stats.Downloads
-	}
+	r.db.Model(&model.Document{}).Select("COALESCE(SUM(views), 0) as views, COALESCE(SUM(downloads), 0) as downloads").Scan(&stats)
+
+	// Count monthly downloads from activity logs table in the last 30 days
+	_ = r.db.Table("v2_activity_logs").
+		Where("action = ? AND created_at >= ?", "download", time.Now().AddDate(0, -1, 0)).
+		Count(&monthlyDownloads).Error
 
 	return map[string]interface{}{
 		"total_documents":   int(totalDocs),
 		"active_agencies":   int(activeAgencies),
 		"monthly_downloads": int(monthlyDownloads),
-		"total_views":       int(totalViews),
-		"total_downloads":   int(totalDownloads),
+		"total_views":       int(stats.Views),
+		"total_downloads":   int(stats.Downloads),
 	}, nil
 }
 
